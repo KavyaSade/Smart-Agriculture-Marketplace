@@ -108,14 +108,21 @@ export default function Login() {
                 className={`role-select-btn ${role === 'buyer' ? 'active' : ''}`}
                 onClick={() => setRole('buyer')}
               >
-                I am a Buyer
+                Buyer
               </button>
               <button 
                 type="button" 
                 className={`role-select-btn ${role === 'farmer' ? 'active' : ''}`}
                 onClick={() => setRole('farmer')}
               >
-                I am a Farmer
+                Farmer
+              </button>
+              <button 
+                type="button" 
+                className={`role-select-btn ${role === 'admin' ? 'active' : ''}`}
+                onClick={() => setRole('admin')}
+              >
+                Admin
               </button>
             </div>
 
