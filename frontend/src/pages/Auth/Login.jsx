@@ -71,7 +71,7 @@ export default function Login() {
         <div className="login-graphic">
           <div className="login-graphic-overlay"></div>
           <img 
-            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=1000" 
+            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=1000&fm=jpg" 
             alt="Organic farming fresh produce" 
             className="login-graphic-bg"
           />

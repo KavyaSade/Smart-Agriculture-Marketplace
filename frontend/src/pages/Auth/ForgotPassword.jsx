@@ -42,7 +42,7 @@ export default function ForgotPassword() {
         <div className="forgot-graphic">
           <div className="forgot-graphic-overlay"></div>
           <img 
-            src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&q=80&w=1000" 
+            src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1000&auto=format&fit=crop&fm=jpg" 
             alt="Beautiful sunset farm field" 
             className="forgot-graphic-bg"
           />
