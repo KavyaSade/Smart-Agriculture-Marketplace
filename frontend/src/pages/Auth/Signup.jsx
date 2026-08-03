@@ -225,9 +225,7 @@ export default function Signup() {
                     onChange={handleChange}
                   >
                     <option value="farmer">Farmer (Sell Crops)</option>
-                    <option value="wholesale_buyer">Wholesale Buyer (Bulk Purchase)</option>
-                    <option value="retailer">Retailer / Supermarket</option>
-                    <option value="consumer">Consumer (Individual Purchase)</option>
+                    <option value="buyer">Buyer (Buy Crops)</option>
                   </select>
                 </div>
 
