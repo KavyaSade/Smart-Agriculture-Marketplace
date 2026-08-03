@@ -7,7 +7,7 @@ export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('buyer'); // 'buyer' or 'farmer'
+  const [role, setRole] = useState('buyer'); // 'buyer', 'farmer', or 'admin'
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   

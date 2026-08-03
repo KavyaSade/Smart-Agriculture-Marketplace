@@ -1,33 +1,33 @@
-.signup-page {
+.register-page {
   @apply w-screen h-screen overflow-hidden font-sans bg-[#f8faf9] m-0 p-0;
 }
 
-.signup-container {
+.register-container {
   @apply w-full h-full flex overflow-hidden;
 }
 
 /* Left Side - Graphic */
-.signup-graphic {
+.register-graphic {
   @apply hidden md:flex md:w-1/2 relative flex-col justify-between p-12 lg:p-16 text-white overflow-hidden h-full;
 }
 
-.signup-graphic-bg {
+.register-graphic-bg {
   @apply absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out scale-105;
 }
 
-.signup-graphic:hover .signup-graphic-bg {
+.register-graphic:hover .register-graphic-bg {
   @apply scale-100;
 }
 
-.signup-graphic-overlay {
+.register-graphic-overlay {
   @apply absolute inset-0 bg-gradient-to-br from-[#123524]/95 to-[#1e5c3f]/95 z-10;
 }
 
-.signup-logo {
+.register-logo {
   @apply relative z-20 flex items-center gap-2 text-2xl font-extrabold;
 }
 
-.signup-logo-icon {
+.register-logo-icon {
   @apply text-fresh;
 }
 
@@ -35,32 +35,28 @@
   @apply text-fresh;
 }
 
-.signup-graphic-content {
+.register-graphic-content {
   @apply relative z-20 flex flex-col justify-between h-full w-full;
 }
 
-.signup-graphic-middle {
+.register-graphic-middle {
   @apply flex flex-col gap-4 my-auto max-w-[480px];
 }
 
-.signup-graphic-tag {
+.register-graphic-tag {
   @apply text-xs font-bold uppercase tracking-[2px] text-fresh/95;
 }
 
-.signup-graphic-headline {
+.register-graphic-headline {
   @apply text-4xl lg:text-5xl font-extrabold text-white leading-tight;
 }
 
-.signup-graphic-subtext {
+.register-graphic-subtext {
   @apply text-sm lg:text-base text-white/80 leading-relaxed font-medium;
 }
 
-.signup-graphic-footer {
+.register-graphic-footer {
   @apply text-xs font-medium text-white/50;
-}
-
-.signup-graphic-features {
-  @apply relative z-20 flex flex-col gap-3;
 }
 
 .g-feature-item {
@@ -72,11 +68,11 @@
 }
 
 /* Right Side - Form */
-.signup-form-wrapper {
+.register-form-wrapper {
   @apply w-full md:w-1/2 flex items-center justify-center p-8 sm:p-16 bg-[#f8faf9] overflow-y-auto h-full;
 }
 
-.signup-form-card {
+.register-form-card {
   @apply w-full max-w-[560px] flex flex-col bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-glass-border;
 }
 
@@ -84,7 +80,7 @@
   @apply mb-6 flex items-center gap-1.5 text-xs font-bold text-accent hover:text-primary transition-colors focus:outline-none;
 }
 
-.signup-form-header {
+.register-form-header {
   @apply mb-2;
 }
 
@@ -92,20 +88,20 @@
   @apply flex md:hidden items-center gap-1.5 text-xl font-extrabold text-primary mb-4;
 }
 
-.signup-form-header h2 {
+.register-form-header h2 {
   @apply text-xl sm:text-2xl font-extrabold text-primary tracking-tight mb-1;
 }
 
-.signup-form-header p {
+.register-form-header p {
   @apply text-sm text-muted leading-normal;
 }
 
 /* Form Styles */
-.signup-form {
+.register-form {
   @apply flex flex-col gap-2.5;
 }
 
-.signup-form-grid {
+.register-form-grid {
   @apply grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5;
 }
 
@@ -187,7 +183,7 @@
   @apply font-semibold text-accent hover:text-primary transition-colors;
 }
 
-.signup-submit-btn {
+.register-submit-btn {
   @apply mt-2 py-2 rounded-full text-sm font-bold;
 }
 
@@ -205,7 +201,7 @@
 }
 
 /* Footer Links */
-.signup-footer {
+.register-footer {
   @apply mt-2.5 text-center text-xs text-muted font-medium;
 }
 
@@ -242,16 +238,16 @@
   @apply bg-muted/30;
 }
 
-.signup-form-wrapper::-webkit-scrollbar {
+.register-form-wrapper::-webkit-scrollbar {
   width: 6px;
 }
-.signup-form-wrapper::-webkit-scrollbar-track {
+.register-form-wrapper::-webkit-scrollbar-track {
   background: transparent;
 }
-.signup-form-wrapper::-webkit-scrollbar-thumb {
+.register-form-wrapper::-webkit-scrollbar-thumb {
   background: rgba(82, 183, 136, 0.3);
   border-radius: 4px;
 }
-.signup-form-wrapper::-webkit-scrollbar-thumb:hover {
+.register-form-wrapper::-webkit-scrollbar-thumb:hover {
   background: rgba(82, 183, 136, 0.6);
 }

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
-import './Signup.css';
+import './Register.css';
 
-export default function Signup() {
+export default function Register() {
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -102,50 +102,50 @@ export default function Signup() {
   };
 
   return (
-    <div className="signup-page">
-      <div className="signup-container">
+    <div className="register-page">
+      <div className="register-container">
         
         {/* Left Side: Graphic & Marketing Info (Visible on Desktop) */}
-        <div className="signup-graphic">
-          <div className="signup-graphic-overlay"></div>
+        <div className="register-graphic">
+          <div className="register-graphic-overlay"></div>
           <img 
             src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=1000&auto=format&fit=crop&fm=jpg" 
             alt="Farmers working in field" 
-            className="signup-graphic-bg"
+            className="register-graphic-bg"
           />
-          <div className="signup-graphic-content">
-            <div className="signup-logo">
-              <Leaf className="signup-logo-icon" size={28} />
+          <div className="register-graphic-content">
+            <div className="register-logo">
+              <Leaf className="register-logo-icon" size={28} />
               <span>Agri<span className="logo-accent">Market</span></span>
             </div>
             
-            <div className="signup-graphic-middle">
-              <span className="signup-graphic-tag">
+            <div className="register-graphic-middle">
+              <span className="register-graphic-tag">
                 Smart Agriculture Marketplace
               </span>
-              <h1 className="signup-graphic-headline">
+              <h1 className="register-graphic-headline">
                 Grow your business. <br />Trade securely. <br />Succeed together.
               </h1>
-              <p className="signup-graphic-subtext">
+              <p className="register-graphic-subtext">
                 Create a free account to list your products or start buying directly from verified growers.
               </p>
             </div>
 
-            <div className="signup-graphic-footer">
+            <div className="register-graphic-footer">
               <span>&copy; AgriMarket</span>
             </div>
           </div>
         </div>
 
         {/* Right Side: Form Card */}
-        <div className="signup-form-wrapper">
-          <div className="signup-form-card animate-fade-in-up">
+        <div className="register-form-wrapper">
+          <div className="register-form-card animate-fade-in-up">
             <Link to="/" className="back-home-link">
               <ArrowLeft size={16} /> Back to home
             </Link>
-            <div className="signup-form-header">
+            <div className="register-form-header">
               <div className="mobile-logo">
-                <Leaf className="signup-logo-icon" size={24} />
+                <Leaf className="register-logo-icon" size={24} />
                 <span>Agri<span className="logo-accent">Market</span></span>
               </div>
               <h2>Create Account</h2>
@@ -158,8 +158,8 @@ export default function Signup() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="signup-form">
-              <div className="signup-form-grid">
+            <form onSubmit={handleSubmit} className="register-form">
+              <div className="register-form-grid">
                 {/* Full Name */}
                 <div className="form-group">
                   <label className="form-label" htmlFor="fullName">Your Name</label>
@@ -315,14 +315,14 @@ export default function Signup() {
               {/* Submit Button */}
               <button 
                 type="submit" 
-                className="btn btn-primary w-full signup-submit-btn"
+                className="btn btn-primary w-full register-submit-btn"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Creating Account...' : 'Register Account'}
               </button>
             </form>
 
-            <div className="signup-footer">
+            <div className="register-footer">
               <p>Already have an account? <Link to="/login" className="register-link">Log In</Link></p>
             </div>
           </div>

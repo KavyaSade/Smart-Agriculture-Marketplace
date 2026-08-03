@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, Leaf, CheckCircle } from 'lucide-react';
-import './ForgotPassword.css';
+import './ResetPassword.css';
 
-export default function ForgotPassword() {
+export default function ResetPassword() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,51 +35,51 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="forgot-password-page">
-      <div className="forgot-container">
+    <div className="reset-password-page">
+      <div className="reset-container">
         
         {/* Left Side: Graphic & Marketing Info (Visible on Desktop) */}
-        <div className="forgot-graphic">
-          <div className="forgot-graphic-overlay"></div>
+        <div className="reset-graphic">
+          <div className="reset-graphic-overlay"></div>
           <img 
             src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1000&auto=format&fit=crop&fm=jpg" 
             alt="Beautiful sunset farm field" 
-            className="forgot-graphic-bg"
+            className="reset-graphic-bg"
           />
-          <div className="forgot-graphic-content">
-            <div className="forgot-logo">
-              <Leaf className="forgot-logo-icon" size={28} />
+          <div className="reset-graphic-content">
+            <div className="reset-logo">
+              <Leaf className="reset-logo-icon" size={28} />
               <span>Agri<span className="logo-accent">Market</span></span>
             </div>
             
-            <div className="forgot-graphic-middle">
-              <span className="forgot-graphic-tag">
+            <div className="reset-graphic-middle">
+              <span className="reset-graphic-tag">
                 Smart Agriculture Marketplace
               </span>
-              <h1 className="forgot-graphic-headline">
+              <h1 className="reset-graphic-headline">
                 Forgot your details? <br />Recover your account <br />securely.
               </h1>
-              <p className="forgot-graphic-subtext">
+              <p className="reset-graphic-subtext">
                 Enter your email address to reset your password and continue trading.
               </p>
             </div>
 
-            <div className="forgot-graphic-footer">
+            <div className="reset-graphic-footer">
               <span>&copy; AgriMarket</span>
             </div>
           </div>
         </div>
 
         {/* Right Side: Form Card */}
-        <div className="forgot-form-wrapper">
-          <div className="forgot-card animate-fade-in-up">
+        <div className="reset-form-wrapper">
+          <div className="reset-card animate-fade-in-up">
             <Link to="/login" className="back-login-link">
               <ArrowLeft size={16} /> Back to Login
             </Link>
             
-            <div className="forgot-header">
+            <div className="reset-header">
               <div className="mobile-logo">
-                <Leaf className="forgot-logo-icon" size={24} />
+                <Leaf className="reset-logo-icon" size={24} />
                 <span>Agri<span className="logo-accent">Market</span></span>
               </div>
               
@@ -98,7 +98,7 @@ export default function ForgotPassword() {
             </div>
 
             {!isSuccess ? (
-              <form onSubmit={handleSubmit} className="forgot-form">
+              <form onSubmit={handleSubmit} className="reset-form">
                 {/* Email Address */}
                 <div className="form-group">
                   <label className="form-label" htmlFor="email">Email</label>
@@ -119,7 +119,7 @@ export default function ForgotPassword() {
                 {/* Submit Button */}
                 <button 
                   type="submit" 
-                  className="btn btn-primary w-full forgot-submit-btn"
+                  className="btn btn-primary w-full reset-submit-btn"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? 'Sending instructions...' : 'Send Reset Link'}
@@ -141,7 +141,7 @@ export default function ForgotPassword() {
               </div>
             )}
 
-            <div className="forgot-footer">
+            <div className="reset-footer">
               <p>Remember your password? <Link to="/login" className="login-link">Log In</Link></p>
             </div>
           </div>
