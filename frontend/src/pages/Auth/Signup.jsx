@@ -226,7 +226,6 @@ export default function Signup() {
                   >
                     <option value="farmer">Farmer (Sell Crops)</option>
                     <option value="buyer">Buyer (Buy Crops)</option>
-                    <option value="admin">Admin (Manage Platform)</option>
                   </select>
                 </div>
 
