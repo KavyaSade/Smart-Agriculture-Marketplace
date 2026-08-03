@@ -15,6 +15,19 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+    if (newRole === 'admin') {
+      setEmail('admin@agrimarket.com');
+      setPassword('admin123');
+      setErrors({});
+    } else {
+      setEmail('');
+      setPassword('');
+      setErrors({});
+    }
+  };
+
   const validate = () => {
     const tempErrors = {};
     if (!email) {
@@ -106,25 +119,31 @@ export default function Login() {
               <button 
                 type="button" 
                 className={`role-select-btn ${role === 'buyer' ? 'active' : ''}`}
-                onClick={() => setRole('buyer')}
+                onClick={() => handleRoleChange('buyer')}
               >
                 Buyer
               </button>
               <button 
                 type="button" 
                 className={`role-select-btn ${role === 'farmer' ? 'active' : ''}`}
-                onClick={() => setRole('farmer')}
+                onClick={() => handleRoleChange('farmer')}
               >
                 Farmer
               </button>
               <button 
                 type="button" 
                 className={`role-select-btn ${role === 'admin' ? 'active' : ''}`}
-                onClick={() => setRole('admin')}
+                onClick={() => handleRoleChange('admin')}
               >
                 Admin
               </button>
             </div>
+
+            {role === 'admin' && (
+              <p className="text-center text-xs text-fresh font-semibold mb-4 bg-sage/20 py-2 rounded-lg">
+                Default Admin Credentials pre-filled.
+              </p>
+            )}
 
             {submitMessage && (
               <div className={`form-alert ${submitMessage.includes('Successfully') ? 'alert-success' : 'alert-error'}`}>
