@@ -109,8 +109,8 @@ export default function Signup() {
         <div className="signup-graphic">
           <div className="signup-graphic-overlay"></div>
           <img 
-            src="https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&q=80&w=1000" 
-            alt="Young sprout growing in field" 
+            src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae.jpg" 
+            alt="Farmers working in field" 
             className="signup-graphic-bg"
           />
           <div className="signup-graphic-content">
