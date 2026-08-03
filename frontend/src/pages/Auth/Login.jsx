@@ -126,14 +126,14 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="login-form">
               {/* Email Input */}
               <div className="form-group">
-                <label className="form-label" htmlFor="email">Email Address</label>
+                <label className="form-label" htmlFor="email">Email</label>
                 <div className="input-with-icon">
                   <Mail className="input-icon" size={20} />
                   <input
                     id="email"
                     type="email"
                     className={`form-input ${errors.email ? 'input-error' : ''}`}
-                    placeholder="name@example.com"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
@@ -153,7 +153,7 @@ export default function Login() {
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     className={`form-input ${errors.password ? 'input-error' : ''}`}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />

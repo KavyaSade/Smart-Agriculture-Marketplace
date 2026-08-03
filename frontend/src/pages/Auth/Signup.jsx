@@ -160,7 +160,7 @@ export default function Signup() {
               <div className="signup-form-grid">
                 {/* Full Name */}
                 <div className="form-group">
-                  <label className="form-label" htmlFor="fullName">Full Name</label>
+                  <label className="form-label" htmlFor="fullName">Your Name</label>
                   <div className="input-with-icon">
                     <User className="input-icon" size={20} />
                     <input
@@ -168,7 +168,7 @@ export default function Signup() {
                       name="fullName"
                       type="text"
                       className={`form-input ${errors.fullName ? 'input-error' : ''}`}
-                      placeholder="John Doe"
+                      placeholder="Enter your name"
                       value={formData.fullName}
                       onChange={handleChange}
                     />
@@ -178,7 +178,7 @@ export default function Signup() {
 
                 {/* Email Address */}
                 <div className="form-group">
-                  <label className="form-label" htmlFor="email">Email Address</label>
+                  <label className="form-label" htmlFor="email">Email</label>
                   <div className="input-with-icon">
                     <Mail className="input-icon" size={20} />
                     <input
@@ -186,7 +186,7 @@ export default function Signup() {
                       name="email"
                       type="email"
                       className={`form-input ${errors.email ? 'input-error' : ''}`}
-                      placeholder="john@example.com"
+                      placeholder="Enter your email"
                       value={formData.email}
                       onChange={handleChange}
                     />
@@ -204,7 +204,7 @@ export default function Signup() {
                       name="phone"
                       type="tel"
                       className={`form-input ${errors.phone ? 'input-error' : ''}`}
-                      placeholder="+91 98765 43210"
+                      placeholder="Enter your phone number"
                       value={formData.phone}
                       onChange={handleChange}
                     />
@@ -239,7 +239,7 @@ export default function Signup() {
                       name="password"
                       type={showPassword ? 'text' : 'password'}
                       className={`form-input ${errors.password ? 'input-error' : ''}`}
-                      placeholder="••••••••"
+                      placeholder="Enter your password"
                       value={formData.password}
                       onChange={handleChange}
                       onFocus={() => setPasswordFocused(true)}
@@ -280,7 +280,7 @@ export default function Signup() {
                       name="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
                       className={`form-input ${errors.confirmPassword ? 'input-error' : ''}`}
-                      placeholder="••••••••"
+                      placeholder="Confirm your password"
                       value={formData.confirmPassword}
                       onChange={handleChange}
                     />

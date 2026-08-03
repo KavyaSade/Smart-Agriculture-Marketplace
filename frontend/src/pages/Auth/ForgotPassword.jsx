@@ -67,14 +67,14 @@ export default function ForgotPassword() {
             <form onSubmit={handleSubmit} className="forgot-form">
               {/* Email Address */}
               <div className="form-group">
-                <label className="form-label" htmlFor="email">Email Address</label>
+                <label className="form-label" htmlFor="email">Email</label>
                 <div className="input-with-icon">
                   <Mail className="input-icon" size={20} />
                   <input
                     id="email"
                     type="email"
                     className={`form-input ${error ? 'input-error' : ''}`}
-                    placeholder="name@example.com"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
