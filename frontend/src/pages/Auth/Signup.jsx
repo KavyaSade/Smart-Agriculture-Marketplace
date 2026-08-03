@@ -1,0 +1,333 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
+import './Signup.css';
+
+export default function Signup() {
+  const navigate = useNavigate();
+  
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    role: 'farmer', // Default to farmer
+    password: '',
+    confirmPassword: '',
+    agreeTerms: false
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState('');
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const validate = () => {
+    const tempErrors = {};
+    if (!formData.fullName.trim()) {
+      tempErrors.fullName = 'Full name is required';
+    }
+    
+    if (!formData.email) {
+      tempErrors.email = 'Email address is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      tempErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.phone.trim()) {
+      tempErrors.phone = 'Phone number is required';
+    } else if (!/^\+?[0-9\s-]{8,15}$/.test(formData.phone)) {
+      tempErrors.phone = 'Please enter a valid phone number';
+    }
+
+    if (!formData.password) {
+      tempErrors.password = 'Password is required';
+    } else {
+      const password = formData.password;
+      const hasCapital = /[A-Z]/.test(password);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      const isMinLength = password.length >= 8;
+      
+      if (!isMinLength) {
+        tempErrors.password = 'Password must be at least 8 characters';
+      } else if (!hasCapital) {
+        tempErrors.password = 'Password must contain at least 1 uppercase letter';
+      } else if (!hasSpecial) {
+        tempErrors.password = 'Password must contain at least 1 special character (e.g., !@#$%^&*)';
+      }
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      tempErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (!formData.agreeTerms) {
+      tempErrors.agreeTerms = 'You must agree to the Terms & Conditions';
+    }
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    setSubmitMessage('');
+
+    // Simulate API request
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitMessage('Account registered successfully! Redirecting to login...');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    }, 1500);
+  };
+
+  const checks = {
+    length: formData.password.length >= 8,
+    capital: /[A-Z]/.test(formData.password),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(formData.password),
+  };
+
+  return (
+    <div className="signup-page">
+      {/* Back button */}
+      <Link to="/" className="back-home-btn animate-fade-in-up">
+        <ArrowLeft size={18} /> Back to home
+      </Link>
+
+      <div className="signup-container">
+        {/* Left Side: Graphic & Marketing Info (Visible on Desktop) */}
+        <div className="signup-graphic">
+          <div className="signup-graphic-overlay"></div>
+          <img 
+            src="https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&q=80&w=1000" 
+            alt="Young sprout growing in field" 
+            className="signup-graphic-bg"
+          />
+          <div className="signup-graphic-content">
+            <div className="signup-logo">
+              <Leaf className="signup-logo-icon" size={28} />
+              <span>Agri<span className="logo-accent">Market</span></span>
+            </div>
+            <blockquote className="signup-quote">
+              "Cultivating trade, growing trust, and supporting local communities."
+            </blockquote>
+            <div className="signup-graphic-features">
+              <div className="g-feature-item">
+                <span className="g-feature-dot"></span>
+                <p>Buy & Sell Crop Yields Directly</p>
+              </div>
+              <div className="g-feature-item">
+                <span className="g-feature-dot"></span>
+                <p>Access Market Trends & Real-time Prices</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Form Card */}
+        <div className="signup-form-wrapper">
+          <div className="signup-form-card animate-fade-in-up">
+            <div className="signup-form-header">
+              <div className="mobile-logo">
+                <Leaf className="signup-logo-icon" size={24} />
+                <span>Agri<span className="logo-accent">Market</span></span>
+              </div>
+              <h2>Create Account</h2>
+              <p>Register as a farmer or a buyer and start trading today</p>
+            </div>
+
+            {submitMessage && (
+              <div className={`form-alert ${submitMessage.includes('successfully') ? 'alert-success' : 'alert-error'}`}>
+                {submitMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="signup-form">
+              <div className="signup-form-grid">
+                {/* Full Name */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="fullName">Full Name</label>
+                  <div className="input-with-icon">
+                    <User className="input-icon" size={20} />
+                    <input
+                      id="fullName"
+                      name="fullName"
+                      type="text"
+                      className={`form-input ${errors.fullName ? 'input-error' : ''}`}
+                      placeholder="John Doe"
+                      value={formData.fullName}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  {errors.fullName && <span className="error-text">{errors.fullName}</span>}
+                </div>
+
+                {/* Email Address */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="email">Email Address</label>
+                  <div className="input-with-icon">
+                    <Mail className="input-icon" size={20} />
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      className={`form-input ${errors.email ? 'input-error' : ''}`}
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  {errors.email && <span className="error-text">{errors.email}</span>}
+                </div>
+
+                {/* Phone Number */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="phone">Phone Number</label>
+                  <div className="input-with-icon">
+                    <Phone className="input-icon" size={20} />
+                    <input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      className={`form-input ${errors.phone ? 'input-error' : ''}`}
+                      placeholder="+91 98765 43210"
+                      value={formData.phone}
+                      onChange={handleChange}
+                    />
+                  </div>
+                  {errors.phone && <span className="error-text">{errors.phone}</span>}
+                </div>
+
+                {/* Role Selection Dropdown */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="role">Register As</label>
+                  <select
+                    id="role"
+                    name="role"
+                    className="form-input custom-select"
+                    value={formData.role}
+                    onChange={handleChange}
+                  >
+                    <option value="farmer">Farmer (Sell Crops)</option>
+                    <option value="wholesale_buyer">Wholesale Buyer (Bulk Purchase)</option>
+                    <option value="retailer">Retailer / Supermarket</option>
+                    <option value="consumer">Consumer (Individual Purchase)</option>
+                  </select>
+                </div>
+
+                {/* Password */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="password">Password</label>
+                  <div className="input-with-icon">
+                    <Lock className="input-icon" size={20} />
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      className={`form-input ${errors.password ? 'input-error' : ''}`}
+                      placeholder="••••••••"
+                      value={formData.password}
+                      onChange={handleChange}
+                      onFocus={() => setPasswordFocused(true)}
+                      onBlur={() => setPasswordFocused(false)}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {errors.password && <span className="error-text">{errors.password}</span>}
+                  {(passwordFocused || formData.password.length > 0) && (
+                    <ul className="password-checklist">
+                      <li className={checks.length ? 'checked' : 'unchecked'}>
+                        <span className="checklist-dot"></span> At least 8 characters
+                      </li>
+                      <li className={checks.capital ? 'checked' : 'unchecked'}>
+                        <span className="checklist-dot"></span> At least 1 uppercase letter (A-Z)
+                      </li>
+                      <li className={checks.special ? 'checked' : 'unchecked'}>
+                        <span className="checklist-dot"></span> At least 1 special symbol
+                      </li>
+                    </ul>
+                  )}
+                </div>
+
+                {/* Confirm Password */}
+                <div className="form-group">
+                  <label className="form-label" htmlFor="confirmPassword">Confirm Password</label>
+                  <div className="input-with-icon">
+                    <Lock className="input-icon" size={20} />
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className={`form-input ${errors.confirmPassword ? 'input-error' : ''}`}
+                      placeholder="••••••••"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
+                </div>
+              </div>
+
+              {/* Agree to terms */}
+              <div className="remember-row">
+                <label className="checkbox-container">
+                  <input
+                    type="checkbox"
+                    name="agreeTerms"
+                    checked={formData.agreeTerms}
+                    onChange={handleChange}
+                  />
+                  <span className="checkmark"></span>
+                  I agree to the <a href="#terms" className="terms-link">Terms of Service</a> & <a href="#privacy" className="terms-link">Privacy Policy</a>
+                </label>
+                {errors.agreeTerms && <span className="error-text block mt-1">{errors.agreeTerms}</span>}
+              </div>
+
+              {/* Submit Button */}
+              <button 
+                type="submit" 
+                className="btn btn-primary w-full signup-submit-btn"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Creating Account...' : 'Register Account'}
+              </button>
+            </form>
+
+            <div className="signup-footer">
+              <p>Already have an account? <Link to="/login" className="register-link">Log In</Link></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

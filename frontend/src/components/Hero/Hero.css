@@ -1,5 +1,5 @@
 .hero {
-  @apply relative min-h-screen flex items-center pt-[140px] pb-20 bg-gradient-to-b from-[#f0faf4] via-[#e3f4e8] to-[#f0faf4] overflow-hidden;
+  @apply relative min-h-screen flex items-center pt-[115px] pb-20 bg-gradient-to-b from-[#f0faf4] via-[#e3f4e8] to-[#f0faf4] overflow-hidden;
 }
 
 .hero-container {

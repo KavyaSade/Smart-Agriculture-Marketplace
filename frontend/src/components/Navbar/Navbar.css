@@ -1,5 +1,5 @@
 .navbar {
-  @apply fixed top-0 left-0 z-50 w-full bg-glass py-4 shadow-sm backdrop-blur-md border-b border-glass-border transition-all duration-300;
+  @apply fixed top-0 left-0 z-50 w-full bg-glass py-2.5 shadow-sm backdrop-blur-md border-b border-glass-border transition-all duration-300;
 }
 
 .navbar-container {

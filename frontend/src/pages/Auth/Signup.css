@@ -1,0 +1,223 @@
+.signup-page {
+  @apply relative min-h-screen flex items-center justify-center bg-gradient-to-b from-[#f0faf4] via-[#e3f4e8] to-[#f0faf4] py-4 px-4 sm:px-6 lg:px-8 overflow-hidden font-sans;
+}
+
+.back-home-btn {
+  @apply absolute top-6 left-6 z-30 inline-flex items-center gap-2 px-4 py-2 bg-white/80 border border-glass-border rounded-full text-sm font-semibold text-primary shadow-sm hover:bg-white hover:-translate-y-0.5 transition-all duration-200 backdrop-blur-sm;
+}
+
+.signup-container {
+  @apply relative w-full max-w-[960px] bg-white rounded-lg shadow-lg border border-glass-border flex overflow-hidden z-10;
+}
+
+/* Left Side - Graphic */
+.signup-graphic {
+  @apply hidden md:flex md:w-[38%] relative flex-col justify-between p-8 text-white overflow-hidden;
+}
+
+.signup-graphic-bg {
+  @apply absolute inset-0 w-full h-full object-cover transition-transform duration-[10s] ease-out scale-105;
+}
+
+.signup-graphic:hover .signup-graphic-bg {
+  @apply scale-100;
+}
+
+.signup-graphic-overlay {
+  @apply absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-accent/90 z-10;
+}
+
+.signup-logo {
+  @apply relative z-20 flex items-center gap-2 text-2xl font-extrabold;
+}
+
+.signup-logo-icon {
+  @apply text-fresh;
+}
+
+.logo-accent {
+  @apply text-fresh;
+}
+
+.signup-quote {
+  @apply relative z-20 text-lg font-semibold leading-snug my-auto max-w-[340px] italic border-l-4 border-fresh pl-4;
+}
+
+.signup-graphic-features {
+  @apply relative z-20 flex flex-col gap-3;
+}
+
+.g-feature-item {
+  @apply flex items-center gap-3 text-sm font-medium text-sage;
+}
+
+.g-feature-dot {
+  @apply w-2 h-2 bg-fresh rounded-full shadow-[0_0_8px_#52b788];
+}
+
+/* Right Side - Form */
+.signup-form-wrapper {
+  @apply w-full md:w-[62%] flex items-center justify-center p-6 sm:p-8 bg-[#fafdfb];
+}
+
+.signup-form-card {
+  @apply w-full max-w-[560px] flex flex-col py-2;
+}
+
+.signup-form-header {
+  @apply mb-2;
+}
+
+.mobile-logo {
+  @apply flex md:hidden items-center gap-1.5 text-xl font-extrabold text-primary mb-4;
+}
+
+.signup-form-header h2 {
+  @apply text-xl sm:text-2xl font-extrabold text-primary tracking-tight mb-1;
+}
+
+.signup-form-header p {
+  @apply text-sm text-muted leading-normal;
+}
+
+/* Form Styles */
+.signup-form {
+  @apply flex flex-col gap-2.5;
+}
+
+.signup-form-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5;
+}
+
+.form-group {
+  @apply flex flex-col;
+}
+
+.input-with-icon {
+  @apply relative flex items-center;
+}
+
+.input-icon {
+  @apply absolute left-4 text-muted/65 pointer-events-none;
+}
+
+.form-input {
+  @apply py-2 text-sm;
+}
+
+.input-with-icon .form-input {
+  @apply pl-12 pr-4;
+}
+
+.custom-select {
+  @apply pl-4 pr-10 appearance-none bg-white cursor-pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%252355625b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.25em;
+}
+
+.input-error {
+  @apply border-red-500/50 focus:border-red-500 focus:ring-red-100 bg-red-50/10;
+}
+
+.error-text {
+  @apply text-[11px] text-red-600 mt-1 font-semibold;
+}
+
+.password-toggle-btn {
+  @apply absolute right-4 text-muted/60 hover:text-primary transition-colors focus:outline-none;
+}
+
+/* Remember Row / T&C */
+.remember-row {
+  @apply flex flex-col items-start gap-1 mt-1;
+}
+
+.checkbox-container {
+  @apply relative flex items-center gap-2.5 text-[11px] font-medium text-muted cursor-pointer select-none;
+}
+
+.checkbox-container input {
+  @apply absolute opacity-0 cursor-pointer h-0 w-0;
+}
+
+.checkmark {
+  @apply h-4 w-4 rounded border border-border bg-white transition-all duration-200 flex items-center justify-center flex-shrink-0;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+  @apply border-accent;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+  @apply bg-accent border-accent;
+}
+
+.checkmark::after {
+  content: "";
+  @apply hidden w-1 h-2 border-r-2 border-b-2 border-white rotate-45 mb-[1px];
+}
+
+.checkbox-container input:checked ~ .checkmark::after {
+  @apply block;
+}
+
+.terms-link {
+  @apply font-semibold text-accent hover:text-primary transition-colors;
+}
+
+.signup-submit-btn {
+  @apply mt-2 py-2 rounded-full text-sm font-bold;
+}
+
+/* Form Alerts */
+.form-alert {
+  @apply p-3 rounded-sm text-xs font-semibold mb-3 text-left border;
+}
+
+.alert-success {
+  @apply bg-green-50 text-green-800 border-green-200;
+}
+
+.alert-error {
+  @apply bg-red-50 text-red-800 border-red-200;
+}
+
+/* Footer Links */
+.signup-footer {
+  @apply mt-2.5 text-center text-xs text-muted font-medium;
+}
+
+.register-link {
+  @apply font-bold text-accent hover:text-primary transition-colors ml-1;
+}
+
+/* Password Checklist */
+.password-checklist {
+  @apply mt-2 flex flex-col gap-1 text-[11px] text-muted transition-all duration-300;
+}
+
+.password-checklist li {
+  @apply flex items-center gap-1.5 font-medium transition-colors duration-200;
+}
+
+.password-checklist li.checked {
+  @apply text-accent;
+}
+
+.password-checklist li.unchecked {
+  @apply text-muted/60;
+}
+
+.checklist-dot {
+  @apply w-1.5 h-1.5 rounded-full transition-all duration-200;
+}
+
+.password-checklist li.checked .checklist-dot {
+  @apply bg-fresh shadow-[0_0_6px_#52b788];
+}
+
+.password-checklist li.unchecked .checklist-dot {
+  @apply bg-muted/30;
+}

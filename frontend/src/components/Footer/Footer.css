@@ -1,5 +1,5 @@
 .footer {
-  @apply bg-[#f0faf4] text-dark pt-16 pb-12 border-t border-border;
+  @apply bg-[#f0faf4] text-dark pt-8 pb-6 border-t border-border;
 }
 
 .footer-container {
@@ -7,7 +7,7 @@
 }
 
 .footer-grid {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 w-full;
+  @apply grid grid-cols-1 md:grid-cols-3 gap-8 pb-6 w-full;
 }
 
 .footer-col {
@@ -15,7 +15,7 @@
 }
 
 .footer-logo {
-  @apply flex items-center gap-2.5 font-sans font-extrabold text-2xl text-primary mb-4;
+  @apply flex items-center gap-2.5 font-sans font-extrabold text-2xl text-primary mb-2;
 }
 
 .footer-logo-img {
@@ -31,11 +31,11 @@
 }
 
 .footer-title {
-  @apply text-[1.1rem] font-bold text-primary mb-5;
+  @apply text-[1.1rem] font-bold text-primary mb-3;
 }
 
 .footer-contact-list {
-  @apply flex flex-col gap-3 text-[0.95rem] text-muted;
+  @apply flex flex-col gap-2 text-[0.95rem] text-muted;
 }
 
 .footer-icon {
@@ -43,7 +43,7 @@
 }
 
 .footer-links-list {
-  @apply flex flex-col gap-3 text-[0.95rem];
+  @apply flex flex-col gap-2 text-[0.95rem];
 }
 
 .footer-link {
@@ -51,11 +51,11 @@
 }
 
 .footer-divider {
-  @apply w-full border-t border-border/80 my-4;
+  @apply w-full border-t border-border/80 my-2;
 }
 
 .footer-bottom {
-  @apply flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted w-full pt-4;
+  @apply flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted w-full pt-2;
 }
 
 .footer-copy {

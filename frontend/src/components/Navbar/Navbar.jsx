@@ -53,8 +53,8 @@ export default function Navbar() {
           ))}
         </ul>
         <div className="navbar-actions">
-          <button type="button" className="navbar-login-btn">Login</button>
-          <button type="button" className="btn btn-primary navbar-signup-btn">Sign Up</button>
+          <Link to="/login" className="navbar-login-btn">Login</Link>
+          <Link to="/signup" className="btn btn-primary navbar-signup-btn">Sign Up</Link>
         </div>
         <button className="navbar-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle navigation">
           {isOpen ? (
@@ -80,8 +80,8 @@ export default function Navbar() {
             </li>
           ))}
           <div className="navbar-mobile-actions">
-            <button type="button" className="btn btn-secondary w-full">Login</button>
-            <button type="button" className="btn btn-primary w-full">Sign Up</button>
+            <Link to="/login" onClick={() => setIsOpen(false)} className="btn btn-secondary w-full text-center">Login</Link>
+            <Link to="/signup" onClick={() => setIsOpen(false)} className="btn btn-primary w-full text-center">Sign Up</Link>
           </div>
         </ul>
       </div>
