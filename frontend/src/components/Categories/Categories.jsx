@@ -48,6 +48,13 @@ export default function Categories() {
         stock: '5,000 Kg',
         farm: 'Godavari Plains Farm',
         image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&q=80&w=600'
+      },
+      {
+        name: 'Organic Finger Millet (Ragi)',
+        price: '₹55 / Kg',
+        stock: '1,500 Kg',
+        farm: 'Rayalaseema Organic Farms',
+        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=600'
       }
     ],
     fruits: [
@@ -64,6 +71,13 @@ export default function Categories() {
         stock: '800 Kg',
         farm: 'Chittoor Groves',
         image: 'https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&q=80&w=600'
+      },
+      {
+        name: 'Kashmiri Red Apples',
+        price: '₹160 / Kg',
+        stock: '600 Kg',
+        farm: 'Srinagar Orchards',
+        image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=600'
       }
     ],
     dairy: [
@@ -80,6 +94,13 @@ export default function Categories() {
         stock: '60 Kg',
         farm: 'Krishna Dairy Cooperative',
         image: 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?auto=format&fit=crop&q=80&w=600'
+      },
+      {
+        name: 'Organic Cow Ghee',
+        price: '₹650 / Litre',
+        stock: '200 Litres',
+        farm: 'Vrindavan Dairy Farms',
+        image: '/cow-ghee.png'
       }
     ],
     spices: [
@@ -96,6 +117,13 @@ export default function Categories() {
         stock: '1,200 Kg',
         farm: 'Andhra Spice Farms',
         image: 'https://images.unsplash.com/photo-1546860255-95536c19724e?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cmVkJTIwY2hpbGxpfGVufDB8fDB8fHww'
+      },
+      {
+        name: 'Malabar Black Pepper',
+        price: '₹450 / Kg',
+        stock: '350 Kg',
+        farm: 'Malabar Hills Spices',
+        image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&q=80&w=600'
       }
     ]
   };
@@ -162,7 +190,7 @@ export default function Categories() {
                     {prod.name}
                   </h3>
                   
-                  <div className="mb-4">
+                  <div className="mb-3">
                     <span className="text-xs uppercase tracking-wider text-muted font-bold block mb-1">
                       Farm
                     </span>
@@ -171,7 +199,7 @@ export default function Categories() {
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                       <span className="text-xs uppercase tracking-wider text-muted font-bold block mb-1">
                         Price

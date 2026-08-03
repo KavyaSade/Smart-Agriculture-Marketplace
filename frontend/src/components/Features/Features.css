@@ -27,17 +27,54 @@
 }
 
 .feature-card {
-  @apply bg-white border border-border rounded-md p-8 shadow-sm flex flex-col items-start hover:border-accent/40 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md;
+  @apply relative overflow-visible flex flex-col justify-end w-full h-[290px] font-sans;
 }
 
-.feature-icon-wrapper {
-  @apply bg-sage p-4 rounded-md flex items-center justify-center mb-6 group-hover:rotate-6 group-hover:scale-105 transition-all duration-300;
+.feature-icon-badge {
+  @apply absolute -top-5 -left-4 z-30 bg-white border border-border p-3.5 rounded-md shadow-md flex items-center justify-center transition-all duration-300;
+  animation: float 4.5s ease-in-out infinite;
+}
+
+.feature-icon-badge img {
+  @apply w-[24px] h-[24px] object-contain;
+}
+
+.feature-card-inner {
+  @apply absolute inset-0 overflow-hidden rounded-lg border-2 border-white shadow-md flex flex-col justify-end p-6 bg-white transition-all duration-300;
+}
+
+.feature-card:hover .feature-card-inner {
+  @apply -translate-y-1.5 shadow-lg border-accent/20;
+}
+
+.feature-card-bg {
+  @apply absolute inset-0 bg-cover bg-center transition-transform duration-[600ms] ease-out z-0 scale-100;
+}
+
+.feature-card:hover .feature-card-bg {
+  @apply scale-105;
+}
+
+.feature-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(27, 67, 50, 0.9) 0%, rgba(27, 67, 50, 0.45) 60%, transparent 100%);
+  z-index: 10;
+  transition: all 300ms ease;
+}
+
+.feature-card:hover .feature-card-overlay {
+  background: linear-gradient(to top, rgba(27, 67, 50, 0.95) 0%, rgba(27, 67, 50, 0.55) 65%, transparent 100%);
+}
+
+.feature-card-content {
+  @apply relative z-20 flex flex-col items-start w-full text-left;
 }
 
 .feature-card-title {
-  @apply text-xl font-bold text-primary mb-3;
+  @apply text-lg font-extrabold text-white mb-2 tracking-wide;
 }
 
 .feature-card-desc {
-  @apply text-muted text-[0.98rem] leading-relaxed;
+  @apply text-sage/90 text-xs font-semibold leading-relaxed;
 }
