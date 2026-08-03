@@ -103,12 +103,8 @@ export default function Signup() {
 
   return (
     <div className="signup-page">
-      {/* Back button */}
-      <Link to="/" className="back-home-btn animate-fade-in-up">
-        <ArrowLeft size={18} /> Back to home
-      </Link>
-
       <div className="signup-container">
+        
         {/* Left Side: Graphic & Marketing Info (Visible on Desktop) */}
         <div className="signup-graphic">
           <div className="signup-graphic-overlay"></div>
@@ -122,18 +118,21 @@ export default function Signup() {
               <Leaf className="signup-logo-icon" size={28} />
               <span>Agri<span className="logo-accent">Market</span></span>
             </div>
-            <blockquote className="signup-quote">
-              "Cultivating trade, growing trust, and supporting local communities."
-            </blockquote>
-            <div className="signup-graphic-features">
-              <div className="g-feature-item">
-                <span className="g-feature-dot"></span>
-                <p>Buy & Sell Crop Yields Directly</p>
-              </div>
-              <div className="g-feature-item">
-                <span className="g-feature-dot"></span>
-                <p>Access Market Trends & Real-time Prices</p>
-              </div>
+            
+            <div className="signup-graphic-middle">
+              <span className="signup-graphic-tag">
+                Smart Agriculture Marketplace
+              </span>
+              <h1 className="signup-graphic-headline">
+                Grow your business. <br />Trade securely. <br />Succeed together.
+              </h1>
+              <p className="signup-graphic-subtext">
+                Create a free account to list your products or start buying directly from verified growers.
+              </p>
+            </div>
+
+            <div className="signup-graphic-footer">
+              <span>&copy; AgriMarket</span>
             </div>
           </div>
         </div>
@@ -141,6 +140,9 @@ export default function Signup() {
         {/* Right Side: Form Card */}
         <div className="signup-form-wrapper">
           <div className="signup-form-card animate-fade-in-up">
+            <Link to="/" className="back-home-link">
+              <ArrowLeft size={16} /> Back to home
+            </Link>
             <div className="signup-form-header">
               <div className="mobile-logo">
                 <Leaf className="signup-logo-icon" size={24} />

@@ -1,18 +1,14 @@
 .login-page {
-  @apply relative h-screen w-screen flex items-center justify-center bg-gradient-to-b from-[#f0faf4] via-[#e3f4e8] to-[#f0faf4] p-4 sm:p-6 overflow-hidden font-sans;
-}
-
-.back-home-btn {
-  @apply absolute top-6 left-6 z-30 inline-flex items-center gap-2 px-4 py-2 bg-white/80 border border-glass-border rounded-full text-sm font-semibold text-primary shadow-sm hover:bg-white hover:-translate-y-0.5 transition-all duration-200 backdrop-blur-sm;
+  @apply w-screen h-screen overflow-hidden font-sans bg-[#f8faf9] m-0 p-0;
 }
 
 .login-container {
-  @apply relative w-full max-w-[860px] max-h-[90vh] bg-white rounded-lg shadow-lg border border-glass-border flex overflow-hidden z-10;
+  @apply w-full h-full flex overflow-hidden;
 }
 
 /* Left Side - Graphic & Features */
 .login-graphic {
-  @apply hidden md:flex md:w-1/2 relative flex-col justify-between p-8 text-white overflow-hidden;
+  @apply hidden md:flex md:w-1/2 relative flex-col justify-between p-12 lg:p-16 text-white overflow-hidden h-full;
 }
 
 .login-graphic-bg {
@@ -24,7 +20,7 @@
 }
 
 .login-graphic-overlay {
-  @apply absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/80 to-accent/90 z-10;
+  @apply absolute inset-0 bg-gradient-to-br from-[#123524]/95 to-[#1e5c3f]/95 z-10;
 }
 
 .login-logo {
@@ -39,8 +35,28 @@
   @apply text-fresh;
 }
 
-.login-quote {
-  @apply relative z-20 text-lg font-semibold leading-snug my-auto max-w-[340px] italic border-l-4 border-fresh pl-4;
+.login-graphic-content {
+  @apply relative z-20 flex flex-col justify-between h-full w-full;
+}
+
+.login-graphic-middle {
+  @apply flex flex-col gap-4 my-auto max-w-[480px];
+}
+
+.login-graphic-tag {
+  @apply text-xs font-bold uppercase tracking-[2px] text-fresh/95;
+}
+
+.login-graphic-headline {
+  @apply text-4xl lg:text-5xl font-extrabold text-white leading-tight;
+}
+
+.login-graphic-subtext {
+  @apply text-sm lg:text-base text-white/80 leading-relaxed font-medium;
+}
+
+.login-graphic-footer {
+  @apply text-xs font-medium text-white/50;
 }
 
 .login-graphic-features {
@@ -57,11 +73,15 @@
 
 /* Right Side - Form */
 .login-form-wrapper {
-  @apply w-full md:w-1/2 flex items-center justify-center p-6 sm:p-8 bg-[#fafdfb] overflow-y-auto max-h-[90vh];
+  @apply w-full md:w-1/2 flex items-center justify-center p-8 sm:p-16 bg-[#f8faf9] overflow-y-auto h-full;
 }
 
 .login-form-card {
-  @apply w-full max-w-[380px] flex flex-col;
+  @apply w-full max-w-[440px] flex flex-col bg-white p-8 sm:p-10 rounded-2xl shadow-xl border border-glass-border;
+}
+
+.back-home-link {
+  @apply mb-6 flex items-center gap-1.5 text-xs font-bold text-accent hover:text-primary transition-colors focus:outline-none;
 }
 
 .login-form-header {

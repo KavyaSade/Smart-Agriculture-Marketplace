@@ -52,12 +52,8 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      {/* Back button */}
-      <Link to="/" className="back-home-btn animate-fade-in-up">
-        <ArrowLeft size={18} /> Back to home
-      </Link>
-
       <div className="login-container">
+        
         {/* Left Side: Graphic & Marketing Info (Visible on Desktop) */}
         <div className="login-graphic">
           <div className="login-graphic-overlay"></div>
@@ -71,18 +67,21 @@ export default function Login() {
               <Leaf className="login-logo-icon" size={28} />
               <span>Agri<span className="logo-accent">Market</span></span>
             </div>
-            <blockquote className="login-quote">
-              "Direct trade means better value for farmers and fresher produce for buyers."
-            </blockquote>
-            <div className="login-graphic-features">
-              <div className="g-feature-item">
-                <span className="g-feature-dot"></span>
-                <p>100% Verified Agriculture Profiles</p>
-              </div>
-              <div className="g-feature-item">
-                <span className="g-feature-dot"></span>
-                <p>Secure Escrow Payment Gateways</p>
-              </div>
+            
+            <div className="login-graphic-middle">
+              <span className="login-graphic-tag">
+                Smart Agriculture Marketplace
+              </span>
+              <h1 className="login-graphic-headline">
+                Trade directly. <br />Earn better. <br />Eat fresher.
+              </h1>
+              <p className="login-graphic-subtext">
+                Connecting verified farmers directly with wholesale buyers and consumers with secure escrow payments.
+              </p>
+            </div>
+
+            <div className="login-graphic-footer">
+              <span>&copy; AgriMarket</span>
             </div>
           </div>
         </div>
@@ -90,6 +89,9 @@ export default function Login() {
         {/* Right Side: Form Card */}
         <div className="login-form-wrapper">
           <div className="login-form-card animate-fade-in-up">
+            <Link to="/" className="back-home-link">
+              <ArrowLeft size={16} /> Back to home
+            </Link>
             <div className="login-form-header">
               <div className="mobile-logo">
                 <Leaf className="login-logo-icon" size={24} />
