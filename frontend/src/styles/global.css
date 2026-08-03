@@ -5,19 +5,31 @@
 @tailwind utilities;
 
 @layer base {
-  html { scroll-behavior: smooth; }
+  html {
+    scroll-behavior: smooth;
+  }
 
   body {
     font-family: 'Outfit', 'Inter', sans-serif;
-    @apply bg-[#f0faf4] text-dark overflow-x-hidden antialiased;
+    background-color: #f0faf4;
+    color: #1c2420;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   section {
     scroll-margin-top: 70px;
   }
 
-  * { @apply border-border; }
-  ::selection { @apply bg-sage text-primary; }
+  * {
+    border-color: rgba(45, 106, 79, 0.09);
+  }
+
+  ::selection {
+    background-color: #d8f3dc;
+    color: #1b4332;
+  }
 
   /* Hide Microsoft Edge / IE native password reveal buttons */
   input::-ms-reveal,
@@ -41,17 +53,109 @@
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 font-semibold rounded-full cursor-pointer transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-accent/15 disabled:pointer-events-none disabled:opacity-60;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s;
+    outline: none;
+    border: none;
   }
-  .btn-primary { @apply bg-accent text-white shadow-sm hover:bg-fresh hover:-translate-y-0.5 hover:shadow-md; }
-  .btn-secondary { @apply bg-white text-accent border-2 border-accent hover:bg-sage hover:-translate-y-0.5; }
-  .btn-accent { @apply bg-fresh text-white shadow-sm hover:bg-accent hover:-translate-y-0.5 hover:shadow-md; }
-  .glass-card { @apply bg-white/90 backdrop-blur-md border border-glass-border rounded-lg p-8 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-accent/25; }
-  .form-label { @apply block mb-2 text-sm font-semibold text-primary; }
-  .form-input { @apply w-full rounded-md border border-border bg-white px-4 py-3 text-dark outline-none transition-all duration-200 placeholder:text-muted/70 focus:border-fresh focus:ring-4 focus:ring-sage; }
+
+  .btn:focus {
+    box-shadow: 0 0 0 4px rgba(64, 145, 108, 0.15);
+  }
+
+  .btn:disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .btn-primary {
+    background-color: #40916c;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(27, 67, 50, 0.04);
+  }
+
+  .btn-primary:hover {
+    background-color: #52b788;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(27, 67, 50, 0.08);
+  }
+
+  .btn-secondary {
+    background-color: #ffffff;
+    color: #40916c;
+    border: 2px solid #40916c;
+  }
+
+  .btn-secondary:hover {
+    background-color: #d8f3dc;
+    transform: translateY(-2px);
+  }
+
+  .btn-accent {
+    background-color: #52b788;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(27, 67, 50, 0.04);
+  }
+
+  .btn-accent:hover {
+    background-color: #40916c;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(27, 67, 50, 0.08);
+  }
+
+  .glass-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(82, 183, 136, 0.15);
+    border-radius: 28px;
+    padding: 2rem;
+    box-shadow: 0 12px 32px rgba(27, 67, 50, 0.08);
+    transition: all 0.3s;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 64px rgba(27, 67, 50, 0.14);
+    border-color: rgba(64, 145, 108, 0.25);
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1b4332;
+  }
+
+  .form-input {
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid rgba(45, 106, 79, 0.09);
+    background-color: #ffffff;
+    padding: 0.75rem 1rem;
+    color: #1c2420;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .form-input::placeholder {
+    color: rgba(85, 98, 91, 0.7);
+  }
+
+  .form-input:focus {
+    border-color: #52b788;
+    box-shadow: 0 0 0 4px #d8f3dc;
+  }
   
   /* Ensure password input text does not overlap with custom reveal eye icon */
   .input-with-icon:has(.password-toggle-btn) .form-input {
-    @apply pr-12;
+    padding-right: 3rem;
   }
 }
