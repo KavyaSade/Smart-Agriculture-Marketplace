@@ -1,71 +1,202 @@
 .navbar {
-  @apply fixed top-0 left-0 z-50 w-full bg-glass py-2.5 shadow-sm backdrop-blur-md border-b border-glass-border transition-all duration-300;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  width: 100%;
+  background-color: rgba(240, 250, 244, 0.88);
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  box-shadow: 0 4px 12px rgba(27, 67, 50, 0.04);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(82, 183, 136, 0.15);
+  transition: all 0.3s;
 }
 
 .navbar-container {
-  @apply mx-auto flex max-w-full items-center justify-between px-8 lg:px-12;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .navbar-container {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
 }
 
 .navbar-logo {
-  @apply flex items-center gap-2.5 text-2xl font-extrabold text-primary;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1b4332;
+  text-decoration: none;
 }
 
 .navbar-logo-img {
-  @apply h-8 w-8 object-contain;
+  height: 2rem;
+  width: 2rem;
+  object-fit: contain;
 }
 
 .navbar-logo-accent {
-  @apply text-accent;
+  color: #40916c;
 }
 
 .navbar-menu {
-  @apply hidden items-center gap-8 lg:flex ml-auto mr-12;
+  display: none;
+  align-items: center;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .navbar-menu {
+    display: flex;
+    margin-left: auto;
+    margin-right: 3rem;
+  }
 }
 
 .navbar-link {
-  @apply relative py-1.5 text-[1.02rem] font-semibold text-dark transition-all duration-300 hover:text-accent after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-full tracking-wide;
+  position: relative;
+  padding-top: 0.375rem;
+  padding-bottom: 0.375rem;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #1c2420;
+  transition: all 0.3s;
+  text-decoration: none;
+  letter-spacing: 0.025em;
+}
+
+.navbar-link:hover {
+  color: #40916c;
+}
+
+.navbar-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background-color: #40916c;
+  transition: all 0.3s;
+}
+
+.navbar-link:hover::after {
+  width: 100%;
 }
 
 .navbar-actions {
-  @apply hidden items-center gap-4 lg:flex;
+  display: none;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .navbar-actions {
+    display: flex;
+  }
 }
 
 .navbar-login-btn {
-  @apply font-semibold text-dark transition-colors hover:text-accent;
+  font-weight: 600;
+  color: #1c2420;
+  transition: color 0.2s;
+  text-decoration: none;
+}
+
+.navbar-login-btn:hover {
+  color: #40916c;
 }
 
 .navbar-signup-btn {
-  @apply px-5 py-2.5 text-sm;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  font-size: 0.875rem;
 }
 
 .navbar-toggle {
-  @apply text-primary lg:hidden flex items-center;
+  color: #1b4332;
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+@media (min-width: 1024px) {
+  .navbar-toggle {
+    display: none;
+  }
 }
 
 .navbar-toggle-img {
-  @apply h-[26px] w-[26px] object-contain;
+  height: 26px;
+  width: 26px;
+  object-fit: contain;
 }
 
 .navbar-mobile-menu {
-  @apply overflow-hidden bg-[#fafdfb] shadow-md transition-all duration-300 lg:hidden;
+  overflow: hidden;
+  background-color: #fafdfb;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+}
+
+@media (min-width: 1024px) {
+  .navbar-mobile-menu {
+    display: none;
+  }
 }
 
 .navbar-mobile-menu-open {
-  @apply max-h-[360px] border-b border-glass-border py-6;
+  max-h: 360px;
+  border-bottom: 1px solid rgba(82, 183, 136, 0.15);
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .navbar-mobile-menu-closed {
-  @apply max-h-0 opacity-0;
+  max-height: 0;
+  opacity: 0;
 }
 
 .navbar-mobile-list {
-  @apply flex flex-col gap-5 px-6;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 .navbar-mobile-link {
-  @apply block text-lg font-semibold text-primary hover:text-accent;
+  display: block;
+  text-decoration: none;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1b4332;
+}
+
+.navbar-mobile-link:hover {
+  color: #40916c;
 }
 
 .navbar-mobile-actions {
-  @apply mt-1 flex flex-col gap-3;
+  margin-top: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
