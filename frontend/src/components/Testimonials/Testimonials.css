@@ -1,0 +1,83 @@
+.testimonials-section {
+  @apply py-24 bg-[#f0faf4]/20;
+}
+
+.testimonials-container {
+  @apply max-w-[1440px] mx-auto px-6;
+}
+
+.testimonials-header {
+  @apply text-center mb-[60px] max-w-[700px] mx-auto;
+}
+
+.testimonials-badge {
+  @apply text-accent font-bold text-xs uppercase tracking-[2px] mb-3 inline-block px-4 py-1.5 bg-sage rounded-full;
+}
+
+.testimonials-title {
+  @apply text-3xl sm:text-4xl font-extrabold text-primary leading-snug;
+}
+
+.testimonials-desc {
+  @apply text-muted text-lg mt-4;
+}
+
+.testimonials-slider-wrapper {
+  @apply max-w-[800px] mx-auto relative flex flex-col items-center w-full;
+}
+
+.testimonials-card {
+  @apply w-full bg-white border border-border rounded-lg p-8 sm:p-14 shadow-md relative overflow-hidden;
+}
+
+.testimonials-quote-icon {
+  @apply absolute top-8 right-10 text-sage opacity-75 z-0 pointer-events-none;
+}
+
+.testimonials-quote-img {
+  @apply w-10 h-10 rotate-180 opacity-30 object-contain;
+}
+
+.testimonials-stars {
+  @apply flex gap-1 mb-6;
+}
+
+.testimonials-star-img {
+  @apply w-[18px] h-[18px] object-contain;
+}
+
+.testimonials-quote {
+  @apply text-xl sm:text-2xl font-medium leading-relaxed text-primary mb-9;
+}
+
+.testimonials-author {
+  @apply flex items-center gap-4;
+}
+
+.testimonials-author-avatar {
+  @apply w-[56px] h-[56px] rounded-full object-cover border-2 border-fresh shadow-sm;
+}
+
+.testimonials-author-placeholder {
+  @apply w-[52px] h-[52px] bg-accent text-white rounded-full flex items-center justify-center font-bold text-xl uppercase;
+}
+
+.testimonials-author-name {
+  @apply text-lg font-bold text-primary;
+}
+
+.testimonials-author-role {
+  @apply text-sm text-muted mt-0.5;
+}
+
+.testimonials-dots {
+  @apply flex gap-2.5 mt-8;
+}
+
+.testimonials-dot {
+  @apply w-2.5 h-2.5 rounded-full bg-sage cursor-pointer transition-all duration-300 hover:bg-accent;
+}
+
+.testimonials-dot-active {
+  @apply bg-accent w-6;
+}

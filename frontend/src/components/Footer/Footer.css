@@ -1,0 +1,71 @@
+.footer {
+  @apply bg-[#f0faf4] text-dark pt-16 pb-12 border-t border-border;
+}
+
+.footer-container {
+  @apply max-w-[1440px] mx-auto px-6 flex flex-col;
+}
+
+.footer-grid {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-10 pb-10 w-full;
+}
+
+.footer-col {
+  @apply flex flex-col items-start text-left;
+}
+
+.footer-logo {
+  @apply flex items-center gap-2.5 font-sans font-extrabold text-2xl text-primary mb-4;
+}
+
+.footer-logo-img {
+  @apply w-8 h-8 object-contain;
+}
+
+.footer-logo-accent {
+  @apply text-accent;
+}
+
+.footer-desc {
+  @apply text-muted text-[0.95rem] leading-relaxed max-w-[340px];
+}
+
+.footer-title {
+  @apply text-[1.1rem] font-bold text-primary mb-5;
+}
+
+.footer-contact-list {
+  @apply flex flex-col gap-3 text-[0.95rem] text-muted;
+}
+
+.footer-icon {
+  @apply w-[18px] h-[18px] object-contain;
+}
+
+.footer-links-list {
+  @apply flex flex-col gap-3 text-[0.95rem];
+}
+
+.footer-link {
+  @apply text-muted hover:text-accent transition-colors duration-300;
+}
+
+.footer-divider {
+  @apply w-full border-t border-border/80 my-4;
+}
+
+.footer-bottom {
+  @apply flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted w-full pt-4;
+}
+
+.footer-copy {
+  @apply font-medium;
+}
+
+.footer-legal {
+  @apply flex gap-6;
+}
+
+.footer-legal-link {
+  @apply hover:text-accent transition-colors duration-300;
+}

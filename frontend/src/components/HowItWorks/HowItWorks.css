@@ -1,0 +1,55 @@
+.how-it-works-section {
+  @apply py-24 bg-[#f0faf4]/40 relative;
+}
+
+.how-it-works-container {
+  @apply max-w-[1440px] mx-auto px-6;
+}
+
+.how-it-works-header {
+  @apply text-center mb-[60px] max-w-[700px] mx-auto;
+}
+
+.how-it-works-badge {
+  @apply text-accent font-bold text-xs uppercase tracking-[2px] mb-3 inline-block px-4 py-1.5 bg-sage rounded-full;
+}
+
+.how-it-works-title {
+  @apply text-3xl sm:text-4xl font-extrabold text-primary leading-snug;
+}
+
+.how-it-works-desc {
+  @apply text-muted text-lg mt-4;
+}
+
+.how-it-works-grid-wrapper {
+  @apply relative w-full mt-10;
+}
+
+.how-it-works-connector {
+  @apply absolute top-[90px] left-[12%] right-[12%] h-[2px] bg-sage z-0 hidden lg:block;
+}
+
+.how-it-works-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 relative z-10;
+}
+
+.how-it-works-step {
+  @apply flex flex-col items-center text-center px-2;
+}
+
+.how-it-works-number {
+  @apply bg-sage text-primary font-extrabold text-xs px-3 py-1 rounded-full mb-4 border border-primary/5;
+}
+
+.how-it-works-icon-wrapper {
+  @apply w-[74px] h-[74px] bg-white border-[3px] border-accent rounded-full flex items-center justify-center text-accent mb-6 shadow-sm group-hover:scale-110 transition-all duration-300;
+}
+
+.how-it-works-step-title {
+  @apply text-xl font-bold text-primary mb-3;
+}
+
+.how-it-works-step-desc {
+  @apply text-muted text-[0.95rem] leading-relaxed;
+}

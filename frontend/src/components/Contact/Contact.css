@@ -1,0 +1,159 @@
+.contact-section {
+  @apply pt-10 pb-16 bg-white border-t border-border min-h-[calc(100vh-90px)] w-full;
+}
+
+.contact-container {
+  @apply max-w-[1440px] mx-auto px-6 w-full;
+}
+
+.contact-header {
+  @apply text-center mb-[60px] max-w-[700px] mx-auto;
+}
+
+.contact-badge {
+  @apply text-accent font-bold text-xs uppercase tracking-[2px] mb-3 inline-block px-4 py-1.5 bg-sage rounded-full;
+}
+
+.contact-title {
+  @apply text-3xl sm:text-4xl font-extrabold text-primary leading-snug;
+}
+
+.contact-desc {
+  @apply text-muted text-lg mt-4;
+}
+
+.contact-grid {
+  @apply grid grid-cols-1 lg:grid-cols-12 gap-10 items-start w-full;
+}
+
+.contact-info-column {
+  @apply lg:col-span-5 flex flex-col gap-6;
+}
+
+.contact-form-column {
+  @apply lg:col-span-7;
+}
+
+/* Info Cards List */
+.contact-cards-list {
+  @apply flex flex-col gap-5;
+}
+
+.contact-info-card {
+  @apply flex gap-4 p-5 bg-[#f7faf8] border border-border rounded-md shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:border-accent/20;
+}
+
+.contact-card-icon-wrapper {
+  @apply w-12 h-12 rounded-sm bg-sage flex items-center justify-center text-primary shrink-0;
+}
+
+.contact-card-icon {
+  @apply w-5 h-5 object-contain;
+}
+
+.contact-card-text {
+  @apply flex flex-col justify-center;
+}
+
+.contact-card-label {
+  @apply text-[0.8rem] font-bold text-accent uppercase tracking-wider mb-1;
+}
+
+.contact-card-val {
+  @apply text-lg font-extrabold text-primary;
+}
+
+.contact-card-sub {
+  @apply text-xs text-muted mt-0.5;
+}
+
+/* Support Hours Box */
+.contact-hours-box {
+  @apply bg-[#f7faf8] border border-border p-6 rounded-md shadow-sm flex flex-col gap-3.5;
+}
+
+.hours-title {
+  @apply text-sm font-bold text-primary uppercase tracking-wider pb-2 border-b border-border;
+}
+
+.hours-row {
+  @apply flex justify-between items-center text-sm;
+}
+
+.hours-row span {
+  @apply text-muted font-medium;
+}
+
+.hours-row strong {
+  @apply text-primary font-bold;
+}
+
+/* Form Panel Card */
+.contact-form-card {
+  @apply bg-[#f7faf8] border border-border rounded-md p-6 sm:p-10 shadow-sm;
+}
+
+.form-header-title {
+  @apply text-2xl font-extrabold text-primary;
+}
+
+.form-header-desc {
+  @apply text-sm text-muted mt-1.5 mb-8;
+}
+
+.contact-form-element {
+  @apply flex flex-col gap-5 w-full;
+}
+
+.form-row-grid {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-5;
+}
+
+.form-input-wrapper {
+  @apply flex flex-col w-full text-left;
+}
+
+.form-label {
+  @apply block mb-2 text-sm font-bold text-primary;
+}
+
+.form-input {
+  @apply w-full rounded-md border border-border bg-white px-4 py-3.5 text-sm text-dark outline-none transition-all duration-200 placeholder:text-muted/60 focus:border-accent focus:ring-4 focus:ring-sage/40;
+}
+
+.form-textarea {
+  @apply resize-none;
+}
+
+.contact-submit-btn {
+  @apply w-full py-4 text-sm font-bold flex items-center justify-center gap-2 mt-2 shadow-sm hover:shadow-md;
+}
+
+.contact-btn-icon {
+  @apply w-4 h-4 object-contain brightness-0 invert;
+}
+
+/* Success State styling */
+.contact-success-state {
+  @apply flex flex-col items-center text-center py-10 px-4;
+}
+
+.success-icon-ring {
+  @apply w-20 h-20 bg-sage rounded-full flex items-center justify-center mb-6 animate-pulse;
+}
+
+.success-checkmark {
+  @apply text-4xl font-extrabold text-primary;
+}
+
+.success-title {
+  @apply text-3xl font-extrabold text-primary mb-3;
+}
+
+.success-desc {
+  @apply text-base text-muted leading-relaxed max-w-[460px] mb-8;
+}
+
+.success-back-btn {
+  @apply px-8 py-3 text-sm font-bold;
+}

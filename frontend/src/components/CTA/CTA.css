@@ -1,0 +1,55 @@
+.cta-section {
+  @apply py-24 bg-white;
+}
+
+.cta-container {
+  @apply max-w-[1440px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10;
+}
+
+.cta-card-farmers {
+  @apply bg-pale border border-sage rounded-lg p-8 sm:p-12 flex flex-col justify-between shadow-sm hover:-translate-y-1.5 hover:shadow-md hover:border-accent/30 transition-all duration-300;
+}
+
+.cta-icon-wrapper-farmers {
+  @apply bg-sage w-14 h-14 rounded-md mb-6 flex items-center justify-center;
+}
+
+.cta-card-title-farmers {
+  @apply text-3xl font-extrabold text-primary mb-4;
+}
+
+.cta-card-desc-farmers {
+  @apply text-muted text-[1.05rem] leading-relaxed mb-8;
+}
+
+.cta-card-btn-farmers {
+  @apply px-8 py-4 w-full sm:w-auto self-start flex items-center gap-2;
+}
+
+.cta-card-btn-farmers-icon {
+  @apply w-[18px] h-[18px] brightness-0 invert object-contain;
+}
+
+.cta-card-buyers {
+  @apply bg-gradient-to-br from-sage/40 via-[#f0faf4] to-sage/40 border border-accent/20 rounded-lg p-8 sm:p-12 flex flex-col justify-between shadow-sm hover:-translate-y-1.5 hover:shadow-md hover:border-accent/40 transition-all duration-300;
+}
+
+.cta-icon-wrapper-buyers {
+  @apply bg-sage w-14 h-14 rounded-md mb-6 flex items-center justify-center;
+}
+
+.cta-card-title-buyers {
+  @apply text-3xl font-extrabold text-primary mb-4;
+}
+
+.cta-card-desc-buyers {
+  @apply text-muted text-[1.05rem] leading-relaxed mb-8;
+}
+
+.cta-card-btn-buyers {
+  @apply px-8 py-4 w-full sm:w-auto self-start flex items-center gap-2;
+}
+
+.cta-card-btn-buyers-icon {
+  @apply w-[18px] h-[18px] brightness-0 invert object-contain;
+}
