@@ -1,10 +1,30 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './Register.css';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { register, loginWithGoogle } = useAuth();
+  
+  const handleGoogleClick = async () => {
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setErrors({});
+    
+    const result = await loginWithGoogle(formData.role);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setSubmitMessage('Successfully registered and logged in with Google!');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } else {
+      setSubmitMessage(result.error || 'Google Registration failed.');
+    }
+  };
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -78,21 +98,32 @@ export default function Register() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
     setSubmitMessage('');
 
-    // Simulate API request
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const registerData = {
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      role: formData.role,
+      password: formData.password
+    };
+
+    const result = await register(registerData);
+    setIsSubmitting(false);
+
+    if (result.success) {
       setSubmitMessage('Account registered successfully! Redirecting to login...');
       setTimeout(() => {
         navigate('/login');
       }, 1500);
-    }, 1500);
+    } else {
+      setSubmitMessage(result.error || 'Failed to register account.');
+    }
   };
 
   const checks = {
@@ -255,7 +286,7 @@ export default function Register() {
                     </button>
                   </div>
                   {errors.password && <span className="error-text">{errors.password}</span>}
-                  {(passwordFocused || formData.password.length > 0) && (
+                  {passwordFocused && (
                     <ul className="password-checklist">
                       <li className={checks.length ? 'checked' : 'unchecked'}>
                         <span className="checklist-dot"></span> At least 8 characters
@@ -321,6 +352,22 @@ export default function Register() {
                 {isSubmitting ? 'Creating Account...' : 'Register Account'}
               </button>
             </form>
+
+            <div className="social-divider">
+              <span>or register with</span>
+            </div>
+
+            <div className="social-login-actions">
+              <button 
+                type="button" 
+                className="google-signin-btn"
+                onClick={handleGoogleClick}
+                disabled={isSubmitting}
+              >
+                <img src="/src/assets/icons/google.png" alt="Google" className="google-icon" width="18" height="18" />
+                <span>Sign Up with Google</span>
+              </button>
+            </div>
 
             <div className="register-footer">
               <p>Already have an account? <Link to="/login" className="register-link">Log In</Link></p>

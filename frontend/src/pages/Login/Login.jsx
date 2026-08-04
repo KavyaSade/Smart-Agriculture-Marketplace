@@ -1,13 +1,33 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('buyer'); // 'buyer', 'farmer', or 'admin'
+
+  const handleGoogleClick = async () => {
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setErrors({});
+    
+    const result = await loginWithGoogle(role);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setSubmitMessage('Successfully logged in with Google!');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } else {
+      setSubmitMessage(result.error || 'Google Login failed.');
+    }
+  };
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
@@ -46,21 +66,24 @@ export default function Login() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     
     setIsSubmitting(true);
     setSubmitMessage('');
     
-    // Simulate API request
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const result = await login(email, password, role);
+    setIsSubmitting(false);
+
+    if (result.success) {
       setSubmitMessage('Successfully logged in! Redirecting to marketplace...');
       setTimeout(() => {
         navigate('/');
       }, 1500);
-    }, 1200);
+    } else {
+      setSubmitMessage(result.error || 'Invalid credentials or role selection.');
+    }
   };
 
   return (
@@ -139,11 +162,8 @@ export default function Login() {
               </button>
             </div>
 
-            {role === 'admin' && (
-              <p className="text-center text-xs text-fresh font-semibold mb-4 bg-sage/20 py-2 rounded-lg">
-                Default Admin Credentials pre-filled.
-              </p>
-            )}
+
+
 
             {submitMessage && (
               <div className={`form-alert ${submitMessage.includes('Successfully') ? 'alert-success' : 'alert-error'}`}>
@@ -219,6 +239,26 @@ export default function Login() {
                 {isSubmitting ? 'Verifying Account...' : `Log In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
               </button>
             </form>
+
+            {role !== 'admin' && (
+              <>
+                <div className="social-divider">
+                  <span>or</span>
+                </div>
+
+                <div className="social-login-actions">
+                  <button 
+                    type="button" 
+                    className="google-signin-btn"
+                    onClick={handleGoogleClick}
+                    disabled={isSubmitting}
+                  >
+                    <img src="/src/assets/icons/google.png" alt="Google" className="google-icon" width="18" height="18" />
+                    <span>Sign In with Google</span>
+                  </button>
+                </div>
+              </>
+            )}
 
             <div className="login-footer">
               <p>Don't have an account? <Link to="/signup" className="register-link">Sign Up Now</Link></p>
