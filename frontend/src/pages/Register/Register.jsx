@@ -286,7 +286,7 @@ export default function Register() {
                     </button>
                   </div>
                   {errors.password && <span className="error-text">{errors.password}</span>}
-                  {(passwordFocused || formData.password.length > 0) && (
+                  {passwordFocused && (
                     <ul className="password-checklist">
                       <li className={checks.length ? 'checked' : 'unchecked'}>
                         <span className="checklist-dot"></span> At least 8 characters

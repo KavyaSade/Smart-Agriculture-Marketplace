@@ -8,15 +8,13 @@ import User from '../models/User.js';
 export async function connectDB() {
   const connUri = process.env.MONGODB_URI;
   if (!connUri) {
-    console.error("❌ MONGODB_URI is not defined in backend/.env!");
+    console.error("MONGODB_URI is not defined in backend/.env!");
     return;
   }
 
   try {
     const conn = await mongoose.connect(connUri);
-    console.log(`=============================================`);
     console.log(`📡 MongoDB Connected: ${conn.connection.host}`);
-    console.log(`=============================================`);
     
     // Seed default admin user
     await seedDefaultAdmin();
