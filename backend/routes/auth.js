@@ -7,7 +7,7 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_agri_market_2026';
 
-// Helper to generate JWT token
+// Helper function to generate a JSON Web Token (JWT) for a user
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
@@ -18,7 +18,7 @@ const generateToken = (user) => {
 
 /**
  * @route   POST /api/auth/register
- * @desc    Register a new farmer or buyer user in MongoDB Atlas
+ * @desc    Registers a new farmer or buyer account in the MongoDB database
  * @access  Public
  */
 router.post('/register', async (req, res) => {
@@ -40,16 +40,13 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     // Create user document
     const newUser = new User({
       fullName,
       email: email.toLowerCase(),
       phone,
       role,
-      password: hashedPassword
+      password: password
     });
 
     await newUser.save();
@@ -77,7 +74,7 @@ router.post('/register', async (req, res) => {
 
 /**
  * @route   POST /api/auth/login
- * @desc    Authenticate user against MongoDB Atlas and get token
+ * @desc    Authenticates user credentials against MongoDB and issues a JWT token
  * @access  Public
  */
 router.post('/login', async (req, res) => {
@@ -96,7 +93,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = (password === user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
@@ -123,7 +120,7 @@ router.post('/login', async (req, res) => {
 
 /**
  * @route   GET /api/auth/me
- * @desc    Get currently authenticated user details from MongoDB Atlas
+ * @desc    Retrieves the profile details of the currently authenticated user
  * @access  Private
  */
 router.get('/me', authenticateToken, async (req, res) => {
@@ -152,7 +149,7 @@ router.get('/me', authenticateToken, async (req, res) => {
 
 /**
  * @route   POST /api/auth/google-login
- * @desc    Authenticate/Register user via Google OAuth (Firebase payload)
+ * @desc    Authenticates or registers a user via Google Sign-In with Firebase payload
  * @access  Public
  */
 router.post('/google-login', async (req, res) => {
@@ -172,7 +169,7 @@ router.post('/google-login', async (req, res) => {
     
     if (!user) {
       // Create user document with random/dummy password as they use Google Auth
-      const dummyPassword = await bcrypt.hash(Math.random().toString(36).slice(-10), 10);
+      const dummyPassword = Math.random().toString(36).slice(-10);
       user = new User({
         fullName,
         email: email.toLowerCase(),

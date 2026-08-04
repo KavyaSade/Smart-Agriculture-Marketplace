@@ -24,12 +24,12 @@ if (apiKey && authDomain && projectId) {
     auth = getAuth(app);
     googleProvider = new GoogleAuthProvider();
     isFirebaseConfigured = true;
-    console.log("🔥 Firebase initialized successfully.");
+    console.log("Firebase initialized successfully.");
   } catch (error) {
-    console.error("❌ Failed to initialize Firebase Auth:", error);
+    console.error("Failed to initialize Firebase Auth:", error);
   }
 } else {
-  console.warn("⚠️ Firebase configuration missing in VITE environment variables. Running in simulation mode.");
+  console.warn("Firebase configuration missing in VITE environment variables. Running in simulation mode.");
 }
 
 export { auth, googleProvider, isFirebaseConfigured };

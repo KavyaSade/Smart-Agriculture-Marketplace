@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 /**
- * Middleware to verify JWT token and inject req.user
+ * Express middleware to verify the incoming JSON Web Token (JWT) and attach the decoded user info to req.user.
  */
 export function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
