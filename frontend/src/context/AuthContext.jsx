@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
+import { signInWithPopup, sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, googleProvider, isFirebaseConfigured } from '../firebase.js';
 
 const AuthContext = createContext(null);
@@ -53,6 +53,41 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, role) => {
     setError(null);
     try {
+      // If Firebase is configured, authenticate via Firebase first
+      if (isFirebaseConfigured && auth) {
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (firebaseErr) {
+          // Translate common Firebase auth errors to user-friendly messages
+          let msg = 'Incorrect email or password.';
+          if (firebaseErr.code === 'auth/invalid-credential') {
+            msg = 'Incorrect email or password.';
+          } else if (firebaseErr.message) {
+            msg = firebaseErr.message;
+          }
+          throw new Error(msg);
+        }
+
+        // Firebase verified. Get/create JWT session with backend
+        const response = await fetch(`${API_BASE_URL}/google-login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, fullName: 'Firebase Verified User', role })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to sync with backend.');
+        }
+
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+
+      // Fallback: standard password verification via backend
       const response = await fetch(`${API_BASE_URL}/login`, {
         method: 'POST',
         headers: {
@@ -83,6 +118,21 @@ export const AuthProvider = ({ children }) => {
   const register = async (registerData) => {
     setError(null);
     try {
+      // If Firebase is configured, create the user in Firebase Auth
+      if (isFirebaseConfigured && auth) {
+        try {
+          await createUserWithEmailAndPassword(auth, registerData.email, registerData.password);
+        } catch (firebaseErr) {
+          let msg = 'Firebase user creation failed.';
+          if (firebaseErr.code === 'auth/email-already-in-use') {
+            msg = 'This email address is already registered.';
+          } else if (firebaseErr.message) {
+            msg = firebaseErr.message;
+          }
+          throw new Error(msg);
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/register`, {
         method: 'POST',
         headers: {

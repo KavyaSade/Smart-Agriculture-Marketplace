@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
@@ -10,6 +11,21 @@ export default function Navbar() {
   const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.remove('dark-theme');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -69,6 +85,14 @@ export default function Navbar() {
           ))}
         </ul>
         <div className="navbar-actions">
+          <button 
+            type="button"
+            onClick={toggleTheme} 
+            className="navbar-theme-toggle" 
+            aria-label="Toggle theme"
+          >
+            {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          </button>
           {user ? (
             <div className="navbar-profile-container" ref={dropdownRef}>
               <button 
@@ -156,6 +180,22 @@ export default function Navbar() {
             </li>
           ))}
           <div className="navbar-mobile-actions">
+            <button 
+              type="button"
+              onClick={toggleTheme} 
+              className="navbar-mobile-theme-toggle" 
+              aria-label="Toggle theme"
+            >
+              {theme === 'light' ? (
+                <>
+                  <Moon size={18} /> <span>Dark Theme</span>
+                </>
+              ) : (
+                <>
+                  <Sun size={18} /> <span>Light Theme</span>
+                </>
+              )}
+            </button>
             {user ? (
               <div className="navbar-mobile-profile">
                 <div className="mobile-profile-header">

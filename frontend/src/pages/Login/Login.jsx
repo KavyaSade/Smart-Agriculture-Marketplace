@@ -162,11 +162,8 @@ export default function Login() {
               </button>
             </div>
 
-            {role === 'admin' && (
-              <p className="text-center text-xs text-fresh font-semibold mb-4 bg-sage/20 py-2 rounded-lg">
-                Default Admin Credentials pre-filled.
-              </p>
-            )}
+
+
 
             {submitMessage && (
               <div className={`form-alert ${submitMessage.includes('Successfully') ? 'alert-success' : 'alert-error'}`}>
