@@ -6,10 +6,28 @@ import './Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('buyer'); // 'buyer', 'farmer', or 'admin'
+
+  const handleGoogleClick = async () => {
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setErrors({});
+    
+    const result = await loginWithGoogle(role);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setSubmitMessage('Successfully logged in with Google!');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } else {
+      setSubmitMessage(result.error || 'Google Login failed.');
+    }
+  };
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   
@@ -224,6 +242,26 @@ export default function Login() {
                 {isSubmitting ? 'Verifying Account...' : `Log In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
               </button>
             </form>
+
+            {role !== 'admin' && (
+              <>
+                <div className="social-divider">
+                  <span>or sign in with</span>
+                </div>
+
+                <div className="social-login-actions">
+                  <button 
+                    type="button" 
+                    className="google-signin-btn"
+                    onClick={handleGoogleClick}
+                    disabled={isSubmitting}
+                  >
+                    <img src="/src/assets/icons/google.png" alt="Google" className="google-icon" width="18" height="18" />
+                    <span>Sign In with Google</span>
+                  </button>
+                </div>
+              </>
+            )}
 
             <div className="login-footer">
               <p>Don't have an account? <Link to="/signup" className="register-link">Sign Up Now</Link></p>

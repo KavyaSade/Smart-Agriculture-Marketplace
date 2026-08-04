@@ -6,7 +6,25 @@ import './Register.css';
 
 export default function Register() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, loginWithGoogle } = useAuth();
+  
+  const handleGoogleClick = async () => {
+    setIsSubmitting(true);
+    setSubmitMessage('');
+    setErrors({});
+    
+    const result = await loginWithGoogle(formData.role);
+    setIsSubmitting(false);
+
+    if (result.success) {
+      setSubmitMessage('Successfully registered and logged in with Google!');
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+    } else {
+      setSubmitMessage(result.error || 'Google Registration failed.');
+    }
+  };
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -334,6 +352,22 @@ export default function Register() {
                 {isSubmitting ? 'Creating Account...' : 'Register Account'}
               </button>
             </form>
+
+            <div className="social-divider">
+              <span>or register with</span>
+            </div>
+
+            <div className="social-login-actions">
+              <button 
+                type="button" 
+                className="google-signin-btn"
+                onClick={handleGoogleClick}
+                disabled={isSubmitting}
+              >
+                <img src="/src/assets/icons/google.png" alt="Google" className="google-icon" width="18" height="18" />
+                <span>Sign Up with Google</span>
+              </button>
+            </div>
 
             <div className="register-footer">
               <p>Already have an account? <Link to="/login" className="register-link">Log In</Link></p>

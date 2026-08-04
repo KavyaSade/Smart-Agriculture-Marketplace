@@ -1,4 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
+import { auth, googleProvider, isFirebaseConfigured } from '../firebase.js';
 
 const AuthContext = createContext(null);
 
@@ -112,8 +114,115 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  /**
+   * Log in user with Google (Firebase popup + backend registration/login)
+   * @param {string} role 
+   */
+  const loginWithGoogle = async (role = 'buyer') => {
+    setError(null);
+    setLoading(true);
+
+    if (!isFirebaseConfigured || !auth) {
+      console.warn("Firebase Auth not configured. Simulating Google Login.");
+      // Fallback local simulation mode
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const simulatedEmail = `google.user.${Math.floor(Math.random() * 1000)}@gmail.com`;
+      const registerData = {
+        fullName: 'Simulated Google User',
+        email: simulatedEmail,
+        role: role
+      };
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/google-login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(registerData)
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to login with Google simulation.');
+        }
+
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        setLoading(false);
+        return { success: true, user: data.user };
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+        return { success: false, error: err.message };
+      }
+    }
+
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const googleUser = result.user;
+
+      const registerData = {
+        fullName: googleUser.displayName || googleUser.email.split('@')[0],
+        email: googleUser.email,
+        role: role
+      };
+
+      const response = await fetch(`${API_BASE_URL}/google-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(registerData)
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to register/login Google account on backend.');
+      }
+
+      localStorage.setItem('token', data.token);
+      setUser(data.user);
+      setLoading(false);
+      return { success: true, user: data.user };
+    } catch (err) {
+      console.error('Google Sign-In Error:', err);
+      let errorMessage = 'Google login failed.';
+      if (err.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign-in popup was closed before completion.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  /**
+   * Send Password Reset link to the registered email address
+   * @param {string} email 
+   */
+  const sendPasswordReset = async (email) => {
+    setError(null);
+    if (!isFirebaseConfigured || !auth) {
+      console.warn("Firebase Auth not configured. Simulating Password Reset Link dispatch.");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      return { success: true };
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { success: true };
+    } catch (err) {
+      console.error('Firebase Password Reset Error:', err);
+      setError(err.message);
+      return { success: false, error: err.message };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, login, loginWithGoogle, register, logout, sendPasswordReset }}>
       {children}
     </AuthContext.Provider>
   );

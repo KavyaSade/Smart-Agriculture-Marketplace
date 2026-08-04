@@ -150,4 +150,58 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/auth/google-login
+ * @desc    Authenticate/Register user via Google OAuth (Firebase payload)
+ * @access  Public
+ */
+router.post('/google-login', async (req, res) => {
+  try {
+    const { email, fullName, role } = req.body;
+
+    if (!email || !fullName || !role) {
+      return res.status(400).json({ message: 'Email, fullName, and role are required.' });
+    }
+
+    if (role !== 'buyer' && role !== 'farmer') {
+      return res.status(400).json({ message: 'Invalid role selection.' });
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      // Create user document with random/dummy password as they use Google Auth
+      const dummyPassword = await bcrypt.hash(Math.random().toString(36).slice(-10), 10);
+      user = new User({
+        fullName,
+        email: email.toLowerCase(),
+        phone: 'Google Auth User',
+        role,
+        password: dummyPassword
+      });
+      await user.save();
+    }
+
+    // Generate JWT token
+    const token = generateToken(user);
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role
+      }
+    });
+
+  } catch (error) {
+    console.error('Google login error:', error);
+    res.status(500).json({ message: 'Internal Server Error.' });
+  }
+});
+
 export default router;
+

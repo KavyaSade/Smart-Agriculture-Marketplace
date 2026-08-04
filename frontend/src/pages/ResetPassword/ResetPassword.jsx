@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, Leaf, CheckCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './ResetPassword.css';
 
 export default function ResetPassword() {
@@ -21,17 +22,23 @@ export default function ResetPassword() {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const { sendPasswordReset } = useAuth();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
+    setError('');
 
-    // Simulate API request
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const result = await sendPasswordReset(email);
+    setIsSubmitting(false);
+
+    if (result.success) {
       setIsSuccess(true);
-    }, 1200);
+    } else {
+      setError(result.error || 'Failed to send reset link. Please try again.');
+    }
   };
 
   return (
