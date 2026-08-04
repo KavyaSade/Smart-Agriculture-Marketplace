@@ -2,9 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 
-/**
- * Establishes a connection to the MongoDB Atlas database using the URI configured in the environment.
- */
+// establishes a connection to the MongoDB Atlas database using the URI configured in the environment.
 export async function connectDB() {
   const connUri = process.env.MONGODB_URI;
   if (!connUri) {
@@ -16,16 +14,14 @@ export async function connectDB() {
     const conn = await mongoose.connect(connUri);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     
-    // Automatically seed the default admin account on startup
+    // automatically seed the default admin account on startup
     await seedDefaultAdmin();
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
   }
 }
 
-/**
- * Checks for the existence of the default admin account and seeds it if it is not already present in the database.
- */
+// checks for the existence of the default admin account and seeds it if it is not already present in the database.
 async function seedDefaultAdmin() {
   try {
     const adminEmail = 'admin@agrimarket.com';
@@ -36,7 +32,7 @@ async function seedDefaultAdmin() {
       const defaultAdmin = new User({
         fullName: 'System Administrator',
         email: adminEmail,
-        phone: '+1-555-0199',
+        phone: '987654321',
         role: 'admin',
         password: hashedPassword
       });

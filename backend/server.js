@@ -4,32 +4,32 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import { connectDB } from './utils/db.js';
 
-// Load environment variables
+// load environment variables
 dotenv.config();
 
-// Connect to Database
+// connect to database
 connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// middleware
 app.use(cors({
-  origin: '*', // Allows requests from any origin
+  origin: '*', // allows requests from any origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
-// Routes
+// routes
 app.use('/api/auth', authRoutes);
 
-//check endpoint
+// check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Auth Service is running.' });
 });
 
-// Start Server
+// start server
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
   console.log(`http://localhost:${PORT}`);

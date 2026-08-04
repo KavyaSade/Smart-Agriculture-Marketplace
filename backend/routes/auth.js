@@ -7,7 +7,7 @@ import { authenticateToken } from '../middleware/auth.js';
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_agri_market_2026';
 
-// Helper function to generate a JSON Web Token (JWT) for a user
+// helper function to generate a JSON Web Token (JWT) for a user
 const generateToken = (user) => {
   return jwt.sign(
     { id: user._id, email: user.email, role: user.role },
@@ -16,16 +16,14 @@ const generateToken = (user) => {
   );
 };
 
-/**
- * @route   POST /api/auth/register
- * @desc    Registers a new farmer or buyer account in the MongoDB database
- * @access  Public
- */
+// @route   POST /api/auth/register
+// @desc    registers a new farmer or buyer account in the MongoDB database
+// @access  public
 router.post('/register', async (req, res) => {
   try {
     const { fullName, email, phone, role, password } = req.body;
 
-    // Basic Validation
+    // basic validation
     if (!fullName || !email || !phone || !role || !password) {
       return res.status(400).json({ message: 'All fields are required.' });
     }
@@ -34,13 +32,13 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Invalid role selection.' });
     }
 
-    // Check if user already exists
+    // check if user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
-    // Create user document
+    // create user document
     const newUser = new User({
       fullName,
       email: email.toLowerCase(),
@@ -51,10 +49,10 @@ router.post('/register', async (req, res) => {
 
     await newUser.save();
 
-    // Generate JWT token
+    // generate JWT token
     const token = generateToken(newUser);
 
-    // Send user profile and token
+    // send user profile and token
     res.status(201).json({
       token,
       user: {
@@ -72,33 +70,31 @@ router.post('/register', async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/auth/login
- * @desc    Authenticates user credentials against MongoDB and issues a JWT token
- * @access  Public
- */
+// @route   POST /api/auth/login
+// @desc    authenticates user credentials against MongoDB and issues a JWT token
+// @access  public
 router.post('/login', async (req, res) => {
   try {
     const { email, password, role } = req.body;
 
-    // Basic Validation
+    // basic validation
     if (!email || !password || !role) {
       return res.status(400).json({ message: 'Email, password, and role are required.' });
     }
 
-    // Find the user by email AND role
+    // find the user by email AND role
     const user = await User.findOne({ email: email.toLowerCase(), role });
     if (!user) {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
 
-    // Check password
+    // check password
     const isMatch = (password === user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
 
-    // Generate JWT token
+    // generate JWT token
     const token = generateToken(user);
 
     res.status(200).json({
@@ -118,11 +114,9 @@ router.post('/login', async (req, res) => {
   }
 });
 
-/**
- * @route   GET /api/auth/me
- * @desc    Retrieves the profile details of the currently authenticated user
- * @access  Private
- */
+// @route   GET /api/auth/me
+// @desc    retrieves the profile details of the currently authenticated user
+// @access  private
 router.get('/me', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -147,11 +141,9 @@ router.get('/me', authenticateToken, async (req, res) => {
   }
 });
 
-/**
- * @route   POST /api/auth/google-login
- * @desc    Authenticates or registers a user via Google Sign-In with Firebase payload
- * @access  Public
- */
+// @route   POST /api/auth/google-login
+// @desc    authenticates or registers a user via Google Sign-In with Firebase payload
+// @access  public
 router.post('/google-login', async (req, res) => {
   try {
     const { email, fullName, role } = req.body;
@@ -164,11 +156,11 @@ router.post('/google-login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid role selection.' });
     }
 
-    // Check if user already exists
+    // check if user already exists
     let user = await User.findOne({ email: email.toLowerCase() });
     
     if (!user) {
-      // Create user document with random/dummy password as they use Google Auth
+      // create user document with random/dummy password as they use Google Auth
       const dummyPassword = Math.random().toString(36).slice(-10);
       user = new User({
         fullName,
@@ -180,7 +172,7 @@ router.post('/google-login', async (req, res) => {
       await user.save();
     }
 
-    // Generate JWT token
+    // generate JWT token
     const token = generateToken(user);
 
     res.status(200).json({
