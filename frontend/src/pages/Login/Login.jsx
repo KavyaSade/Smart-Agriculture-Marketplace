@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('buyer'); // 'buyer', 'farmer', or 'admin'
@@ -46,21 +48,24 @@ export default function Login() {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     
     setIsSubmitting(true);
     setSubmitMessage('');
     
-    // Simulate API request
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const result = await login(email, password, role);
+    setIsSubmitting(false);
+
+    if (result.success) {
       setSubmitMessage('Successfully logged in! Redirecting to marketplace...');
       setTimeout(() => {
         navigate('/');
       }, 1500);
-    }, 1200);
+    } else {
+      setSubmitMessage(result.error || 'Invalid credentials or role selection.');
+    }
   };
 
   return (
