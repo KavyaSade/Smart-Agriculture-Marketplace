@@ -246,7 +246,7 @@ export default function Login() {
             {role !== 'admin' && (
               <>
                 <div className="social-divider">
-                  <span>or sign in with</span>
+                  <span>or</span>
                 </div>
 
                 <div className="social-login-actions">
