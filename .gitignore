@@ -1,0 +1,17 @@
+# Dependency directories
+node_modules/
+
+# Local env files containing secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Build outputs
+dist/
+dist-ssr/
+
+# Logs
+*.log
+npm-debug.log*
