@@ -1,0 +1,16 @@
+.no-records-card {
+  border: 1.5px dashed rgba(82, 183, 136, 0.2);
+  border-radius: 12px;
+}
+
+body.dark-theme .no-records-card {
+  border-color: rgba(82, 183, 136, 0.1);
+}
+
+body.dark-theme .product-card-body h3 {
+  color: #ffffff !important;
+}
+
+body.dark-theme .product-card-body p {
+  color: #a5b5ab !important;
+}

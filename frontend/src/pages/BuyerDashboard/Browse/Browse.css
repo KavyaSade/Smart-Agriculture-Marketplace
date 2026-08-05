@@ -1,0 +1,21 @@
+.wishlist-toggle-btn:hover {
+  transform: scale(1.1);
+  background-color: #ffffff !important;
+}
+
+.wishlist-toggle-btn:active {
+  transform: scale(0.9);
+}
+
+body.dark-theme .wishlist-toggle-btn {
+  background-color: #11251c !important;
+}
+
+body.dark-theme .wishlist-toggle-btn svg {
+  color: #a5b5ab;
+}
+
+body.dark-theme .wishlist-toggle-btn.active svg {
+  color: #dc2626;
+  fill: #dc2626;
+}

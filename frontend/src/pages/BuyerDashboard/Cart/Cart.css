@@ -1,0 +1,22 @@
+body.dark-theme .cart-summary-wrapper .summary-group-card {
+  background: #11251c !important;
+  border-color: rgba(82, 183, 136, 0.15) !important;
+}
+
+body.dark-theme .cart-summary-wrapper h3,
+body.dark-theme .cart-summary-wrapper label,
+body.dark-theme .cart-summary-wrapper span,
+body.dark-theme .cart-summary-wrapper textarea,
+body.dark-theme .cart-summary-wrapper input {
+  color: #ffffff !important;
+}
+
+body.dark-theme .cart-summary-wrapper textarea,
+body.dark-theme .cart-summary-wrapper input {
+  background-color: #1a3a2a !important;
+  border-color: rgba(82, 183, 136, 0.2) !important;
+}
+
+body.dark-theme .cart-items-wrapper strong {
+  color: #ffffff !important;
+}

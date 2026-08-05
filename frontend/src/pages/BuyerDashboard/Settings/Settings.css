@@ -1,0 +1,21 @@
+.settings-group-card {
+  transition: all 0.3s ease;
+}
+
+.toggle-switch-wrapper {
+  flex-shrink: 0;
+}
+
+body.dark-theme .settings-group-card {
+  background: #11251c !important;
+  border-color: rgba(82, 183, 136, 0.15) !important;
+}
+
+body.dark-theme .settings-group-card h3,
+body.dark-theme .settings-group-card h4 {
+  color: #ffffff !important;
+}
+
+body.dark-theme .settings-group-card p {
+  color: #a5b5ab !important;
+}

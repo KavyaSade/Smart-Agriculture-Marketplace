@@ -1,0 +1,68 @@
+.overview-tab-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.welcome-banner-card {
+  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+  border-radius: 20px;
+  padding: 2.25rem 2rem;
+  color: #ffffff;
+  box-shadow: 0 8px 30px rgba(27, 67, 50, 0.08);
+}
+
+.welcome-banner-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+}
+
+.welcome-banner-subtitle {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  max-width: 800px;
+  margin: 0;
+  color: #d8f3dc;
+  font-weight: 400;
+}
+
+.card-icon-wrapper-new.icon-cart {
+  background-color: rgba(82, 183, 136, 0.12);
+  color: #2d6a4f;
+}
+
+.card-icon-wrapper-new.icon-wishlist {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+}
+
+.card-icon-wrapper-new.icon-orders {
+  background-color: rgba(3, 105, 161, 0.12);
+  color: #0284c7;
+}
+
+.card-icon-wrapper-new.icon-spent {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+body.dark-theme .welcome-banner-card {
+  background: linear-gradient(135deg, #11251c 0%, #1b4332 100%);
+}
+
+body.dark-theme .card-icon-wrapper-new.icon-cart {
+  background-color: rgba(82, 183, 136, 0.05);
+  color: #52b788;
+}
+
+body.dark-theme .card-icon-wrapper-new.icon-orders {
+  background-color: rgba(3, 105, 161, 0.05);
+  color: #38bdf8;
+}
+
+body.dark-theme .card-icon-wrapper-new.icon-spent {
+  background-color: rgba(245, 158, 11, 0.05);
+  color: #fbbf24;
+}

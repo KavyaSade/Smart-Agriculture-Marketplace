@@ -22,7 +22,11 @@ export default function Login() {
     if (result.success) {
       setSubmitMessage('Successfully logged in with Google!');
       setTimeout(() => {
-        if (role === 'retailer') {
+        if (role === 'buyer') {
+          navigate('/buyer-dashboard');
+        } else if (role === 'farmer') {
+          navigate('/farmer-dashboard');
+        } else if (role === 'retailer') {
           navigate('/retailer-dashboard');
         } else if (role === 'admin') {
           navigate('/admin-dashboard');
@@ -85,7 +89,11 @@ export default function Login() {
     if (result.success) {
       setSubmitMessage('Successfully logged in! Redirecting to marketplace...');
       setTimeout(() => {
-        if (role === 'retailer') {
+        if (role === 'buyer') {
+          navigate('/buyer-dashboard');
+        } else if (role === 'farmer') {
+          navigate('/farmer-dashboard');
+        } else if (role === 'retailer') {
           navigate('/retailer-dashboard');
         } else if (role === 'admin') {
           navigate('/admin-dashboard');

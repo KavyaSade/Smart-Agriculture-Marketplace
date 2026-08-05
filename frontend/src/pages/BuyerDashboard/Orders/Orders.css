@@ -1,0 +1,65 @@
+.order-items-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.order-item-title {
+  font-weight: 700;
+  color: #1c2420;
+}
+
+.order-item-qty {
+  font-size: 0.75rem;
+  color: #52b788;
+  font-weight: 600;
+}
+
+.order-status-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.order-status-badge.status-pending {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.order-status-badge.status-shipped {
+  background-color: rgba(3, 105, 161, 0.12);
+  color: #0284c7;
+}
+
+.order-status-badge.status-delivered {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+body.dark-theme .order-item-title {
+  color: #ffffff;
+}
+
+body.dark-theme .order-status-badge.status-pending {
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+body.dark-theme .order-status-badge.status-shipped {
+  background-color: rgba(3, 105, 161, 0.05);
+}
+
+body.dark-theme .order-status-badge.status-delivered {
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.order-farmer-name {
+  font-weight: 600;
+  color: #1c2420;
+  font-size: 0.95rem;
+}
+
+body.dark-theme .order-farmer-name {
+  color: #ffffff;
+}
