@@ -38,13 +38,16 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
 
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // create user document
     const newUser = new User({
       fullName,
       email: email.toLowerCase(),
       phone,
       role,
-      password: password
+      password: hashedPassword
     });
 
     await newUser.save();
@@ -95,7 +98,12 @@ router.post('/login', async (req, res) => {
     }
 
     // Check password
-    const isMatch = (password === user.password);
+    let isMatch = false;
+    if (user.password.startsWith('$2a$') || user.password.startsWith('$2b$')) {
+      isMatch = await bcrypt.compare(password, user.password);
+    } else {
+      isMatch = (password === user.password);
+    }
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
