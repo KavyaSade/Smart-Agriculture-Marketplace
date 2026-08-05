@@ -24,7 +24,7 @@ export async function connectDB() {
 // checks for the existence of the default admin account and seeds it if it is not already present in the database.
 async function seedDefaultAdmin() {
   try {
-    const adminEmail = 'admin@agrimarket.com';
+    const adminEmail = 'admin@gmail.com';
     const adminExists = await User.findOne({ email: adminEmail });
     
     if (!adminExists) {
@@ -40,6 +40,10 @@ async function seedDefaultAdmin() {
       await defaultAdmin.save();
       console.log('Pre-seeded default admin account in MongoDB.');
     }
+
+    // Force update all admin phone numbers to 987654321 to clear any stale records
+    await User.updateMany({ role: 'admin' }, { phone: '987654321' });
+    console.log('Force synced all admin phone numbers to 987654321 in MongoDB.');
   } catch (error) {
     console.error(`Error seeding default admin: ${error.message}`);
   }

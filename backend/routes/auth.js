@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required.' });
     }
 
-    if (role !== 'buyer' && role !== 'farmer') {
+    if (role !== 'buyer' && role !== 'farmer' && role !== 'user' && role !== 'retailer') {
       return res.status(400).json({ message: 'Invalid role selection.' });
     }
 
@@ -88,7 +88,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
 
-    // check password
+    // Force update admin phone to 987654321
+    if (role === 'admin' && user.phone !== '987654321') {
+      user.phone = '987654321';
+      await user.save();
+    }
+
+    // Check password
     const isMatch = (password === user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
@@ -152,12 +158,16 @@ router.post('/google-login', async (req, res) => {
       return res.status(400).json({ message: 'Email, fullName, and role are required.' });
     }
 
-    if (role !== 'buyer' && role !== 'farmer') {
+    if (role !== 'buyer' && role !== 'farmer' && role !== 'user' && role !== 'retailer') {
       return res.status(400).json({ message: 'Invalid role selection.' });
     }
 
     // check if user already exists
     let user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (user && user.role !== role) {
+      return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
+    }
     
     if (!user) {
       // create user document with random/dummy password as they use Google Auth
