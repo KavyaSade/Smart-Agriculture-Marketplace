@@ -1,0 +1,99 @@
+/* orders tab styling */
+
+/* filter tabs for orders list */
+.orders-filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.order-filter-tab {
+  background-color: #ffffff;
+  border: 1px solid rgba(82, 183, 136, 0.12);
+  color: #55625b;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+body.dark-theme .order-filter-tab {
+  background-color: #11251e;
+  border-color: rgba(82, 183, 136, 0.15);
+  color: #a5b5ab;
+}
+
+.order-filter-tab:hover {
+  border-color: #40916c;
+  color: #40916c;
+}
+
+.order-filter-tab.active {
+  background-color: #40916c;
+  border-color: #40916c;
+  color: #ffffff;
+}
+
+body.dark-theme .order-filter-tab.active {
+  background-color: #52b788;
+  border-color: #52b788;
+  color: #ffffff;
+}
+
+/* order status labels */
+.order-status-badge {
+  display: inline-flex;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.order-status-badge.pending {
+  background-color: #fef3e6;
+  color: #f2994a;
+}
+
+.order-status-badge.shipped {
+  background-color: #eaf2ff;
+  color: #1a73e8;
+}
+
+.order-status-badge.delivered {
+  background-color: #eaf7ee;
+  color: #40916c;
+}
+
+.order-status-badge.cancelled {
+  background-color: #ffeef0;
+  color: #d90429;
+}
+
+.order-status-select {
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(82, 183, 136, 0.2);
+  background-color: #ffffff;
+  color: #1c2420;
+  font-size: 0.85rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+body.dark-theme .order-status-select {
+  background-color: #163026;
+  border-color: rgba(82, 183, 136, 0.3);
+  color: #ffffff;
+}
+
+.order-status-select:focus {
+  border-color: #40916c;
+}

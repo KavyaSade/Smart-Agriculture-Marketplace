@@ -1,0 +1,6 @@
+/* Products tab styles */
+
+.admin-products-view {
+  display: flex;
+  flex-direction: column;
+}

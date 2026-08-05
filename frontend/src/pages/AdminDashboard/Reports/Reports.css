@@ -1,0 +1,44 @@
+/* Reports tab styles */
+
+.admin-reports-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .admin-reports-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.export-action-btn {
+  background-color: #ffffff;
+  color: #1b4332;
+  border: 1px solid rgba(82, 183, 136, 0.25);
+  border-radius: 12px;
+  padding: 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+body.dark-theme .export-action-btn {
+  background-color: #11251e;
+  color: #e2ede6;
+  border-color: rgba(82, 183, 136, 0.2);
+}
+
+.export-action-btn:hover {
+  background-color: #f0faf4;
+  color: #40916c;
+  border-color: #40916c;
+}
+
+body.dark-theme .export-action-btn:hover {
+  background-color: rgba(82, 183, 136, 0.05);
+  color: #52b788;
+  border-color: #52b788;
+}

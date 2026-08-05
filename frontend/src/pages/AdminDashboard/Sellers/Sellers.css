@@ -1,0 +1,6 @@
+/* Sellers tab styles */
+
+.admin-sellers-view {
+  display: flex;
+  flex-direction: column;
+}

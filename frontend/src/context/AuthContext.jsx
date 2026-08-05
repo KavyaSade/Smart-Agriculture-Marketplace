@@ -53,8 +53,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password, role) => {
     setError(null);
     try {
-      // If Firebase is configured, authenticate via Firebase first
-      if (isFirebaseConfigured && auth) {
+      // If Firebase is configured, authenticate via Firebase first (skip for admin)
+      if (isFirebaseConfigured && auth && role !== 'admin') {
         try {
           await signInWithEmailAndPassword(auth, email, password);
         } catch (firebaseErr) {

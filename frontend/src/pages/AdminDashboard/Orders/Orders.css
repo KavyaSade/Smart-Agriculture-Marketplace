@@ -1,0 +1,6 @@
+/* Orders tab styles */
+
+.admin-orders-view {
+  display: flex;
+  flex-direction: column;
+}

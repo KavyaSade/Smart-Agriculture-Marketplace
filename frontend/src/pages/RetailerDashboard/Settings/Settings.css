@@ -1,0 +1,98 @@
+/* settings tab styling */
+
+/* configuration settings sections */
+.settings-section-card {
+  margin-bottom: 2rem;
+}
+
+.settings-section-card h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(82, 183, 136, 0.1);
+  padding-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.settings-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(82, 183, 136, 0.05);
+}
+
+.settings-toggle-row:last-child {
+  border-bottom: none;
+}
+
+.toggle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.toggle-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.toggle-desc {
+  font-size: 0.8rem;
+}
+
+/* iOS toggle switch style */
+.switch-label-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.switch-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-slider-round {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.switch-slider-round:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.switch-input:checked + .switch-slider-round {
+  background-color: #40916c;
+}
+
+body.dark-theme .switch-input:checked + .switch-slider-round {
+  background-color: #52b788;
+}
+
+.switch-input:focus + .switch-slider-round {
+  box-shadow: 0 0 1px #40916c;
+}
+
+.switch-input:checked + .switch-slider-round:before {
+  transform: translateX(24px);
+}

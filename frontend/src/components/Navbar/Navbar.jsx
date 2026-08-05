@@ -99,6 +99,11 @@ export default function Navbar() {
                       Farmer Dashboard
                     </Link>
                   )}
+                  {user.role === 'retailer' && (
+                    <Link to="/retailer-dashboard" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
+                      Retailer Dashboard
+                    </Link>
+                  )}
                   {user.role === 'buyer' && (
                     <Link to="/buyer-dashboard" className="dropdown-item" onClick={() => setIsDropdownOpen(false)}>
                       Buyer Dashboard
@@ -175,6 +180,11 @@ export default function Navbar() {
                   {user.role === 'farmer' && (
                     <Link to="/farmer-dashboard" className="btn btn-secondary w-full text-center" onClick={() => setIsOpen(false)}>
                       Farmer Dashboard
+                    </Link>
+                  )}
+                  {user.role === 'retailer' && (
+                    <Link to="/retailer-dashboard" className="btn btn-secondary w-full text-center" onClick={() => setIsOpen(false)}>
+                      Retailer Dashboard
                     </Link>
                   )}
                   {user.role === 'buyer' && (

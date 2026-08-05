@@ -1,7 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './Hero.css';
 
 export default function Hero() {
+  const { user } = useAuth();
+
   return (
     <section className="hero">
       <div className="hero-container">
@@ -16,9 +20,19 @@ export default function Hero() {
             Connecting farmers directly with wholesale buyers, retailers, and consumers. Get fair prices, reduce waste, and trade securely with smart digital solutions.
           </p>
           <div className="hero-btn-group animate-fade-in-up opacity-0" style={{ animationDelay: '550ms' }}>
-            <a href="#categories" className="btn btn-primary hover:scale-[1.04] active:scale-[0.96] w-full sm:w-auto">
-              Explore Products <img src="/src/assets/icons/arrow.png" alt="arrow" className="hero-btn-primary-icon" />
-            </a>
+            {user?.role === 'farmer' ? (
+              <Link to="/retailer-dashboard" className="btn btn-primary hover:scale-[1.04] active:scale-[0.96] w-full sm:w-auto">
+                Go to Retailer Dashboard <img src="/src/assets/icons/arrow.png" alt="arrow" className="hero-btn-primary-icon" />
+              </Link>
+            ) : user?.role === 'admin' ? (
+              <Link to="/admin-dashboard" className="btn btn-primary hover:scale-[1.04] active:scale-[0.96] w-full sm:w-auto">
+                Go to Admin Dashboard <img src="/src/assets/icons/arrow.png" alt="arrow" className="hero-btn-primary-icon" />
+              </Link>
+            ) : (
+              <a href="#categories" className="btn btn-primary hover:scale-[1.04] active:scale-[0.96] w-full sm:w-auto">
+                Explore Products <img src="/src/assets/icons/arrow.png" alt="arrow" className="hero-btn-primary-icon" />
+              </a>
+            )}
             <a href="#how-it-works" className="btn btn-secondary hover:scale-[1.04] active:scale-[0.96] w-full sm:w-auto">
               How It Works
             </a>

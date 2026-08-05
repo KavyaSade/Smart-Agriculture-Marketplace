@@ -1,0 +1,90 @@
+/* profile tab styling */
+
+/* forms and inputs grid */
+.form-grid-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .form-grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group-full {
+  grid-column: 1 / -1;
+}
+
+.textarea-field {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.form-actions-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  border-top: 1px solid rgba(82, 183, 136, 0.1);
+  padding-top: 1.5rem;
+}
+
+.cancel-action-btn {
+  background-color: transparent;
+  color: #55625b;
+  border: 1px solid rgba(85, 98, 91, 0.2);
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+body.dark-theme .cancel-action-btn {
+  color: #a5b5ab;
+  border-color: rgba(165, 181, 171, 0.25);
+}
+
+.cancel-action-btn:hover {
+  background-color: rgba(85, 98, 91, 0.05);
+}
+
+.submit-action-btn {
+  background-color: #40916c;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 10px rgba(64, 145, 108, 0.2);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submit-action-btn:hover {
+  background-color: #52b788;
+}
+
+/* horizontal layout configuration for profile picture uploader */
+.profile-photo-uploader-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  grid-column: 1 / -1;
+}
+
+.uploader-info-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 0.5rem !important;
+}

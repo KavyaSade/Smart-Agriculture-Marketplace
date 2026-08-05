@@ -22,7 +22,13 @@ export default function Login() {
     if (result.success) {
       setSubmitMessage('Successfully logged in with Google!');
       setTimeout(() => {
-        navigate('/');
+        if (role === 'retailer') {
+          navigate('/retailer-dashboard');
+        } else if (role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/');
+        }
       }, 1500);
     } else {
       setSubmitMessage(result.error || 'Google Login failed.');
@@ -38,7 +44,7 @@ export default function Login() {
   const handleRoleChange = (newRole) => {
     setRole(newRole);
     if (newRole === 'admin') {
-      setEmail('admin@agrimarket.com');
+      setEmail('admin@gmail.com');
       setPassword('admin123');
       setErrors({});
     } else {
@@ -79,7 +85,13 @@ export default function Login() {
     if (result.success) {
       setSubmitMessage('Successfully logged in! Redirecting to marketplace...');
       setTimeout(() => {
-        navigate('/');
+        if (role === 'retailer') {
+          navigate('/retailer-dashboard');
+        } else if (role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/');
+        }
       }, 1500);
     } else {
       setSubmitMessage(result.error || 'Invalid credentials or role selection.');
@@ -137,7 +149,6 @@ export default function Login() {
               <p>Enter your credentials to manage your agricultural trade</p>
             </div>
 
-            {/* Role selector buttons */}
             <div className="role-selector-container">
               <button 
                 type="button" 
@@ -152,6 +163,13 @@ export default function Login() {
                 onClick={() => handleRoleChange('farmer')}
               >
                 Farmer
+              </button>
+              <button 
+                type="button" 
+                className={`role-select-btn ${role === 'retailer' ? 'active' : ''}`}
+                onClick={() => handleRoleChange('retailer')}
+              >
+                Retailer
               </button>
               <button 
                 type="button" 
@@ -236,7 +254,7 @@ export default function Login() {
                 className="btn btn-primary w-full login-submit-btn"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Verifying Account...' : `Log In as ${role.charAt(0).toUpperCase() + role.slice(1)}`}
+                {isSubmitting ? 'Verifying Account...' : `Log In as ${role === 'farmer' ? 'Farmer' : role === 'retailer' ? 'Retailer' : role.charAt(0).toUpperCase() + role.slice(1)}`}
               </button>
             </form>
 

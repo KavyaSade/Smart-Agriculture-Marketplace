@@ -1,0 +1,6 @@
+/* Buyers tab styles */
+
+.admin-buyers-view {
+  display: flex;
+  flex-direction: column;
+}

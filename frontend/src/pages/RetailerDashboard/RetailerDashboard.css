@@ -1,0 +1,525 @@
+/* seller dashboard layout stylesheet */
+
+/* container layout */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f0faf4;
+  color: #1c2420;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* dark mode container */
+body.dark-theme .dashboard-container {
+  background-color: #0b1510;
+  color: #e2ede6;
+}
+
+/* solid high contrast text colors */
+.text-dark {
+  color: #1b4332 !important;
+}
+body.dark-theme .text-dark {
+  color: #ffffff !important;
+}
+
+.text-muted {
+  color: #55625b !important;
+}
+body.dark-theme .text-muted {
+  color: #a5b5ab !important;
+}
+
+/* sidebar design with soft theme green border */
+.dashboard-sidebar {
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-right: 1px solid rgba(64, 145, 108, 0.18);
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+  box-sizing: border-box;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+/* dark mode sidebar */
+body.dark-theme .dashboard-sidebar {
+  background-color: #11251e;
+  border-right-color: rgba(82, 183, 136, 0.25);
+}
+
+/* sidebar logo branding */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1b4332;
+  text-decoration: none;
+  margin-bottom: 2rem;
+}
+
+body.dark-theme .sidebar-brand {
+  color: #ffffff;
+}
+
+.sidebar-logo-img {
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar-brand-accent {
+  color: #52b788;
+}
+
+/* user card in sidebar */
+.sidebar-user-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f4faf6;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  transition: background-color 0.3s;
+}
+
+body.dark-theme .sidebar-user-card {
+  background-color: rgba(82, 183, 136, 0.08);
+}
+
+.sidebar-avatar {
+  width: 48px;
+  height: 48px;
+  background-color: #40916c;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(64, 145, 108, 0.2);
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-user-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1b4332;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+body.dark-theme .sidebar-user-name {
+  color: #ffffff;
+}
+
+.sidebar-user-role {
+  font-size: 0.75rem;
+  color: #52b788;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* sidebar menu links list */
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* links with left indicator border */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  color: #55625b;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 0 12px 12px 0;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+body.dark-theme .sidebar-link {
+  color: #a5b5ab;
+}
+
+.sidebar-link:hover {
+  color: #40916c;
+  background-color: #eaf7ee;
+}
+
+body.dark-theme .sidebar-link:hover {
+  color: #52b788;
+  background-color: rgba(82, 183, 136, 0.08);
+}
+
+/* active tab style with sleek vertical line and soft highlight */
+.sidebar-link.active {
+  color: #40916c !important;
+  background-color: #eaf7ee;
+  border-left-color: #40916c;
+}
+
+body.dark-theme .sidebar-link.active {
+  color: #52b788 !important;
+  background-color: rgba(82, 183, 136, 0.08);
+  border-left-color: #52b788;
+}
+
+/* sidebar footer with soft green border line */
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid rgba(64, 145, 108, 0.18);
+  padding-top: 1.5rem;
+}
+
+body.dark-theme .sidebar-footer {
+  border-top-color: rgba(82, 183, 136, 0.25);
+}
+
+/* logout button styling */
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  color: #d90429;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.logout-button:hover {
+  background-color: rgba(217, 4, 41, 0.08);
+}
+
+/* main content background */
+.dashboard-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* topbar design */
+.dashboard-topbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(82, 183, 136, 0.15);
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+body.dark-theme .dashboard-topbar {
+  background-color: #11251e;
+  border-bottom-color: rgba(82, 183, 136, 0.2);
+}
+
+.topbar-title-wrapper h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.topbar-subtitle {
+  font-size: 0.85rem;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.notification-bell-btn {
+  background: none;
+  border: none;
+  color: #55625b;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+body.dark-theme .notification-bell-btn {
+  color: #a5b5ab;
+}
+
+.notification-bell-btn:hover {
+  background-color: rgba(64, 145, 108, 0.08);
+}
+
+.notification-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background-color: #d90429;
+  border-radius: 50%;
+}
+
+/* main body container spacing */
+.dashboard-view-body {
+  padding: 2rem;
+  flex-grow: 1;
+}
+
+/* dashboard card styling */
+.dashboard-card {
+  background-color: #ffffff;
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid rgba(82, 183, 136, 0.12);
+  box-shadow: 0 4px 16px rgba(27, 67, 50, 0.04);
+  margin-bottom: 1.5rem;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+body.dark-theme .dashboard-card {
+  background-color: #11251e;
+  border-color: rgba(82, 183, 136, 0.2);
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.card-header-row h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* shared alert banners */
+.dashboard-alert-banner {
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dashboard-alert-banner.success {
+  background-color: #eaf7ee;
+  color: #40916c;
+  border: 1px solid rgba(64, 145, 108, 0.2);
+}
+
+body.dark-theme .dashboard-alert-banner.success {
+  background-color: rgba(64, 145, 108, 0.15);
+  color: #52b788;
+  border-color: rgba(64, 145, 108, 0.25);
+}
+
+/* dialog warning box design */
+.overlay-dialog-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(11, 21, 16, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog-modal-card {
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 20px 48px rgba(11, 21, 16, 0.25);
+  border: 1px solid rgba(82, 183, 136, 0.15);
+  animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: background-color 0.3s;
+}
+
+body.dark-theme .dialog-modal-card {
+  background-color: #11251e;
+  border-color: rgba(82, 183, 136, 0.25);
+}
+
+@keyframes modalScaleIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.dialog-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #d90429;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.dialog-message {
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.dialog-btn {
+  padding: 0.65rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+
+.dialog-btn.cancel {
+  background-color: transparent;
+  color: #55625b;
+  border: 1px solid rgba(85, 98, 91, 0.2);
+}
+
+body.dark-theme .dialog-btn.cancel {
+  color: #a5b5ab;
+  border-color: rgba(165, 181, 171, 0.25);
+}
+
+.dialog-btn.cancel:hover {
+  background-color: rgba(85, 98, 91, 0.05);
+}
+
+.dialog-btn.danger-confirm {
+  background-color: #d90429;
+  color: #ffffff;
+}
+
+.dialog-btn.danger-confirm:hover {
+  background-color: #b3001e;
+}
+
+/* mobile responsiveness menu */
+.hamburger-toggle-menu {
+  display: none;
+  background: none;
+  border: none;
+  color: #1b4332;
+  cursor: pointer;
+  padding: 0.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+body.dark-theme .hamburger-toggle-menu {
+  color: #ffffff;
+}
+
+@media (max-width: 850px) {
+  .hamburger-toggle-menu {
+    display: flex;
+  }
+
+  .dashboard-sidebar {
+    position: fixed;
+    left: -280px;
+    transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .dashboard-sidebar.mobile-visible {
+    left: 0;
+  }
+
+  .sidebar-backdrop-mobile {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.4);
+    backdrop-filter: blur(2px);
+    z-index: 95;
+  }
+}
+
+/* sidebar and topbar png icon sizes */
+.sidebar-link-img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.topbar-menu-img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.topbar-bell-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* invert black PNG icons to clean white in dark theme */
+body.dark-theme .sidebar-link-img,
+body.dark-theme .topbar-menu-img,
+body.dark-theme .topbar-bell-img,
+body.dark-theme .stat-card-png-icon,
+body.dark-theme .action-btn-png,
+body.dark-theme .search-input-icon-png {
+  filter: invert(1) brightness(2);
+}

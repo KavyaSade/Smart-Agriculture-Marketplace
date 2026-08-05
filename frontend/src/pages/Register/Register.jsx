@@ -255,8 +255,9 @@ export default function Register() {
                     value={formData.role}
                     onChange={handleChange}
                   >
-                    <option value="farmer">Farmer (Sell Crops)</option>
                     <option value="buyer">Buyer (Buy Crops)</option>
+                    <option value="farmer">Farmer (Sell Crops)</option>
+                    <option value="retailer">Retailer</option>
                   </select>
                 </div>
 

@@ -1,0 +1,217 @@
+/* products tab styling */
+
+/* actions row in views */
+.view-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .view-header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex-grow: 0.5;
+  min-width: 250px;
+}
+
+.search-input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-field {
+  padding-left: 2.75rem !important;
+}
+
+/* add button styling */
+.add-new-btn {
+  background-color: #40916c;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 10px rgba(64, 145, 108, 0.2);
+}
+
+.add-new-btn:hover {
+  background-color: #52b788;
+  transform: translateY(-1px);
+}
+
+/* product list tables */
+.responsive-table-wrapper {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(82, 183, 136, 0.12);
+  background-color: #ffffff;
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+body.dark-theme .responsive-table-wrapper {
+  background-color: #11251e;
+  border-color: rgba(82, 183, 136, 0.2);
+}
+
+.custom-dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.custom-dashboard-table th {
+  background-color: #f4faf6;
+  font-weight: 700;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(82, 183, 136, 0.12);
+}
+
+body.dark-theme .custom-dashboard-table th {
+  background-color: rgba(82, 183, 136, 0.05);
+  border-bottom-color: rgba(82, 183, 136, 0.2);
+}
+
+.custom-dashboard-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(82, 183, 136, 0.08);
+  vertical-align: middle;
+}
+
+body.dark-theme .custom-dashboard-table td {
+  border-bottom-color: rgba(82, 183, 136, 0.15);
+}
+
+.custom-dashboard-table tr:last-child td {
+  border-bottom: none;
+}
+
+.table-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.table-product-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  background-color: #f0faf4;
+}
+
+.table-product-name {
+  font-weight: 700;
+}
+
+/* status badges for stock level */
+.status-pill {
+  display: inline-flex;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pill.instock {
+  background-color: #eaf7ee;
+  color: #40916c;
+}
+
+body.dark-theme .status-pill.instock {
+  background-color: rgba(64, 145, 108, 0.15);
+  color: #52b788;
+}
+
+.status-pill.lowstock {
+  background-color: #fef3e6;
+  color: #f2994a;
+}
+
+body.dark-theme .status-pill.lowstock {
+  background-color: rgba(242, 153, 74, 0.15);
+  color: #f7b97d;
+}
+
+.status-pill.outofstock {
+  background-color: #ffeef0;
+  color: #d90429;
+}
+
+body.dark-theme .status-pill.outofstock {
+  background-color: rgba(217, 4, 41, 0.15);
+  color: #ff4d6d;
+}
+
+/* action buttons */
+.action-buttons-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-icon-btn {
+  background: none;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-icon-btn.edit {
+  color: #40916c;
+  background-color: #f4faf6;
+}
+
+.action-icon-btn.edit:hover {
+  background-color: #40916c;
+  color: #ffffff;
+}
+
+.action-icon-btn.delete {
+  color: #d90429;
+  background-color: #ffeef0;
+}
+
+.action-icon-btn.delete:hover {
+  background-color: #d90429;
+  color: #ffffff;
+}
+
+/* action button png icons sizing */
+.action-btn-png {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* search input png icon styling */
+.search-input-icon-png {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}

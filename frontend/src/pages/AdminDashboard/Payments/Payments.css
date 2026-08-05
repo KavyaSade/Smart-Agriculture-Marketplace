@@ -1,0 +1,35 @@
+/* Payments tab styles */
+
+.admin-payments-split {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .admin-payments-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.platform-wallet-card {
+  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%);
+  border-radius: 20px;
+  padding: 2rem;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 8px 32px rgba(64, 145, 108, 0.12);
+  height: max-content;
+}
+
+.payout-request-item {
+  background-color: #fcfdfd;
+  border: 1px solid rgba(82, 183, 136, 0.08);
+}
+
+body.dark-theme .payout-request-item {
+  background-color: rgba(82, 183, 136, 0.02);
+  border-color: rgba(82, 183, 136, 0.1);
+}

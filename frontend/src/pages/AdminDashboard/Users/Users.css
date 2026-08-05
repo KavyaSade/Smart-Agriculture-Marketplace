@@ -1,0 +1,81 @@
+/* Users tab styles */
+
+.role-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.role-badge.retailer {
+  background-color: #eaf7ee;
+  color: #40916c;
+}
+
+body.dark-theme .role-badge.retailer {
+  background-color: rgba(64, 145, 108, 0.15);
+  color: #52b788;
+}
+
+.role-badge.buyer {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+}
+
+body.dark-theme .role-badge.buyer {
+  background-color: rgba(26, 115, 232, 0.15);
+  color: #669df6;
+}
+
+.role-badge.admin {
+  background-color: #f3e8ff;
+  color: #a855f7;
+}
+
+body.dark-theme .role-badge.admin {
+  background-color: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+}
+
+.role-badge.user {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+body.dark-theme .role-badge.user {
+  background-color: rgba(73, 80, 87, 0.15);
+  color: #adb5bd;
+}
+
+.action-btn-small {
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.action-btn-small.danger {
+  color: #d90429;
+  border-color: rgba(217, 4, 41, 0.3);
+}
+
+.action-btn-small.danger:hover {
+  background-color: #d90429;
+  color: #ffffff;
+}
+
+.action-btn-small.success {
+  color: #40916c;
+  border-color: rgba(64, 145, 108, 0.3);
+}
+
+.action-btn-small.success:hover {
+  background-color: #40916c;
+  color: #ffffff;
+}
