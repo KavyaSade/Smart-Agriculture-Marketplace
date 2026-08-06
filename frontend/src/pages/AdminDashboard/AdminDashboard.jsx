@@ -95,6 +95,7 @@ export default function AdminDashboard() {
         const mapped = data.map(o => ({
           ...o,
           id: o._id,
+          total: o.amount,
           date: new Date(o.date).toISOString().split('T')[0]
         }));
         setOrders(mapped);
