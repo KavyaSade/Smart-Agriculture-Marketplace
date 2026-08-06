@@ -14,17 +14,15 @@ export async function connectDB() {
     const conn = await mongoose.connect(connUri);
     console.log(`MongoDB Connected: ${conn.connection.host}`);
     
-    // automatically seed the default admin account on startup
-    await seedDefaultAdmin();
-    // Seed default products and farmer users.
-    await seedDefaultProducts();
+    // automatically seed default admin account on startup
+    await seedDefaultData();
   } catch (error) {
     console.error(`MongoDB Connection Error: ${error.message}`);
   }
 }
 
-// checks for the existence of the default admin account and seeds it if it is not already present in the database.
-async function seedDefaultAdmin() {
+// checks for the existence of the default admin account, seeding it if not present.
+async function seedDefaultData() {
   try {
     const adminEmail = 'admin@gmail.com';
     const adminExists = await User.findOne({ email: adminEmail });
@@ -45,8 +43,9 @@ async function seedDefaultAdmin() {
 
     // Force update all admin phone numbers to 987654321 to clear any stale records
     await User.updateMany({ role: 'admin' }, { phone: '987654321' });
+    console.log('Force synced all admin phone numbers to 987654321 in MongoDB.');
   } catch (error) {
-    console.error(`Error seeding default admin: ${error.message}`);
+    console.error(`Error seeding default data: ${error.message}`);
   }
 }
 
