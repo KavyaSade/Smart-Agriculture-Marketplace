@@ -72,7 +72,7 @@ const Overview = ({ stats, orders, products, handleTabChange, warningProducts })
                 {orders.slice(0, 4).map((order) => (
                   <tr key={order.id}>
                     <td><strong>{order.id}</strong></td>
-                    <td>{order.buyer}</td>
+                    <td>{order.buyerName}</td>
                     <td>{order.productName} (x{order.quantity})</td>
                     <td><span className="order-amount-val">₹{order.amount.toLocaleString()}</span></td>
                     <td>

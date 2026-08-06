@@ -40,7 +40,7 @@ const Orders = ({
                     </div>
                   </td>
                   <td>
-                    <span className="order-farmer-name">{order.farmer}</span>
+                    <span className="order-farmer-name">{order.farmerName}</span>
                   </td>
                   <td><span className="order-amount-val">₹{order.amount.toLocaleString()}</span></td>
                   <td>{order.date}</td>
@@ -52,7 +52,8 @@ const Orders = ({
                   <td>
                     {order.status === 'pending' ? (
                       <button 
-                        onClick={() => handleCancelOrder(order.id)} 
+                        // Use database document id for API calls.
+                        onClick={() => handleCancelOrder(order._id)} 
                         className="btn-order-action"
                         style={{
                           backgroundColor: 'rgba(220, 38, 38, 0.08)',

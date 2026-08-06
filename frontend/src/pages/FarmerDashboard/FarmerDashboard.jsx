@@ -36,6 +36,7 @@ import Analytics from './Analytics/Analytics';
 import Profile from './Profile/Profile';
 import SettingsTab from './Settings/Settings';
 import Marketplace from './Marketplace/Marketplace';
+import AddProduct from './AddProduct/AddProduct';
 
 export default function FarmerDashboard() {
   const navigate = useNavigate();
@@ -250,114 +251,62 @@ export default function FarmerDashboard() {
     image: ''
   });
 
-  const [products, setProducts] = useState([
-    {
-      name: 'Nellore Sona Masuri Rice',
-      category: 'grains',
-      price: 65,
-      priceUnit: 'Kg',
-      stock: 2500,
-      stockUnit: 'Kg',
-      location: 'Krishna Delta Farm',
-      image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=600',
-      description: 'High quality grains harvested from delta region.',
-      inStock: true
-    },
-    {
-      name: 'Guntur Red Tomatoes',
-      category: 'fruits',
-      price: 35,
-      priceUnit: 'Kg',
-      stock: 400,
-      stockUnit: 'Kg',
-      location: 'Madanapalle Farms',
-      image: 'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&q=80&w=600',
-      description: 'Fresh organic tomatoes directly sourced from fields.',
-      inStock: true
-    },
-    {
-      name: 'Guntur Red Chillies',
-      category: 'spices',
-      price: 180,
-      priceUnit: 'Kg',
-      stock: 1200,
-      stockUnit: 'Kg',
-      location: 'Andhra Spice Farms',
-      image: 'https://images.unsplash.com/photo-1546860255-95536c19724e?w=600&auto=format&fit=crop&q=60',
-      description: 'Sun dried hot chillies with strong flavor.',
-      inStock: true
-    },
-    {
-      name: 'Malabar Black Pepper',
-      category: 'spices',
-      price: 450,
-      priceUnit: 'Kg',
-      stock: 0,
-      stockUnit: 'Kg',
-      location: 'Malabar Hills Spices',
-      image: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&q=80&w=600',
-      description: 'Premium organic black pepper seeds.',
-      inStock: false
-    }
-  ]);
+  // Initialize products list state as empty.
+  const [products, setProducts] = useState([]);
 
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-8742',
-      buyer: 'Ramesh Kumar',
-      phone: '+91 98765 43210',
-      address: 'Plot 42, Green Avenue, Hyderabad, Telangana',
-      productName: 'Nellore Sona Masuri Rice',
-      quantity: 500,
-      unit: 'Kg',
-      amount: 32500,
-      date: 'Aug 04, 2026',
-      status: 'pending'
-    },
-    {
-      id: 'ORD-8739',
-      buyer: 'Suresh Raina',
-      phone: '+91 98765 43211',
-      address: 'Flat 102, Royal Gardens, Chennai, Tamil Nadu',
-      productName: 'Guntur Red Tomatoes',
-      quantity: 200,
-      unit: 'Kg',
-      amount: 7000,
-      date: 'Aug 03, 2026',
-      status: 'shipped'
-    },
-    {
-      id: 'ORD-8735',
-      buyer: 'Vijay Traders',
-      phone: '+91 98765 43212',
-      address: 'Guntur Spice Market Yard, Guntur, Andhra Pradesh',
-      productName: 'Guntur Red Chillies',
-      quantity: 100,
-      unit: 'Kg',
-      amount: 18000,
-      date: 'Jul 31, 2026',
-      status: 'delivered'
-    }
-  ]);
+  // Initialize received orders list state as empty.
+  const [orders, setOrders] = useState([]);
 
+  // Initialize activities log state.
   const [activities, setActivities] = useState([
-    { id: 1, text: 'Order ORD-8742 received from Ramesh Kumar', type: 'order', time: '10 minutes ago' },
     { id: 2, text: 'Listing Guntur Red Tomatoes stock updated to 400 Kg', type: 'inventory', time: '2 hours ago' },
     { id: 3, text: 'Order ORD-8735 was marked as delivered', type: 'success', time: '1 day ago' },
     { id: 4, text: 'Crop listing Malabar Black Pepper set to Out of Stock', type: 'warning', time: '1 day ago' }
   ]);
 
+  // Initialize dashboard summary stats.
   const [stats, setStats] = useState({
-    totalEarnings: 57500,
-    activeListings: 4,
-    completedOrders: 1,
-    pendingShipment: 2
+    totalEarnings: 0,
+    activeListings: 0,
+    completedOrders: 0,
+    pendingShipment: 0
   });
 
+  // Fetch crop listings and received orders from the backend API.
+  const fetchProductsAndOrders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      const productsRes = await fetch('http://localhost:5000/api/products/my-inventory', { headers });
+      if (productsRes.ok) {
+        const productsData = await productsRes.json();
+        setProducts(productsData);
+      }
+
+      const ordersRes = await fetch('http://localhost:5000/api/orders/farmer', { headers });
+      if (ordersRes.ok) {
+        const ordersData = await ordersRes.json();
+        setOrders(ordersData);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Trigger API data fetch when user is loaded.
+  useEffect(() => {
+    if (user) {
+      fetchProductsAndOrders();
+    }
+  }, [user]);
+
+  // Update stats dynamically when products or orders change.
   useEffect(() => {
     const totalEarnings = orders
       .filter(o => o.status === 'delivered' || o.status === 'shipped')
-      .reduce((sum, current) => sum + current.amount, 18000); 
+      .reduce((sum, current) => sum + current.amount, 0); 
 
     const activeListings = products.length;
     const completedOrders = orders.filter(o => o.status === 'delivered').length;
@@ -390,6 +339,7 @@ export default function FarmerDashboard() {
     setActiveTab(tabName);
   };
 
+  // Set inputs to empty and navigate to add product page.
   const handleOpenAddModal = () => {
     setModalMode('add');
     setFormInputs({
@@ -403,9 +353,10 @@ export default function FarmerDashboard() {
       location: user?.fullName ? `${user.fullName} Farm` : 'My Farm',
       image: ''
     });
-    setIsModalOpen(true);
+    setActiveTab('add-product');
   };
 
+  // Set inputs to product details and navigate to edit product page.
   const handleOpenEditModal = (index) => {
     const prod = products[index];
     setModalMode('edit');
@@ -421,7 +372,7 @@ export default function FarmerDashboard() {
       location: prod.location,
       image: prod.image
     });
-    setIsModalOpen(true);
+    setActiveTab('add-product');
   };
 
   const handleInputChange = (e) => {
@@ -432,9 +383,15 @@ export default function FarmerDashboard() {
     }));
   };
 
+  // Handle crop image upload preview for PNG and JPG format.
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Allow only PNG and JPG image uploads.
+      if (file.type !== 'image/png' && file.type !== 'image/jpeg') {
+        alert('Please upload a PNG or JPG format photo only.');
+        return;
+      }
       if (file.size > 2 * 1024 * 1024) {
         alert('File size exceeds 2MB limit. Please choose a smaller photo.');
         return;
@@ -466,7 +423,8 @@ export default function FarmerDashboard() {
 
           setFormInputs(prev => ({
             ...prev,
-            image: canvas.toDataURL('image/png')
+            // Convert canvas image to data URL of original file type.
+            image: canvas.toDataURL(file.type)
           }));
         };
         img.src = reader.result;
@@ -475,7 +433,8 @@ export default function FarmerDashboard() {
     }
   };
 
-  const handleSaveProduct = (e) => {
+  // Add or update a product listing via the backend API.
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
 
     if (!formInputs.name || !formInputs.priceVal || formInputs.stockVal === '') {
@@ -483,7 +442,7 @@ export default function FarmerDashboard() {
       return;
     }
 
-    const newProduct = {
+    const payload = {
       name: formInputs.name,
       category: formInputs.category,
       price: parseFloat(formInputs.priceVal),
@@ -491,63 +450,143 @@ export default function FarmerDashboard() {
       stock: parseFloat(formInputs.stockVal),
       stockUnit: formInputs.stockUnit,
       location: formInputs.location || 'My Farm',
-      image: formInputs.image || 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&q=80&w=600',
-      description: formInputs.description,
-      inStock: parseFloat(formInputs.stockVal) > 0
+      image: formInputs.image || 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&q=80&w=600&fm=png',
+      description: formInputs.description
     };
 
-    if (modalMode === 'add') {
-      setProducts(prev => [...prev, newProduct]);
-      logActivity(`New listing created: ${formInputs.name}`, 'inventory');
-    } else {
-      setProducts(prev => {
-        const updated = [...prev];
-        updated[editingIndex] = newProduct;
-        return updated;
-      });
-      logActivity(`Listing updated: ${formInputs.name}`, 'inventory');
-    }
+    try {
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
 
-    setIsModalOpen(false);
+      let res;
+      if (modalMode === 'add') {
+        res = await fetch('http://localhost:5000/api/products', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      } else {
+        const prodId = products[editingIndex]._id;
+        res = await fetch(`http://localhost:5000/api/products/${prodId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(payload)
+        });
+      }
+
+      if (res.ok) {
+        logActivity(
+          modalMode === 'add' 
+            ? `New listing created: ${formInputs.name}` 
+            : `Listing updated: ${formInputs.name}`, 
+          'inventory'
+        );
+        fetchProductsAndOrders();
+        // Navigate back to the products list page.
+        setActiveTab('products');
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert(`Failed to save product: ${errData.message || 'Server error (' + res.status + ')'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred while connecting to the server. Please try again.');
+    }
   };
 
-  const handleDeleteProduct = (index) => {
+  // Delete a product listing via the backend API.
+  const handleDeleteProduct = async (index) => {
     if (window.confirm('Are you sure you want to delete this listing?')) {
       const deletedName = products[index].name;
-      setProducts(prev => prev.filter((_, idx) => idx !== index));
-      logActivity(`Listing removed: ${deletedName}`, 'warning');
+      const prodId = products[index]._id;
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://localhost:5000/api/products/${prodId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+          fetchProductsAndOrders();
+          logActivity(`Listing removed: ${deletedName}`, 'warning');
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
-  const handleToggleStock = (index) => {
-    setProducts(prev => {
-      const updated = [...prev];
-      const prod = updated[index];
-      prod.inStock = !prod.inStock;
-      if (prod.inStock && prod.stock === 0) {
-        prod.stock = 100;
-      } else if (!prod.inStock) {
-        prod.stock = 0;
+  // Toggle crop availability in stock via the backend API.
+  const handleToggleStock = async (index) => {
+    const prodId = products[index]._id;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/products/${prodId}/toggle-stock`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        fetchProductsAndOrders();
+        logActivity(`${products[index].name} availability status toggled`, 'inventory');
       }
-      logActivity(`${prod.name} availability toggled to ${prod.inStock ? 'In Stock' : 'Out of Stock'}`, 'inventory');
-      return updated;
-    });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleOrderShip = (orderId) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'shipped' } : o));
-    logActivity(`Order ${orderId} marked as shipped`, 'success');
+  // Mark a pending order as shipped via the backend API.
+  const handleOrderShip = async (orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'shipped' })
+      });
+      if (res.ok) {
+        fetchProductsAndOrders();
+        logActivity(`Order ${orderId} marked as shipped`, 'success');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleOrderDeliver = (orderId) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'delivered' } : o));
-    logActivity(`Order ${orderId} marked as delivered`, 'success');
+  // Mark a shipped order as delivered via the backend API.
+  const handleOrderDeliver = async (orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'delivered' })
+      });
+      if (res.ok) {
+        fetchProductsAndOrders();
+        logActivity(`Order ${orderId} marked as delivered`, 'success');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
+  // Filter products list based on search term and category.
   const filteredProducts = products.filter(prod => {
-    const matchesSearch = prod.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          prod.location.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === 'all' || prod.category === categoryFilter;
+    const nameText = prod.name || prod.title || '';
+    const locationText = prod.location || '';
+    const catText = (prod.category || '').toLowerCase();
+
+    const matchesSearch = nameText.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          locationText.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || catText === categoryFilter.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -577,63 +616,99 @@ export default function FarmerDashboard() {
     <div className="farmer-dashboard-layout">
 
       <aside className="farmer-sidebar">
-        <div>
-          <a href="/" className="sidebar-logo">
-            <span><span className="logo-leaf">Agri</span>Market</span>
-          </a>
+        <Link to="/" className="sidebar-logo">
+          <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="sidebar-logo-img" />
+          <span>Agri<span className="logo-accent">Market</span></span>
+        </Link>
 
-          <nav>
-            <ul className="sidebar-menu">
-              <li className="menu-item">
-                <button 
-                  onClick={() => handleTabChange('dashboard')} 
-                  className={`menu-link ${activeTab === 'dashboard' ? 'active' : ''}`}
-                >
-                  <LayoutDashboard size={20} />
-                  <span>Overview</span>
-                </button>
-              </li>
-              <li className="menu-item">
-                <button 
-                  onClick={() => handleTabChange('products')} 
-                  className={`menu-link ${activeTab === 'products' ? 'active' : ''}`}
-                >
-                  <Package size={20} />
-                  <span>My Products</span>
-                </button>
-              </li>
-              <li className="menu-item">
-                <button 
-                  onClick={() => handleTabChange('orders')} 
-                  className={`menu-link ${activeTab === 'orders' ? 'active' : ''}`}
-                >
-                  <Truck size={20} />
-                  <span>Orders</span>
-                  {pendingOrdersList.length > 0 && (
-                    <span className="menu-badge">{pendingOrdersList.length}</span>
-                  )}
-                </button>
-              </li>
-              <li className="menu-item">
-                <button 
-                  onClick={() => handleTabChange('analytics')} 
-                  className={`menu-link ${activeTab === 'analytics' ? 'active' : ''}`}
-                >
-                  <Activity size={20} />
-                  <span>Sales Summary</span>
-                </button>
-              </li>
-              <li className="menu-item">
-                <button 
-                  onClick={() => handleTabChange('settings')} 
-                  className={`menu-link ${activeTab === 'settings' ? 'active' : ''}`}
-                >
-                  <Settings size={20} />
-                  <span>Settings</span>
-                </button>
-              </li>
-            </ul>
-          </nav>
+        <div className="sidebar-user-card">
+          {profileData.profilePhoto ? (
+            <img src={profileData.profilePhoto} alt="User Avatar" className="w-12 h-12 object-cover rounded-full border border-slate-200" />
+          ) : (
+            <div className="sidebar-avatar">
+              {profileData.firstName ? profileData.firstName.charAt(0).toUpperCase() : 'U'}
+            </div>
+          )}
+          <div className="sidebar-user-info">
+            <span className="sidebar-user-name" title={`${profileData.firstName} ${profileData.lastName}`}>
+              {profileData.firstName} {profileData.lastName}
+            </span>
+            <span className="sidebar-user-role">Farmer Dashboard</span>
+          </div>
+        </div>
+
+        <ul className="sidebar-menu">
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('dashboard')} 
+              className={`menu-link ${activeTab === 'dashboard' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/graph.png" alt="" className="sidebar-link-img" />
+              <span>Overview</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('products')} 
+              className={`menu-link ${activeTab === 'products' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/shopping-bag.png" alt="" className="sidebar-link-img" />
+              <span>My Products</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleOpenAddModal()} 
+              className={`menu-link ${activeTab === 'add-product' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/sprout.png" alt="" className="sidebar-link-img" />
+              <span>Add Product</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('orders')} 
+              className={`menu-link ${activeTab === 'orders' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/delivery.png" alt="" className="sidebar-link-img" />
+              <span>Orders</span>
+              {pendingOrdersList.length > 0 && (
+                <span className="menu-badge-red">{pendingOrdersList.length}</span>
+              )}
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('analytics')} 
+              className={`menu-link ${activeTab === 'analytics' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/handshake.png" alt="" className="sidebar-link-img" />
+              <span>Sales Summary</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('settings')} 
+              className={`menu-link ${activeTab === 'settings' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/shield.png" alt="" className="sidebar-link-img" />
+              <span>Settings</span>
+            </button>
+          </li>
+        </ul>
+
+        <div className="sidebar-footer">
+          <button 
+            onClick={() => {
+              if (window.confirm("Are you sure you want to log out?")) {
+                handleLogoutClick();
+              }
+            }} 
+            className="logout-button"
+          >
+            <img src="/src/assets/icons/logout.png" alt="" className="sidebar-link-img" />
+            <span>Log Out</span>
+          </button>
         </div>
       </aside>
 
@@ -712,17 +787,6 @@ export default function FarmerDashboard() {
                     className="dropdown-item"
                   >
                     My Profile
-                  </button>
-
-                  <div className="dropdown-divider"></div>
-                  <button 
-                    onClick={() => {
-                      handleLogoutClick();
-                      setIsDropdownOpen(false);
-                    }} 
-                    className="dropdown-item logout-btn"
-                  >
-                    Log Out
                   </button>
                 </div>
               )}
@@ -806,184 +870,20 @@ export default function FarmerDashboard() {
             handleSimulatePurchase={handleSimulatePurchase} 
           />
         )}
+
+        {activeTab === 'add-product' && (
+          <AddProduct 
+            formInputs={formInputs}
+            handleInputChange={handleInputChange}
+            handleImageUpload={handleImageUpload}
+            handleSaveProduct={handleSaveProduct}
+            setFormInputs={setFormInputs}
+            mode={modalMode}
+            onCancel={() => handleTabChange('products')}
+          />
+        )}
       </main>
 
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content-card">
-            <div className="modal-header-section">
-              <h3>{modalMode === 'add' ? 'Add New Product Listing' : 'Edit Product Details'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="btn-close-modal">
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveProduct}>
-              <div className="modal-form-body">
-                <div className="form-grid-row">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="m-name">Product Name</label>
-                    <input 
-                      type="text" 
-                      id="m-name"
-                      name="name" 
-                      className="form-input" 
-                      placeholder="e.g. Premium Basmati Rice" 
-                      value={formInputs.name}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="form-grid-row form-grid-row-2col">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="m-category">Category</label>
-                    <select 
-                      id="m-category"
-                      name="category" 
-                      className="form-input"
-                      value={formInputs.category}
-                      onChange={handleInputChange}
-                    >
-                      <option value="grains">Grains</option>
-                      <option value="fruits">Fruits & Vegetables</option>
-                      <option value="dairy">Dairy Products</option>
-                      <option value="spices">Spices</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="m-location">Farm/Location</label>
-                    <input 
-                      type="text" 
-                      id="m-location"
-                      name="location" 
-                      className="form-input" 
-                      placeholder="e.g. Krishna Delta Farm" 
-                      value={formInputs.location}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="form-grid-row form-grid-row-2col">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="m-price">Price (₹)</label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <input 
-                        type="number" 
-                        id="m-price"
-                        name="priceVal" 
-                        className="form-input" 
-                        placeholder="Price" 
-                        value={formInputs.priceVal}
-                        onChange={handleInputChange}
-                        required
-                        min="0"
-                      />
-                      <select 
-                        name="priceUnit" 
-                        className="form-input" 
-                        style={{ width: '100px' }}
-                        value={formInputs.priceUnit}
-                        onChange={handleInputChange}
-                      >
-                        <option value="Kg">Kg</option>
-                        <option value="Litre">Litre</option>
-                        <option value="Bunch">Bunch</option>
-                        <option value="Gram">Gram</option>
-                        <option value="Quintal">Quintal</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="m-stock">Stock Quantity</label>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <input 
-                        type="number" 
-                        id="m-stock"
-                        name="stockVal" 
-                        className="form-input" 
-                        placeholder="Stock" 
-                        value={formInputs.stockVal}
-                        onChange={handleInputChange}
-                        required
-                        min="0"
-                      />
-                      <select 
-                        name="stockUnit" 
-                        className="form-input" 
-                        style={{ width: '100px' }}
-                        value={formInputs.stockUnit}
-                        onChange={handleInputChange}
-                      >
-                        <option value="Kg">Kg</option>
-                        <option value="Litres">Litres</option>
-                        <option value="Bunches">Bunches</option>
-                        <option value="Grams">Grams</option>
-                        <option value="Quintals">Quintals</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-grid-row">
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="m-image">Product Image (Photo)</label>
-                    <input 
-                      type="file" 
-                      id="m-image"
-                      accept="image/*"
-                      className="form-input" 
-                      onChange={handleImageUpload}
-                    />
-                    {formInputs.image && (
-                      <div className="product-image-preview-container" style={{ marginTop: '0.75rem', position: 'relative' }}>
-                        <img 
-                          src={formInputs.image} 
-                          alt="Crop preview" 
-                          style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '12px', border: '1px solid rgba(82, 183, 136, 0.2)' }} 
-                        />
-                        <button 
-                          type="button" 
-                          onClick={() => setFormInputs(prev => ({ ...prev, image: '' }))}
-                          style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: 'rgba(0, 0, 0, 0.6)', color: '#ffffff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justify: 'center', cursor: 'pointer' }}
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label className="form-label" htmlFor="m-description">Description</label>
-                    <textarea 
-                      id="m-description"
-                      name="description" 
-                      className="form-input" 
-                      placeholder="Provide quality parameters, packaging style, etc." 
-                      rows="3"
-                      value={formInputs.description}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="modal-form-actions">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-modal-cancel">
-                  Cancel
-                </button>
-                <button type="submit" className="btn-modal-save">
-                  Save Product
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

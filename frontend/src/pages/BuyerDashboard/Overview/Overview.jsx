@@ -102,7 +102,7 @@ const Overview = ({
                     <tr key={order.id}>
                       <td><strong>{order.id}</strong></td>
                       <td>{order.productName} (x{order.quantity} {order.unit})</td>
-                      <td>{order.farmer}</td>
+                      <td>{order.farmerName}</td>
                       <td><span className="order-amount-val">₹{order.amount.toLocaleString()}</span></td>
                       <td>
                         <span className={`order-status-pill badge-${order.status}`}>

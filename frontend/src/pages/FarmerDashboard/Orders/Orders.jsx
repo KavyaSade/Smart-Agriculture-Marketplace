@@ -66,13 +66,13 @@ const Orders = ({
                   <td><span className="order-id">{order.id}</span></td>
                   <td>
                     <div className="buyer-info-col">
-                      <span className="buyer-name-text">{order.buyer}</span>
-                      <span className="buyer-phone-text">{order.phone}</span>
+                      <span className="buyer-name-text">{order.buyerName}</span>
+                      <span className="buyer-phone-text">{order.buyerPhone}</span>
                     </div>
                   </td>
                   <td>
                     <span style={{ fontSize: '0.8rem', color: '#55625b', display: 'block', maxWidth: '200px' }}>
-                      {order.address}
+                      {order.buyerAddress}
                     </span>
                   </td>
                   <td>
@@ -92,7 +92,8 @@ const Orders = ({
                     <div className="order-actions-container">
                       {order.status === 'pending' && (
                         <button 
-                          onClick={() => handleOrderShip(order.id)} 
+                          // Use database document id for API calls.
+                          onClick={() => handleOrderShip(order._id)} 
                           className="btn-order-action btn-order-ship"
                         >
                           Ship Order
@@ -100,7 +101,8 @@ const Orders = ({
                       )}
                       {order.status === 'shipped' && (
                         <button 
-                          onClick={() => handleOrderDeliver(order.id)} 
+                          // Use database document id for API calls.
+                          onClick={() => handleOrderDeliver(order._id)} 
                           className="btn-order-action btn-order-deliver"
                         >
                           Deliver

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Heart, MapPin, User, ShoppingCart } from 'lucide-react';
 import './Browse.css';
 
@@ -10,27 +10,86 @@ const Browse = ({
   setCategoryFilter,
   handleAddToCart,
   wishlist,
-  handleToggleWishlist
+  handleToggleWishlist,
+  cart = [],
+  onGoToCart
 }) => {
+  // State for filtering by location.
+  const [locationFilter, setLocationFilter] = useState('');
 
+  // State for filtering by maximum price.
+  const [maxPriceFilter, setMaxPriceFilter] = useState('');
+
+  // State for filtering by availability status.
+  const [inStockOnly, setInStockOnly] = useState(false);
+
+  // Filter crops list based on search, category, location, price, and availability.
   const filteredProducts = products.filter(prod => {
+    const nameText = prod.name || prod.title || '';
+    const locationText = prod.location || '';
+    const farmerText = prod.farmerName || prod.farmer || '';
+
+    // Search query matches crop name, farm location, or farmer name.
     const matchesSearch = 
-      prod.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prod.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (prod.farmer && prod.farmer.toLowerCase().includes(searchQuery.toLowerCase()));
+      nameText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      locationText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      farmerText.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory = categoryFilter === 'all' || prod.category === categoryFilter;
+    // Match categories (map vegetable/fruit to fruits category).
+    const catText = (prod.category || '').toLowerCase();
+    const matchesCategory = categoryFilter === 'all' || 
+                            catText === categoryFilter.toLowerCase() ||
+                            (categoryFilter === 'fruits' && (catText === 'fruits' || catText === 'vegetables' || catText === 'fruit' || catText === 'vegetable'));
 
-    return matchesSearch && matchesCategory;
+    // Filter by location city or state name.
+    const matchesLocation = !locationFilter || locationText.toLowerCase().includes(locationFilter.toLowerCase());
+
+    // Filter by maximum price budget.
+    const matchesPrice = !maxPriceFilter || prod.price <= parseFloat(maxPriceFilter);
+
+    // Filter by crop in-stock availability status.
+    const matchesAvailability = !inStockOnly || (prod.inStock && prod.stock > 0);
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesPrice && matchesAvailability;
   });
 
   return (
     <div className="section-card animate-fade-in">
-      <div className="card-section-header">
-        <h2>Browse Fresh Produce</h2>
-        <p style={{ color: '#55625b', fontSize: '0.9rem', margin: '0.25rem 0 0 0' }}>
-          Explore seasonal crops directly from validated local farm inventories.
-        </p>
+      <div className="card-section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2>Browse Fresh Produce</h2>
+          <p style={{ color: '#55625b', fontSize: '0.9rem', margin: '0.25rem 0 0 0' }}>
+            Explore seasonal crops directly from validated local farm inventories.
+          </p>
+        </div>
+        <button 
+          onClick={onGoToCart}
+          className="btn btn-secondary" 
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', position: 'relative', padding: '0.65rem 1.25rem' }}
+        >
+          <ShoppingCart size={18} />
+          <span>Go to Cart</span>
+          {cart.length > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-8px',
+              right: '-8px',
+              backgroundColor: '#dc2626',
+              color: '#ffffff',
+              borderRadius: '50%',
+              width: '20px',
+              height: '20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+            }}>
+              {cart.reduce((total, item) => total + item.quantity, 0)}
+            </span>
+          )}
+        </button>
       </div>
 
       <div className="inventory-controls" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', margin: '1.5rem 0', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -59,28 +118,66 @@ const Browse = ({
         </div>
       </div>
 
+      {/* Advanced search and filter controls row */}
+      <div className="extra-filters-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem', margin: '0.5rem 0 1.5rem 0', alignItems: 'center', padding: '1rem', backgroundColor: 'rgba(82, 183, 136, 0.05)', borderRadius: '12px', border: '1px solid rgba(82, 183, 136, 0.1)' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.85rem', color: '#1b4332', fontWeight: 600 }}>Location:</span>
+          <input 
+            type="text" 
+            placeholder="Filter by city/state..." 
+            style={{ padding: '0.4rem 0.75rem', borderRadius: '8px', border: '1px solid rgba(82, 183, 136, 0.2)', fontSize: '0.85rem', outline: 'none', backgroundColor: '#ffffff' }}
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.85rem', color: '#1b4332', fontWeight: 600 }}>Max Price (₹):</span>
+          <input 
+            type="number" 
+            placeholder="Budget limit" 
+            style={{ padding: '0.4rem 0.75rem', borderRadius: '8px', border: '1px solid rgba(82, 183, 136, 0.2)', fontSize: '0.85rem', outline: 'none', width: '110px', backgroundColor: '#ffffff' }}
+            value={maxPriceFilter}
+            onChange={(e) => setMaxPriceFilter(e.target.value)}
+          />
+        </div>
+        <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.85rem', color: '#1b4332', fontWeight: 600, cursor: 'pointer' }}>
+          <input 
+            type="checkbox" 
+            checked={inStockOnly}
+            onChange={(e) => setInStockOnly(e.target.checked)}
+            style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#40916c' }}
+          />
+          <span>In Stock Only</span>
+        </label>
+      </div>
+
       {filteredProducts.length > 0 ? (
         <div className="products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
           {filteredProducts.map(crop => {
-            const isFavorited = wishlist.includes(crop.id);
+            const isFavorited = wishlist.includes(crop._id || crop.id);
             const isOutOfStock = crop.stock <= 0 || !crop.inStock;
             const isLowStock = crop.stock > 0 && crop.stock < 20;
+            const cropName = crop.name || crop.title || 'Unnamed Crop';
+            const cropCategory = crop.category || 'Grains';
+            const cropPriceUnit = crop.priceUnit || crop.unit || 'Kg';
+            const cropStockUnit = crop.stockUnit || crop.unit || 'Kg';
+            const cropFarmerName = crop.farmerName || crop.farmer || 'Local Farmer';
 
             return (
-              <div key={crop.id} className="product-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+              <div key={crop._id || crop.id} className="product-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
 
                 <div className="product-card-image-wrapper" style={{ height: '180px', position: 'relative', overflow: 'hidden', borderRadius: '12px' }}>
                   <img 
-                    src={crop.image || 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&q=80&w=400'} 
-                    alt={crop.name} 
+                    src={crop.image || 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&q=80&w=400&fm=png'} 
+                    alt={cropName} 
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                   <span className="product-card-category" style={{ position: 'absolute', top: '0.75rem', left: '0.75rem', backgroundColor: 'rgba(27, 67, 50, 0.85)', color: '#ffffff', padding: '0.25rem 0.65rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase' }}>
-                    {crop.category}
+                    {cropCategory}
                   </span>
 
                   <button 
-                    onClick={() => handleToggleWishlist(crop.id)} 
+                    onClick={() => handleToggleWishlist(crop._id || crop.id)} 
                     className={`wishlist-toggle-btn ${isFavorited ? 'active' : ''}`}
                     style={{
                       position: 'absolute', 
@@ -105,9 +202,9 @@ const Browse = ({
 
                 <div className="product-card-body" style={{ padding: '1rem 0 0 0', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#1b4332' }} className="welcome-banner-title">{crop.name}</h3>
+                    <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#1b4332' }} className="welcome-banner-title">{cropName}</h3>
                     <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#40916c' }}>
-                      ₹{crop.price}/{crop.priceUnit}
+                      ₹{crop.price}/{cropPriceUnit}
                     </span>
                   </div>
 
@@ -118,11 +215,11 @@ const Browse = ({
                   <div style={{ borderTop: '1px solid rgba(82, 183, 136, 0.1)', paddingTop: '0.75rem', marginTop: 'auto' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem', fontSize: '0.85rem', color: '#7c8d84' }}>
                       <User size={14} />
-                      <span>Farmer: <strong>{crop.farmer || 'Local Farmer'}</strong></span>
+                      <span>Farmer: <strong>{cropFarmerName}</strong></span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.85rem', color: '#7c8d84' }}>
                       <MapPin size={14} />
-                      <span>Location: {crop.location}</span>
+                      <span>Location: {crop.location || 'Unknown Location'}</span>
                     </div>
 
                     <div style={{ marginBottom: '0.75rem' }}>
@@ -132,11 +229,11 @@ const Browse = ({
                         </span>
                       ) : isLowStock ? (
                         <span className="stock-alert-badge low-stock" style={{ fontSize: '0.75rem', fontWeight: 700, color: '#d97706', background: 'rgba(217, 119, 6, 0.08)', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
-                          LOW STOCK ({crop.stock} {crop.stockUnit} left)
+                          LOW STOCK ({crop.stock} {cropStockUnit} left)
                         </span>
                       ) : (
                         <span className="stock-alert-badge in-stock" style={{ fontSize: '0.75rem', fontWeight: 700, color: '#16a34a', background: 'rgba(22, 163, 74, 0.08)', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
-                          IN STOCK ({crop.stock} {crop.stockUnit})
+                          IN STOCK ({crop.stock} {cropStockUnit})
                         </span>
                       )}
                     </div>

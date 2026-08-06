@@ -7,19 +7,20 @@
 }
 
 .farmer-sidebar {
-  width: 210px;
-  background-color: #1b4332;
-  color: #ffffff;
+  width: 280px;
+  min-width: 280px;
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border-right: 1px solid rgba(64, 145, 108, 0.18);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 2rem 1.5rem;
+  padding: 1.5rem;
   position: sticky;
   top: 0;
   height: 100vh;
-  box-shadow: 4px 0 24px rgba(27, 67, 50, 0.15);
-  transition: all 0.3s ease;
   z-index: 100;
+  box-sizing: border-box;
+  transition: background-color 0.3s, border-color 0.3s;
 }
 
 .sidebar-logo {
@@ -28,19 +29,73 @@
   gap: 0.75rem;
   font-size: 1.5rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #1b4332;
   text-decoration: none;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
-.logo-leaf {
+.sidebar-logo-img {
+  width: 32px;
+  height: 32px;
+}
+
+.logo-accent {
   color: #52b788;
+}
+
+/* user card in sidebar */
+.sidebar-user-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f4faf6;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  transition: background-color 0.3s;
+}
+
+.sidebar-avatar {
+  width: 48px;
+  height: 48px;
+  background-color: #40916c;
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(64, 145, 108, 0.2);
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-user-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1b4332;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.sidebar-user-role {
+  font-size: 0.75rem;
+  color: #52b788;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
 .sidebar-menu {
   list-style: none;
   padding: 0;
   margin: 0;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -53,40 +108,87 @@
 .menu-link {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  color: #d8f3dc;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  color: #55625b;
   text-decoration: none;
   font-weight: 600;
-  border-radius: 12px;
-  transition: all 0.25s ease;
-  background: none;
-  border: none;
+  font-size: 0.95rem;
+  border-radius: 0 12px 12px 0;
+  border-left: 4px solid transparent;
   cursor: pointer;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  width: 100%;
   text-align: left;
-  font-size: 0.85rem;
-  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.menu-link svg {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.menu-link:hover, .menu-link.active {
-  color: #ffffff;
-  background-color: rgba(82, 183, 136, 0.2);
+.menu-link:hover {
+  color: #40916c;
+  background-color: #eaf7ee;
 }
 
 .menu-link.active {
-  background-color: #40916c;
+  color: #40916c !important;
+  background-color: #eaf7ee;
+  border-left-color: #40916c;
+}
+
+.sidebar-link-img {
+  width: 20px;
+  height: 20px;
+  opacity: 0.65;
+  transition: opacity 0.2s;
+}
+
+.menu-link:hover .sidebar-link-img,
+.menu-link.active .sidebar-link-img,
+.logout-button:hover .sidebar-link-img {
+  opacity: 1;
+}
+
+.menu-badge-red {
+  margin-left: auto;
+  background-color: #ef4444;
+  color: white;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
 }
 
 .sidebar-footer {
-  border-top: 1px solid rgba(216, 243, 220, 0.15);
-  padding-top: 1.5rem;
   margin-top: auto;
+  border-top: 1px solid rgba(64, 145, 108, 0.18);
+  padding-top: 1.5rem;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  color: #d90429;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.logout-button:hover {
+  background-color: rgba(217, 4, 41, 0.08);
 }
 
 .farmer-profile-summary {
@@ -986,22 +1088,40 @@ body.dark-theme .farmer-dashboard-layout {
 }
 
 body.dark-theme .farmer-sidebar {
-  background-color: #0b1d16;
+  background-color: #11251e;
+  border-right-color: rgba(82, 183, 136, 0.25);
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
-  border-right: 1px solid rgba(82, 183, 136, 0.15);
+}
+
+body.dark-theme .sidebar-logo {
+  color: #ffffff;
+}
+
+body.dark-theme .sidebar-user-card {
+  background-color: rgba(82, 183, 136, 0.08);
+}
+
+body.dark-theme .sidebar-user-name {
+  color: #ffffff;
 }
 
 body.dark-theme .menu-link {
   color: #a5b5ab;
 }
 
-body.dark-theme .menu-link:hover, body.dark-theme .menu-link.active {
-  color: #ffffff;
-  background-color: rgba(82, 183, 136, 0.15);
+body.dark-theme .menu-link:hover {
+  color: #52b788;
+  background-color: rgba(82, 183, 136, 0.08);
 }
 
 body.dark-theme .menu-link.active {
-  background-color: #40916c;
+  color: #52b788 !important;
+  background-color: rgba(82, 183, 136, 0.08);
+  border-left-color: #52b788;
+}
+
+body.dark-theme .sidebar-footer {
+  border-top-color: rgba(82, 183, 136, 0.25);
 }
 
 body.dark-theme .sidebar-footer {
@@ -1288,45 +1408,40 @@ body.dark-theme .btn-modal-save:hover {
   }
 
   .farmer-sidebar {
-    width: 100%;
-    height: auto;
-    padding: 1.25rem 1.5rem;
-    position: relative;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 100% !important;
+    height: auto !important;
+    padding: 1.25rem 1.5rem !important;
+    position: relative !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+    background-color: #ffffff !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(64, 145, 108, 0.18) !important;
+  }
+
+  body.dark-theme .farmer-sidebar {
+    background-color: #11251e !important;
+    border-bottom-color: rgba(82, 183, 136, 0.25) !important;
   }
 
   .sidebar-logo {
-    margin-bottom: 1rem;
+    margin-bottom: 1rem !important;
   }
 
   .sidebar-menu {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1rem !important;
   }
 
   .menu-link {
-    padding: 0.65rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.65rem 1rem !important;
+    font-size: 0.875rem !important;
   }
 
-  .sidebar-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(216, 243, 220, 0.15);
-  }
-
-  .farmer-profile-summary {
-    margin-bottom: 0;
-  }
-
-  .logout-link {
-    width: auto;
-    padding: 0.5rem 1rem;
+  .sidebar-user-card, .sidebar-footer {
+    display: none !important;
   }
 
   .farmer-dashboard-main {

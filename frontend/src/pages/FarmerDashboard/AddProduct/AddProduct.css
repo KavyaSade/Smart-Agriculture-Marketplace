@@ -1,0 +1,78 @@
+.add-product-page-card {
+  max-width: 800px;
+  margin: 1.5rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(27, 67, 50, 0.05);
+}
+
+.add-product-form {
+  margin-top: 2rem;
+}
+
+.file-upload-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border: 2px dashed rgba(82, 183, 136, 0.3);
+  border-radius: 12px;
+  background-color: #f3faf6;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.file-upload-wrapper:hover {
+  border-color: #40916c;
+  background-color: rgba(82, 183, 136, 0.08);
+}
+
+.form-input-file {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-icon {
+  color: #40916c;
+}
+
+.file-upload-text {
+  font-size: 0.85rem;
+  color: #55625b;
+  font-weight: 600;
+}
+
+.page-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #f3faf6;
+}
+
+body.dark-theme .add-product-page-card {
+  background-color: #0d1e18;
+  border-color: rgba(82, 183, 136, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+body.dark-theme .file-upload-wrapper {
+  background-color: rgba(82, 183, 136, 0.05);
+  border-color: rgba(82, 183, 136, 0.2);
+}
+
+body.dark-theme .file-upload-text {
+  color: #a5b5ab;
+}
+
+body.dark-theme .page-form-actions {
+  border-color: rgba(82, 183, 136, 0.1);
+}

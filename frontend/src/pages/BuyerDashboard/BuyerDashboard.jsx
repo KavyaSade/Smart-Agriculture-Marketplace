@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Search, 
@@ -54,115 +54,52 @@ export default function BuyerDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
-  const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('global_products');
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    const defaultCrops = [
-      {
-        id: 'crop-1',
-        name: 'Organic Potatoes',
-        category: 'grains',
-        price: 45,
-        priceUnit: 'Kg',
-        stock: 450,
-        stockUnit: 'Kg',
-        location: 'Pune, Maharashtra',
-        farmer: 'Vikas Patil',
-        inStock: true,
-        image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&q=80&w=400',
-        description: 'Freshly harvested organic yellow potatoes. Hand-picked, nutrient-rich, and free from synthetic pesticides.'
-      },
-      {
-        id: 'crop-2',
-        name: 'Royal Delicious Apples',
-        category: 'fruits',
-        price: 130,
-        priceUnit: 'Kg',
-        stock: 120,
-        stockUnit: 'Kg',
-        location: 'Shimla Orchards',
-        farmer: 'Ramesh Negi',
-        inStock: true,
-        image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&q=80&w=400',
-        description: 'Crispy, sweet, and freshly harvested royal apples.'
-      },
-      {
-        id: 'crop-3',
-        name: 'Roma Tomatoes',
-        category: 'fruits',
-        price: 45,
-        priceUnit: 'Kg',
-        stock: 300,
-        stockUnit: 'Kg',
-        location: 'Sunfields Farm',
-        farmer: 'Priya Sharma',
-        inStock: true,
-        image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&q=80&w=400',
-        description: 'Firm and pulpy, ideal for home kitchens and ketchup production.'
-      },
-      {
-        id: 'crop-4',
-        name: 'Pure Buffalo Ghee',
-        category: 'dairy',
-        price: 650,
-        priceUnit: 'Litre',
-        stock: 80,
-        stockUnit: 'Litres',
-        location: 'Krishna Dairy',
-        farmer: 'Gopal Yadav',
-        inStock: true,
-        image: 'https://images.unsplash.com/photo-1635359739501-c80b2a8df80c?auto=format&fit=crop&q=80&w=400',
-        description: 'Prepared using traditional Bilona method. 100% natural.'
-      },
-      {
-        id: 'crop-5',
-        name: 'Kashmiri Saffron (Kesar)',
-        category: 'spices',
-        price: 350,
-        priceUnit: 'Gram',
-        stock: 2,
-        stockUnit: 'Kg',
-        location: 'Pampore Fields',
-        farmer: 'Bashir Ahmed',
-        inStock: true,
-        image: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=400',
-        description: 'Grade A+ original export quality saffron saffron threads.'
-      },
-      {
-        id: 'crop-6',
-        name: 'Basmati Rice',
-        category: 'grains',
-        price: 90,
-        priceUnit: 'Kg',
-        stock: 500,
-        stockUnit: 'Kg',
-        farmer: 'Rajesh Patil',
-        location: 'Nagpur, Maharashtra',
-        inStock: true,
-        image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=600',
-        description: 'Aromatic, long-grain premium Basmati rice, aged to perfection.'
-      }
-    ];
-    localStorage.setItem('global_products', JSON.stringify(defaultCrops));
-    return defaultCrops;
-  });
+  // Initialize crop list state as empty.
+  const [products, setProducts] = useState([]);
 
+  // Initialize cart list state from localStorage.
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem(`cart_${user?.email || 'buyer'}`);
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Initialize wishlist state from localStorage.
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem(`wishlist_${user?.email || 'buyer'}`);
     return saved ? JSON.parse(saved) : [];
   });
 
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem(`buyer_orders_${user?.email || 'buyer'}`);
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Initialize orders list state as empty.
+  const [orders, setOrders] = useState([]);
+
+  // Fetch crop listings and placed orders from the backend API.
+  const fetchProductsAndOrders = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const productsRes = await fetch('http://localhost:5000/api/products');
+      if (productsRes.ok) {
+        const productsData = await productsRes.json();
+        setProducts(productsData);
+      }
+
+      if (token) {
+        const headers = { 'Authorization': `Bearer ${token}` };
+        const ordersRes = await fetch('http://localhost:5000/api/orders/buyer', { headers });
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json();
+          setOrders(ordersData);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Trigger data fetch on mount or user state change.
+  useEffect(() => {
+    fetchProductsAndOrders();
+  }, [user]);
 
   const [profileData, setProfileData] = useState(() => {
     const storageKey = `profile_${user?.email || 'buyer'}`;
@@ -264,37 +201,68 @@ export default function BuyerDashboard() {
     }
   };
 
-  const handleCheckout = (address, phone, amount) => {
-    const newOrders = cart.map(item => ({
-      id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`,
-      productName: item.name,
-      quantity: item.quantity,
-      unit: item.priceUnit,
-      farmer: item.farmer || 'Local Farmer',
-      amount: item.price * item.quantity,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
-      status: 'pending'
-    }));
+  // Place crop orders and deduct inventory stock via the backend API.
+  const handleCheckout = async (address, phone, amount) => {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
 
-    const updatedOrders = [...newOrders, ...orders];
-    setOrders(updatedOrders);
-    localStorage.setItem(`buyer_orders_${user?.email || 'buyer'}`, JSON.stringify(updatedOrders));
+      // Loop through each cart item and place an order.
+      for (const item of cart) {
+        const payload = {
+          productId: item._id || item.id,
+          quantity: item.quantity,
+          buyerPhone: phone,
+          buyerAddress: address
+        };
 
-    setCart([]);
-    localStorage.removeItem(`cart_${user?.email || 'buyer'}`);
+        const res = await fetch('http://localhost:5000/api/orders', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload)
+        });
 
-    alert('Checkout Successful!\nYour simulated order has been placed successfully and is pending shipment.');
-    logActivity(`Placed order transaction for ${newOrders.length} crop items`, 'success');
+        if (!res.ok) {
+          const errData = await res.json();
+          alert(`Checkout failed: ${errData.message || 'Error occurred'}`);
+          return;
+        }
+      }
+
+      setCart([]);
+      localStorage.removeItem(`cart_${user?.email || 'buyer'}`);
+      alert('Checkout Successful!\nYour order has been placed successfully and is pending shipment.');
+      
+      // Refresh inventory and order history lists.
+      fetchProductsAndOrders();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleCancelOrder = (id) => {
+  // Cancel a pending order via the backend API.
+  const handleCancelOrder = async (orderId) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
-      const updated = orders.map(o => 
-        o.id === id ? { ...o, status: 'cancelled' } : o
-      );
-      setOrders(updated);
-      localStorage.setItem(`buyer_orders_${user?.email || 'buyer'}`, JSON.stringify(updated));
-      logActivity(`Cancelled order transaction ${id}`, 'warning');
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: 'cancelled' })
+        });
+        if (res.ok) {
+          fetchProductsAndOrders();
+          logActivity(`Cancelled order transaction ${orderId}`, 'warning');
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -328,59 +296,87 @@ export default function BuyerDashboard() {
     <div className="farmer-dashboard-layout buyer-dashboard-layout">
 
       <aside className="farmer-sidebar">
-        <div>
-          <a href="#" className="sidebar-logo">
-            <Leaf className="logo-leaf" size={24} />
-            <span>AgriMarket</span>
-          </a>
+        <Link to="/" className="sidebar-logo">
+          <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="sidebar-logo-img" />
+          <span>Agri<span className="logo-accent">Market</span></span>
+        </Link>
 
-          <ul className="sidebar-menu">
-            <li className="menu-item">
-              <button 
-                onClick={() => handleTabChange('dashboard')} 
-                className={`menu-link ${activeTab === 'dashboard' ? 'active' : ''}`}
-              >
-                <LayoutDashboard size={20} />
-                <span>Overview</span>
-              </button>
-            </li>
-            <li className="menu-item">
-              <button 
-                onClick={() => handleTabChange('browse')} 
-                className={`menu-link ${activeTab === 'browse' ? 'active' : ''}`}
-              >
-                <Search size={20} />
-                <span>Browse Crops</span>
-              </button>
-            </li>
-            <li className="menu-item">
-              <button 
-                onClick={() => handleTabChange('cart')} 
-                className={`menu-link ${activeTab === 'cart' ? 'active' : ''}`}
-              >
-                <ShoppingCart size={20} />
-                <span>Cart Summary</span>
-              </button>
-            </li>
-            <li className="menu-item">
-              <button 
-                onClick={() => handleTabChange('orders')} 
-                className={`menu-link ${activeTab === 'orders' ? 'active' : ''}`}
-              >
-                <ShoppingBag size={20} />
-                <span>Placed Orders</span>
-              </button>
-            </li>
-            <li className="menu-item">
-              <button 
-                onClick={() => handleTabChange('wishlist')} 
-                className={`menu-link ${activeTab === 'wishlist' ? 'active' : ''}`}
-              >
-                <Heart size={20} />
-                <span>Saved Crops</span>
-              </button>
-            </li>
-          </ul>
+        <div className="sidebar-user-card">
+          {profileData.profilePhoto ? (
+            <img src={profileData.profilePhoto} alt="User Avatar" className="w-12 h-12 object-cover rounded-full border border-slate-200" />
+          ) : (
+            <div className="sidebar-avatar">
+              {profileData.firstName ? profileData.firstName.charAt(0).toUpperCase() : 'U'}
+            </div>
+          )}
+          <div className="sidebar-user-info">
+            <span className="sidebar-user-name" title={`${profileData.firstName} ${profileData.lastName}`}>
+              {profileData.firstName} {profileData.lastName}
+            </span>
+            <span className="sidebar-user-role">Buyer Dashboard</span>
+          </div>
+        </div>
+
+        <ul className="sidebar-menu">
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('dashboard')} 
+              className={`menu-link ${activeTab === 'dashboard' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/graph.png" alt="" className="sidebar-link-img" />
+              <span>Overview</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('browse')} 
+              className={`menu-link ${activeTab === 'browse' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/wheat.png" alt="" className="sidebar-link-img" />
+              <span>Browse Crops</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('cart')} 
+              className={`menu-link ${activeTab === 'cart' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/shopping-bag.png" alt="" className="sidebar-link-img" />
+              <span>Cart Summary</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('orders')} 
+              className={`menu-link ${activeTab === 'orders' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/delivery.png" alt="" className="sidebar-link-img" />
+              <span>Placed Orders</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('wishlist')} 
+              className={`menu-link ${activeTab === 'wishlist' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/star.png" alt="" className="sidebar-link-img" />
+              <span>Saved Crops</span>
+            </button>
+          </li>
+        </ul>
+
+        <div className="sidebar-footer">
+          <button 
+            onClick={() => {
+              if (window.confirm("Are you sure you want to log out?")) {
+                logout();
+              }
+            }} 
+            className="logout-button"
+          >
+            <img src="/src/assets/icons/logout.png" alt="" className="sidebar-link-img" />
+            <span>Log Out</span>
+          </button>
         </div>
       </aside>
 
@@ -460,15 +456,6 @@ export default function BuyerDashboard() {
                   >
                     Settings
                   </button>
-                  <button 
-                    onClick={() => {
-                      logout();
-                      setIsDropdownOpen(false);
-                    }} 
-                    className="dropdown-item logout-btn"
-                  >
-                    Log Out
-                  </button>
                 </div>
               )}
             </div>
@@ -495,6 +482,8 @@ export default function BuyerDashboard() {
             handleAddToCart={handleAddToCart}
             wishlist={wishlist}
             handleToggleWishlist={handleToggleWishlist}
+            cart={cart}
+            onGoToCart={() => handleTabChange('cart')}
           />
         )}
 

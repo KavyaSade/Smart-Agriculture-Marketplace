@@ -63,20 +63,25 @@ const Products = ({
         <div className="dashboard-products-grid">
           {filteredProducts.map((prod, idx) => {
             const originalIndex = products.indexOf(prod);
+            const cropName = prod.name || prod.title || 'Unnamed Crop';
+            const cropCategory = prod.category || 'grains';
+            const cropPriceUnit = prod.priceUnit || prod.unit || 'Kg';
+            const cropStockUnit = prod.stockUnit || prod.unit || 'Kg';
+
             return (
               <div key={idx} className="farmer-product-card">
                 <div className="product-image-container">
-                  <img src={prod.image} alt={prod.name} className="product-img" />
-                  <span className="product-category-tag">{prod.category.toUpperCase()}</span>
+                  <img src={prod.image || 'https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?auto=format&fit=crop&q=80&w=600&fm=png'} alt={cropName} className="product-img" />
+                  <span className="product-category-tag">{cropCategory.toUpperCase()}</span>
                 </div>
                 <div className="product-details-body">
                   <div className="product-title-row">
-                    <h3 className="product-name-heading">{prod.name}</h3>
+                    <h3 className="product-name-heading">{cropName}</h3>
                     <span className="product-farm-loc">{prod.location}</span>
                   </div>
                   <div className="product-price-stock-row">
-                    <span className="p-price">₹{prod.price} / {prod.priceUnit}</span>
-                    <span className="p-stock">Stock: {prod.stock} {prod.stockUnit}</span>
+                    <span className="p-price">₹{prod.price} / {cropPriceUnit}</span>
+                    <span className="p-stock">Stock: {prod.stock} {cropStockUnit}</span>
                   </div>
                   <div className="product-status-row">
                     <span className={`status-badge ${prod.inStock ? 'status-in-stock' : 'status-out-of-stock'}`}>
