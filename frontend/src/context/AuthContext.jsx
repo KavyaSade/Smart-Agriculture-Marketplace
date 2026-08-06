@@ -57,34 +57,27 @@ export const AuthProvider = ({ children }) => {
       if (isFirebaseConfigured && auth && role !== 'admin') {
         try {
           await signInWithEmailAndPassword(auth, email, password);
-        } catch (firebaseErr) {
-          // Translate common Firebase auth errors to user-friendly messages
-          let msg = 'Incorrect email or password.';
-          if (firebaseErr.code === 'auth/invalid-credential') {
-            msg = 'Incorrect email or password.';
-          } else if (firebaseErr.message) {
-            msg = firebaseErr.message;
+
+          // Firebase verified. Get/create JWT session with backend
+          const response = await fetch(`${API_BASE_URL}/google-login`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, fullName: 'Firebase Verified User', role })
+          });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.message || 'Failed to sync with backend.');
           }
-          throw new Error(msg);
+
+          localStorage.setItem('token', data.token);
+          setUser(data.user);
+          return { success: true, user: data.user };
+        } catch (firebaseErr) {
+          console.warn("Firebase authentication failed, falling back to local database login:", firebaseErr.message);
         }
-
-        // Firebase verified. Get/create JWT session with backend
-        const response = await fetch(`${API_BASE_URL}/google-login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ email, fullName: 'Firebase Verified User', role })
-        });
-
-        const data = await response.json();
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to sync with backend.');
-        }
-
-        localStorage.setItem('token', data.token);
-        setUser(data.user);
-        return { success: true, user: data.user };
       }
 
       // Fallback: standard password verification via backend

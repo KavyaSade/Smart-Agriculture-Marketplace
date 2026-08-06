@@ -79,15 +79,25 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password, role } = req.body;
+    console.log(`[Login Attempt] Email: "${email}", Role: "${role}"`);
 
     // basic validation
     if (!email || !password || !role) {
+      console.log(`[Login Failed] Missing required fields`);
       return res.status(400).json({ message: 'Email, password, and role are required.' });
     }
 
     // find the user by email AND role
     const user = await User.findOne({ email: email.toLowerCase(), role });
     if (!user) {
+      console.log(`[Login Failed] User not found with Email: "${email.toLowerCase()}" and Role: "${role}"`);
+      // check if user exists with just email to help diagnose
+      const emailOnlyUser = await User.findOne({ email: email.toLowerCase() });
+      if (emailOnlyUser) {
+        console.log(`[Login Diagnosis] User found with this email but different role: "${emailOnlyUser.role}"`);
+      } else {
+        console.log(`[Login Diagnosis] Email does not exist in database at all`);
+      }
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
 
@@ -104,6 +114,7 @@ router.post('/login', async (req, res) => {
     } else {
       isMatch = (password === user.password);
     }
+    console.log(`[Login Attempt] Password matched: ${isMatch}`);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
