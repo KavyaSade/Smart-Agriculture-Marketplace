@@ -193,7 +193,7 @@ const Cart = ({
                   style={{ width: '100%', justifyContent: 'center', marginTop: '0.5rem' }}
                 >
                   <CreditCard size={18} />
-                  <span>Simulate Purchase</span>
+                  <span>Purchase</span>
                 </button>
               </form>
             </div>

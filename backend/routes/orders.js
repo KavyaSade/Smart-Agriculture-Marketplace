@@ -70,10 +70,10 @@ router.post('/', authenticateToken, async (req, res) => {
     //order invoice.
     const order = new Order({
       id: 'ORD-' + Math.floor(1000 + Math.random() * 9000),
-      productName: product.name,
+      productName: product.name || product.title,
       productId: product._id,
       quantity,
-      unit: product.stockUnit,
+      unit: product.stockUnit || product.unit || 'kg',
       amount: product.price * quantity,
       buyerEmail: req.user.email,
       buyerName: req.user.fullName || 'Buyer User',
