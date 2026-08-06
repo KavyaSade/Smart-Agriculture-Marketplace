@@ -42,12 +42,10 @@ const orderSchema = new mongoose.Schema({
     type: String
   },
   farmerEmail: {
-    type: String,
-    required: true
+    type: String
   },
   farmerName: {
-    type: String,
-    required: true
+    type: String
   },
   date: {
     type: String,

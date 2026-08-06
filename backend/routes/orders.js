@@ -79,8 +79,8 @@ router.post('/', authenticateToken, async (req, res) => {
       buyerName: req.user.fullName || 'Buyer User',
       buyerPhone,
       buyerAddress,
-      farmerEmail: product.farmerEmail,
-      farmerName: product.farmerName,
+      farmerEmail: product.farmerEmail || 'seller@gmail.com',
+      farmerName: product.farmerName || 'Seller User',
       seller: product.seller,
       // Format current date
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
