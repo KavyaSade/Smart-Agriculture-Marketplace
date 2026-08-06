@@ -7,10 +7,14 @@ const router = Router();
 // Retrieve all crop listings with optional search and filters.
 router.get('/', async (req, res) => {
   try {
-    const { search, category, minPrice, maxPrice, inStock, location } = req.query;
+    const { search, category, minPrice, maxPrice, inStock, location, seller } = req.query;
     
    
     const query = {};
+
+    if (seller) {
+      query.seller = seller;
+    }
 
     // Filtering by name, location, or farmer name.
     if (search) {
@@ -56,16 +60,21 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Retrieving of inventory owned by the authenticated farmer.
+// Retrieving of inventory owned by the authenticated seller.
 router.get('/my-inventory', authenticateToken, async (req, res) => {
   try {
     
-    if (req.user.role !== 'farmer') {
-      return res.status(403).json({ message: 'Forbidden. Farmer role required.' });
+    if (req.user.role !== 'farmer' && req.user.role !== 'retailer') {
+      return res.status(403).json({ message: 'Forbidden. Seller role required.' });
     }
 
     
-    const products = await Product.find({ farmerEmail: req.user.email });
+    const products = await Product.find({
+      $or: [
+        { farmerEmail: req.user.email },
+        { seller: req.user.id }
+      ]
+    });
     res.status(200).json(products);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching farmer inventory.' });
@@ -76,8 +85,8 @@ router.get('/my-inventory', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
    
-    if (req.user.role !== 'farmer') {
-      return res.status(403).json({ message: 'Forbidden. Farmer role required.' });
+    if (req.user.role !== 'farmer' && req.user.role !== 'retailer') {
+      return res.status(403).json({ message: 'Forbidden. Seller role required.' });
     }
 
     const { name, category, price, priceUnit, stock, stockUnit, location, image, description } = req.body;
@@ -100,7 +109,8 @@ router.post('/', authenticateToken, async (req, res) => {
       description,
       inStock: stock > 0,
       farmerEmail: req.user.email,
-      farmerName: req.user.fullName || 'Farmer User'
+      farmerName: req.user.fullName || 'Farmer User',
+      seller: req.user.id
     });
 
     await product.save();
@@ -120,7 +130,9 @@ router.put('/:id', authenticateToken, async (req, res) => {
     }
 
     
-    if (product.farmerEmail !== req.user.email) {
+    const isOwner = product.farmerEmail === req.user.email || (product.seller && product.seller.toString() === req.user.id);
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: 'Forbidden. Ownership verification failed.' });
     }
 
@@ -155,7 +167,9 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 
     
-    if (product.farmerEmail !== req.user.email) {
+    const isOwner = product.farmerEmail === req.user.email || (product.seller && product.seller.toString() === req.user.id);
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: 'Forbidden. Ownership verification failed.' });
     }
 
@@ -176,7 +190,9 @@ router.patch('/:id/toggle-stock', authenticateToken, async (req, res) => {
     }
 
   
-    if (product.farmerEmail !== req.user.email) {
+    const isOwner = product.farmerEmail === req.user.email || (product.seller && product.seller.toString() === req.user.id);
+    const isAdmin = req.user.role === 'admin';
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: 'Forbidden. Ownership verification failed.' });
     }
 

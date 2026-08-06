@@ -5,6 +5,26 @@ import { authenticateToken } from '../middleware/auth.js';
 
 const router = Router();
 
+// Retrieve orders list (filtered by user role)
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    let query = {};
+    if (req.user.role === 'retailer') {
+      query.seller = req.user.id;
+    } else if (req.user.role === 'farmer') {
+      query.farmerEmail = req.user.email;
+    } else if (req.user.role === 'buyer') {
+      query.buyerEmail = req.user.email;
+    }
+    // If admin, query stays empty (retrieves all orders)
+
+    const orders = await Order.find(query).sort({ createdAt: -1 });
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ message: 'Error retrieving orders.' });
+  }
+});
+
 // Retrieve all the orders placed by the logged-in buyer.
 router.get('/buyer', authenticateToken, async (req, res) => {
   try {
@@ -61,6 +81,7 @@ router.post('/', authenticateToken, async (req, res) => {
       buyerAddress,
       farmerEmail: product.farmerEmail,
       farmerName: product.farmerName,
+      seller: product.seller,
       // Format current date
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
       status: 'pending'
@@ -121,6 +142,54 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
     await order.save();
     res.status(200).json(order);
   } catch (error) {
+    res.status(500).json({ message: 'Error updating order status.' });
+  }
+});
+
+// Fallback status override endpoint (without /status suffix) used by dashboards
+router.put('/:id', authenticateToken, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!status || !['pending', 'shipped', 'delivered', 'cancelled'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status target.' });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order document not found.' });
+    }
+
+    const isFarmer = req.user.email === order.farmerEmail;
+    const isRetailer = req.user.id === (order.seller && order.seller.toString());
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isFarmer && !isRetailer && !isAdmin) {
+      return res.status(403).json({ message: 'Forbidden. No authority on this order.' });
+    }
+
+    if (status === 'cancelled') {
+      if (order.status !== 'pending' && !isAdmin) {
+        return res.status(400).json({ message: 'Cannot cancel non-pending order.' });
+      }
+    }
+
+    // Deducting product stock when the order is marked as delivered.
+    if (status === 'delivered' && order.status !== 'delivered') {
+      const product = await Product.findById(order.productId);
+      if (product) {
+        product.stock = Math.max(0, product.stock - order.quantity);
+        if (product.stock === 0) {
+          product.inStock = false;
+        }
+        await product.save();
+      }
+    }
+
+    order.status = status;
+    await order.save();
+    res.status(200).json(order);
+  } catch (error) {
+    console.error('Error updating order status:', error);
     res.status(500).json({ message: 'Error updating order status.' });
   }
 });
