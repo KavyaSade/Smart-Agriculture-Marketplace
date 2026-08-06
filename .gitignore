@@ -25,5 +25,4 @@ pnpm-debug.log*
 .idea/
 .DS_Store
 Thumbs.db
-backend/utils/db.js
 
