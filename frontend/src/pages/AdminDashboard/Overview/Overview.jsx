@@ -12,7 +12,7 @@ export default function Overview({
   const totalSellers = users.filter(u => u.role === 'retailer').length;
   const totalBuyers = users.filter(u => u.role === 'buyer').length;
 
-  const totalSales = orders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + o.total, 0);
+  const totalSales = orders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + Number(o.total || 0), 0);
   const avgOrderValue = orders.length > 0 ? totalSales / orders.length : 0;
 
   const triggerExport = (reportType) => {
@@ -92,26 +92,55 @@ export default function Overview({
             </button>
           </div>
           <div className="system-logs-list">
-            <div className="log-item">
-              <span className="log-badge success">USER REG</span>
-              <span className="log-text text-dark">New Retailer <strong>Rishi</strong> registered from Nellore.</span>
-              <span className="log-time text-muted">10 mins ago</span>
-            </div>
-            <div className="log-item">
-              <span className="log-badge info">ORDER PLACED</span>
-              <span className="log-text text-dark">Order <strong>ORD-9021</strong> placed for Organic Red Tomatoes by <strong>Dileep</strong>.</span>
-              <span className="log-time text-muted">1 hour ago</span>
-            </div>
-            <div className="log-item">
-              <span className="log-badge warning">STOCK ALERT</span>
-              <span className="log-text text-dark">Retailer product <strong>Raw Farm Fresh Milk</strong> fell below stock safety threshold.</span>
-              <span className="log-time text-muted">3 hours ago</span>
-            </div>
-            <div className="log-item">
-              <span className="log-badge danger">WITHDRAWAL</span>
-              <span className="log-text text-dark">Retailer <strong>Kavya</strong> requested payout release of <strong>₹12,500.00</strong>.</span>
-              <span className="log-time text-muted">5 hours ago</span>
-            </div>
+            {(() => {
+              const logs = [];
+              
+              // 1. User registrations
+              users.slice(0, 2).forEach(u => {
+                logs.push({
+                  type: 'USER REG',
+                  badgeClass: 'success',
+                  text: <>New {u.role} <strong>{u.fullName}</strong> registered.</>,
+                  time: 'Recently'
+                });
+              });
+
+              // 2. Orders placed
+              orders.slice(0, 2).forEach(o => {
+                logs.push({
+                  type: 'ORDER PLACED',
+                  badgeClass: 'info',
+                  text: <>Order placed for <strong>{o.productName}</strong> by <strong>{o.buyerName}</strong>.</>,
+                  time: 'Recently'
+                });
+              });
+
+              // 3. Stock warnings
+              products.filter(p => p.stock <= 10).slice(0, 2).forEach(p => {
+                logs.push({
+                  type: 'STOCK ALERT',
+                  badgeClass: 'warning',
+                  text: <>Listing <strong>{p.title}</strong> is low on stock ({p.stock} remaining).</>,
+                  time: 'Alert'
+                });
+              });
+
+              if (logs.length === 0) {
+                return (
+                  <div className="text-center py-6 text-muted text-sm">
+                    No recent system events.
+                  </div>
+                );
+              }
+
+              return logs.map((log, index) => (
+                <div key={index} className="log-item">
+                  <span className={`log-badge ${log.badgeClass}`}>{log.type}</span>
+                  <span className="log-text text-dark">{log.text}</span>
+                  <span className="log-time text-muted">{log.time}</span>
+                </div>
+              ));
+            })()}
           </div>
         </div>
 

@@ -1,24 +1,46 @@
 import React, { useState } from 'react';
 import './Users.css';
 
-export default function Users({ users, setUsers, setAlert }) {
+export default function Users({ users, setUsers, setAlert, onRefresh }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
-  const toggleUserStatus = (userId) => {
-    setUsers(users.map(u => {
-      if (u.id === userId) {
-        const newStatus = u.status === 'active' ? 'blocked' : 'active';
-        setAlert({ type: 'success', text: `User status changed to ${newStatus}!` });
-        return { ...u, status: newStatus };
+  const deleteUser = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user account? This cannot be undone.")) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'Access token not found.' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setAlert({ type: 'success', text: 'User account deleted by Administrator!' });
+        if (onRefresh) await onRefresh();
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to delete user.' });
       }
-      return u;
-    }));
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
   };
 
   const filteredUsers = users.filter(u => {
-    const matchesSearch = u.fullName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          u.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const nameMatches = u.fullName ? u.fullName.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    const emailMatches = u.email ? u.email.toLowerCase().includes(searchQuery.toLowerCase()) : false;
+    const matchesSearch = nameMatches || emailMatches;
     const matchesRole = roleFilter === 'all' || u.role === roleFilter;
     return matchesSearch && matchesRole;
   });
@@ -60,7 +82,6 @@ export default function Users({ users, setUsers, setAlert }) {
                 <th className="text-dark">Full Name</th>
                 <th className="text-dark">Email Address</th>
                 <th className="text-dark">Role</th>
-                <th className="text-dark">Status</th>
                 <th className="text-dark">Action Change</th>
               </tr>
             </thead>
@@ -71,7 +92,7 @@ export default function Users({ users, setUsers, setAlert }) {
                   <td>
                     <div className="table-product-cell">
                       <div className="sidebar-avatar" style={{ width: '32px', height: '32px', fontSize: '0.9rem' }}>
-                        {u.fullName.charAt(0).toUpperCase()}
+                        {u.fullName ? u.fullName.charAt(0).toUpperCase() : 'U'}
                       </div>
                       <span className="text-dark font-semibold">{u.fullName}</span>
                     </div>
@@ -83,16 +104,11 @@ export default function Users({ users, setUsers, setAlert }) {
                     </span>
                   </td>
                   <td>
-                    <span className={`status-pill ${u.status === 'active' ? 'instock' : 'outofstock'}`}>
-                      {u.status}
-                    </span>
-                  </td>
-                  <td>
                     <button
-                      className={`action-btn-small ${u.status === 'active' ? 'danger' : 'success'}`}
-                      onClick={() => toggleUserStatus(u.id)}
+                      className="action-btn-small danger"
+                      onClick={() => deleteUser(u.id)}
                     >
-                      {u.status === 'active' ? 'Block User' : 'Activate'}
+                      Delete User
                     </button>
                   </td>
                 </tr>

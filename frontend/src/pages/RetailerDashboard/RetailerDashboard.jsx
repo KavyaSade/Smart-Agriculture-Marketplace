@@ -33,126 +33,83 @@ export default function RetailerDashboard() {
     }
   }, [alert]);
 
-  // default products list
-  const [products, setProducts] = useState([
-    {
-      id: 'PROD-101',
-      title: 'Organic Red Tomatoes',
-      category: 'Vegetables',
-      price: 150.00,
-      stock: 120,
-      unit: 'kg',
-      description: 'Fresh organic red tomatoes from greenhouse.',
-      image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&q=80&w=400'
-    },
-    {
-      id: 'PROD-102',
-      title: 'Fresh Gala Apples',
-      category: 'Fruits',
-      price: 200.00,
-      stock: 8,
-      unit: 'kg',
-      description: 'Sweet red gala apples from the orchard.',
-      image: 'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?auto=format&fit=crop&q=80&w=400'
-    },
-    {
-      id: 'PROD-103',
-      title: 'Yukon Gold Potatoes',
-      category: 'Tubers',
-      price: 80.00,
-      stock: 450,
-      unit: 'kg',
-      description: 'Gold potatoes for baking or boiling.',
-      image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&q=80&w=400'
-    },
-    {
-      id: 'PROD-104',
-      title: 'Raw Farm Fresh Milk',
-      category: 'Dairy',
-      price: 60.00,
-      stock: 0,
-      unit: 'liter',
-      description: 'Fresh milk from grass-fed cows.',
-      image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&q=80&w=400'
-    },
-    {
-      id: 'PROD-105',
-      title: 'Whole Grain Wheat Flour',
-      category: 'Grains',
-      price: 350.00,
-      stock: 85,
-      unit: 'bag',
-      description: 'Organic whole grain flour for baking bread.',
-      image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&q=80&w=400'
-    }
-  ]);
+  // default products list (fetched from backend)
+  const [products, setProducts] = useState([]);
 
   // state for active editing and deleting product
   const [editingProduct, setEditingProduct] = useState(null);
   const [deletingProductId, setDeletingProductId] = useState(null);
 
-  // default list of orders
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-9021',
-      buyerName: 'Venkatesh Rao',
-      productName: 'Organic Red Tomatoes',
-      quantity: 15,
-      unit: 'kg',
-      total: 2250.00,
-      date: '2026-08-04',
-      status: 'pending'
-    },
-    {
-      id: 'ORD-9022',
-      buyerName: 'Lalitha Devi',
-      productName: 'Whole Grain Wheat Flour',
-      quantity: 4,
-      unit: 'bag',
-      total: 1400.00,
-      date: '2026-08-03',
-      status: 'shipped'
-    },
-    {
-      id: 'ORD-9023',
-      buyerName: 'Rambabu',
-      productName: 'Fresh Gala Apples',
-      quantity: 10,
-      unit: 'kg',
-      total: 2000.00,
-      date: '2026-08-02',
-      status: 'delivered'
-    },
-    {
-      id: 'ORD-9024',
-      buyerName: 'Satyavati Naidu',
-      productName: 'Yukon Gold Potatoes',
-      quantity: 50,
-      unit: 'kg',
-      total: 4000.00,
-      date: '2026-08-01',
-      status: 'delivered'
-    },
-    {
-      id: 'ORD-9025',
-      buyerName: 'Ravi Shankar',
-      productName: 'Raw Farm Fresh Milk',
-      quantity: 5,
-      unit: 'liter',
-      total: 300.00,
-      date: '2026-07-30',
-      status: 'cancelled'
-    }
-  ]);
+  // default list of orders (fetched from backend)
+  const [orders, setOrders] = useState([]);
 
   // state for financial balance and payouts
-  const [revenueBalance, setRevenueBalance] = useState(85000.00);
-  const [transactions, setTransactions] = useState([
-    { id: 'TXN-401', type: 'order_sale', desc: 'Sale payout for ORD-9023', amount: 2000.00, date: '2026-08-02', status: 'completed' },
-    { id: 'TXN-402', type: 'order_sale', desc: 'Sale payout for ORD-9024', amount: 4000.00, date: '2026-08-01', status: 'completed' },
-    { id: 'TXN-403', type: 'withdrawal', desc: 'Transfer to Bank Account (*7829)', amount: -25000.00, date: '2026-07-28', status: 'completed' },
-    { id: 'TXN-404', type: 'order_sale', desc: 'Sale payout for ORD-8942', amount: 9500.00, date: '2026-07-25', status: 'completed' }
-  ]);
+  const [revenueBalance, setRevenueBalance] = useState(0);
+  const [transactions, setTransactions] = useState([]);
+
+  const fetchProducts = async () => {
+    const token = localStorage.getItem('token');
+    if (!token || !user) return;
+    try {
+      const response = await fetch(`http://localhost:5000/api/products?seller=${user.id}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = data.map(p => ({
+          ...p,
+          id: p._id
+        }));
+        setProducts(mapped);
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch('http://localhost:5000/api/orders', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = data.map(o => ({
+          ...o,
+          id: o._id,
+          date: new Date(o.date).toISOString().split('T')[0]
+        }));
+        setOrders(mapped);
+
+        // calculate revenue and transactions dynamically
+        const calculatedRevenue = mapped
+          .filter(o => o.status === 'delivered')
+          .reduce((sum, o) => sum + Number(o.total || 0), 0);
+        setRevenueBalance(calculatedRevenue);
+
+        const calculatedTransactions = mapped.map(o => ({
+          id: `TXN-${o.id.substring(o.id.length - 6).toUpperCase()}`,
+          type: 'order_sale',
+          desc: `Sale payout for order ${o.id.substring(o.id.length - 6).toUpperCase()}`,
+          amount: o.total,
+          date: o.date,
+          status: o.status === 'delivered' ? 'completed' : 'pending'
+        }));
+        setTransactions(calculatedTransactions);
+      }
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchProducts();
+      fetchOrders();
+    }
+  }, [user]);
 
   // state for user profile
   const [profile, setProfile] = useState({
@@ -393,6 +350,7 @@ export default function RetailerDashboard() {
               deletingProductId={deletingProductId}
               setDeletingProductId={setDeletingProductId}
               setAlert={setAlert}
+              onRefresh={fetchProducts}
             />
           )}
 
@@ -401,6 +359,7 @@ export default function RetailerDashboard() {
               orders={orders}
               setOrders={setOrders}
               setAlert={setAlert}
+              onRefresh={fetchOrders}
             />
           )}
 

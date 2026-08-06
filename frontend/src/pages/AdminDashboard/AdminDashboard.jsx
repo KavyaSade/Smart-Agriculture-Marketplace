@@ -28,48 +28,97 @@ export default function AdminDashboard() {
     }
   }, [alert]);
 
-  // Mock platforms users database
-  const [users, setUsers] = useState([
-    { id: 'USR-201', fullName: 'Rishi', email: 'rishi@gmail.com', phone: '987654321', role: 'retailer', status: 'active', farmName: 'Rishi Organic Farms', isVerified: true, commissionRate: 5, joinedDate: '2026-08-04', location: 'Nellore, Andhra Pradesh' },
-    { id: 'USR-202', fullName: 'Kavya', email: 'kavya@gmail.com', phone: '987654321', role: 'retailer', status: 'active', farmName: 'Kavya Organic Farms', isVerified: true, commissionRate: 5, joinedDate: '2025-11-20', location: 'Guntur, Andhra Pradesh' },
-    { id: 'USR-203', fullName: 'Dileep', email: 'dileep@gmail.com', phone: '987654321', role: 'buyer', status: 'active', joinedDate: '2026-01-15', location: 'Vijayawada, Andhra Pradesh' },
-    { id: 'USR-204', fullName: 'Lalitha Devi', email: 'lalitha@gmail.com', phone: '987654321', role: 'buyer', status: 'active', joinedDate: '2026-03-01', location: 'Visakhapatnam, Andhra Pradesh' },
-    { id: 'USR-205', fullName: 'Admin', email: 'admin@gmail.com', phone: '987654321', role: 'admin', status: 'active', joinedDate: '2025-01-01', location: 'Eluru District, Andhra Pradesh' },
-    { id: 'USR-206', fullName: 'Srinivas Rao', email: 'srinivas@gmail.com', phone: '987654321', role: 'user', status: 'active', joinedDate: '2026-05-10', location: 'Vijayawada, Andhra Pradesh' },
-    { id: 'USR-207', fullName: 'Venkat', email: 'venkat@gmail.com', phone: '987654321', role: 'user', status: 'active', joinedDate: '2026-06-12', location: 'Tirupati, Andhra Pradesh' },
-    { id: 'USR-208', fullName: 'Anjali', email: 'anjali@gmail.com', phone: '987654321', role: 'user', status: 'active', joinedDate: '2026-07-15', location: 'Visakhapatnam, Andhra Pradesh' }
-  ]);
-
-  // Mock platform live products database
-  const [products, setProducts] = useState([
-    { id: 'PROD-101', title: 'Organic Red Tomatoes', category: 'Vegetables', price: 150.00, stock: 120, unit: 'kg', image: 'https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&q=80&w=400' },
-    { id: 'PROD-102', title: 'Fresh Gala Apples', category: 'Fruits', price: 200.00, stock: 8, unit: 'kg', image: 'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?auto=format&fit=crop&q=80&w=400' },
-    { id: 'PROD-103', title: 'Yukon Gold Potatoes', category: 'Tubers', price: 80.00, stock: 450, unit: 'kg', image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&q=80&w=400' },
-    { id: 'PROD-104', title: 'Raw Farm Fresh Milk', category: 'Dairy', price: 60.00, stock: 0, unit: 'liter', image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&q=80&w=400' },
-    { id: 'PROD-105', title: 'Whole Grain Wheat Flour', category: 'Grains', price: 350.00, stock: 85, unit: 'bag', image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&q=80&w=400' }
-  ]);
-
-  // Mock platform active orders logs
-  const [orders, setOrders] = useState([
-    { id: 'ORD-9021', buyerName: 'Dileep', productName: 'Organic Red Tomatoes', quantity: 15, unit: 'kg', total: 2250.00, date: '2026-08-04', status: 'pending' },
-    { id: 'ORD-9022', buyerName: 'Lalitha Devi', productName: 'Whole Grain Wheat Flour', quantity: 4, unit: 'bag', total: 1400.00, date: '2026-08-03', status: 'shipped' },
-    { id: 'ORD-9023', buyerName: 'Rambabu', productName: 'Fresh Gala Apples', quantity: 10, unit: 'kg', total: 2000.00, date: '2026-08-02', status: 'delivered' },
-    { id: 'ORD-9024', buyerName: 'Satyavati', productName: 'Yukon Gold Potatoes', quantity: 50, unit: 'kg', total: 4000.00, date: '2026-08-01', status: 'delivered' }
-  ]);
+  const [users, setUsers] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
 
   // Mock seller payouts database
-  const [payoutRequests, setPayoutRequests] = useState([
-    { id: 'REQ-301', sellerName: 'Kavya', amount: 12500.00, date: '2026-08-05', status: 'pending' },
-    { id: 'REQ-302', sellerName: 'Rishi', amount: 4500.00, date: '2026-08-04', status: 'completed' }
-  ]);
+  const [payoutRequests, setPayoutRequests] = useState([]);
 
   // Mock platform financials settings
-  const [platformEarnings, setPlatformEarnings] = useState(14800.00);
+  const [platformEarnings, setPlatformEarnings] = useState(0);
   const [adminSettings, setAdminSettings] = useState({
     commissionRate: 5.0,
     maintenanceMode: false,
     allowRegistrations: true
   });
+
+  const fetchUsers = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch('http://localhost:5000/api/users', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = data.map(u => ({
+          ...u,
+          id: u._id
+        }));
+        setUsers(mapped);
+      }
+    } catch (err) {
+      console.error('Error fetching users:', err);
+    }
+  };
+
+  const fetchProducts = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch('http://localhost:5000/api/products', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = data.map(p => ({
+          ...p,
+          id: p._id
+        }));
+        setProducts(mapped);
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch('http://localhost:5000/api/orders', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const mapped = data.map(o => ({
+          ...o,
+          id: o._id,
+          date: new Date(o.date).toISOString().split('T')[0]
+        }));
+        setOrders(mapped);
+
+        // Calculate dynamic platform earnings (commission) from delivered orders
+        const calculatedEarnings = mapped
+          .filter(o => o.status === 'delivered')
+          .reduce((sum, o) => sum + (Number(o.total || 0) * (adminSettings.commissionRate / 100)), 0);
+        setPlatformEarnings(calculatedEarnings);
+      }
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      fetchUsers();
+      fetchProducts();
+      fetchOrders();
+    }
+  }, [user]);
+
+  // state for admin user profile
 
   // state for admin user profile
   const [profile, setProfile] = useState({
@@ -274,6 +323,7 @@ export default function AdminDashboard() {
               users={users}
               setUsers={setUsers}
               setAlert={setAlert}
+              onRefresh={fetchUsers}
             />
           )}
 
@@ -282,6 +332,7 @@ export default function AdminDashboard() {
               products={products}
               setProducts={setProducts}
               setAlert={setAlert}
+              onRefresh={fetchProducts}
             />
           )}
 
@@ -290,6 +341,7 @@ export default function AdminDashboard() {
               orders={orders}
               setOrders={setOrders}
               setAlert={setAlert}
+              onRefresh={fetchOrders}
             />
           )}
 

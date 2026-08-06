@@ -1,20 +1,74 @@
 import React, { useState } from 'react';
 import './Products.css';
 
-export default function Products({ products, setProducts, setAlert }) {
+export default function Products({ products, setProducts, setAlert, onRefresh }) {
   const [productSearch, setProductSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [priceMinFilter, setPriceMinFilter] = useState('');
+  const [priceMaxFilter, setPriceMaxFilter] = useState('');
+  const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [deletingProductId, setDeletingProductId] = useState(null);
 
-  const deleteProductListing = () => {
-    setProducts(products.filter(p => p.id !== deletingProductId));
-    setDeletingProductId(null);
-    setAlert({ type: 'success', text: 'Product listing removed by Administrator!' });
+  const deleteProductListing = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'Access denied.' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${deletingProductId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setAlert({ type: 'success', text: 'Product listing removed by Administrator!' });
+        setDeletingProductId(null);
+        if (onRefresh) await onRefresh();
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to delete product.' });
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
   };
 
-  const filteredProducts = products.filter(p => 
-    p.title.toLowerCase().includes(productSearch.toLowerCase()) || 
-    p.category.toLowerCase().includes(productSearch.toLowerCase())
-  );
+  const clearAllFilters = () => {
+    setProductSearch('');
+    setCategoryFilter('all');
+    setLocationFilter('');
+    setPriceMinFilter('');
+    setPriceMaxFilter('');
+    setAvailabilityFilter('all');
+  };
+
+  const filteredProducts = products.filter(p => {
+    const titleMatches = p.title ? p.title.toLowerCase().includes(productSearch.toLowerCase()) : false;
+    const categoryMatches = p.category ? p.category.toLowerCase().includes(productSearch.toLowerCase()) : false;
+    const matchesSearch = titleMatches || categoryMatches;
+    
+    const matchesCategory = categoryFilter === 'all' || (p.category && p.category.toLowerCase() === categoryFilter.toLowerCase());
+    const matchesLocation = !locationFilter || (p.location && p.location.toLowerCase().includes(locationFilter.toLowerCase()));
+    const matchesPriceMin = !priceMinFilter || p.price >= parseFloat(priceMinFilter);
+    const matchesPriceMax = !priceMaxFilter || p.price <= parseFloat(priceMaxFilter);
+    
+    let matchesAvailability = true;
+    if (availabilityFilter === 'instock') {
+      matchesAvailability = p.stock > 0;
+    } else if (availabilityFilter === 'outofstock') {
+      matchesAvailability = p.stock === 0;
+    } else if (availabilityFilter === 'lowstock') {
+      matchesAvailability = p.stock > 0 && p.stock <= 10;
+    }
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesPriceMin && matchesPriceMax && matchesAvailability;
+  });
 
   return (
     <div className="admin-products-view">
@@ -24,10 +78,102 @@ export default function Products({ products, setProducts, setAlert }) {
           <input
             type="text"
             className="form-input search-field"
-            placeholder="enter product name to search"
+            placeholder="enter product name or category to search"
             value={productSearch}
             onChange={(e) => setProductSearch(e.target.value)}
           />
+        </div>
+      </div>
+
+      {/* Admin filter controls row */}
+      <div className="filter-controls-row" style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '12px',
+        marginBottom: '20px',
+        padding: '15px',
+        backgroundColor: 'var(--card-bg, #ffffff)',
+        borderRadius: '12px',
+        border: '1px solid var(--border-color, #e2e8f0)'
+      }}>
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="text-xs font-bold text-dark mb-1 block">Category</label>
+          <select
+            className="form-input"
+            style={{ padding: '6px 10px', height: '38px' }}
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="all">All Categories</option>
+            <option value="Vegetables">Vegetables</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Grains">Grains</option>
+            <option value="Dairy">Dairy</option>
+            <option value="Tubers">Tubers</option>
+            <option value="Organic Fertilisers">Organic Fertilisers</option>
+          </select>
+        </div>
+
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="text-xs font-bold text-dark mb-1 block">Location</label>
+          <input
+            type="text"
+            className="form-input"
+            style={{ padding: '6px 10px', height: '38px' }}
+            placeholder="Filter by location..."
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="text-xs font-bold text-dark mb-1 block">Min Price (₹)</label>
+          <input
+            type="number"
+            className="form-input"
+            style={{ padding: '6px 10px', height: '38px' }}
+            placeholder="Min"
+            value={priceMinFilter}
+            onChange={(e) => setPriceMinFilter(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="text-xs font-bold text-dark mb-1 block">Max Price (₹)</label>
+          <input
+            type="number"
+            className="form-input"
+            style={{ padding: '6px 10px', height: '38px' }}
+            placeholder="Max"
+            value={priceMaxFilter}
+            onChange={(e) => setPriceMaxFilter(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: 0 }}>
+          <label className="text-xs font-bold text-dark mb-1 block">Availability</label>
+          <select
+            className="form-input"
+            style={{ padding: '6px 10px', height: '38px' }}
+            value={availabilityFilter}
+            onChange={(e) => setAvailabilityFilter(e.target.value)}
+          >
+            <option value="all">All Stock Statuses</option>
+            <option value="instock">In Stock</option>
+            <option value="lowstock">Low Stock</option>
+            <option value="outofstock">Out of Stock</option>
+          </select>
+        </div>
+
+        <div className="form-group" style={{ marginBottom: 0, display: 'flex', alignItems: 'flex-end' }}>
+          <button 
+            type="button" 
+            className="btn btn-secondary w-full"
+            style={{ height: '38px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            onClick={clearAllFilters}
+          >
+            Clear Filters
+          </button>
         </div>
       </div>
 
@@ -39,6 +185,7 @@ export default function Products({ products, setProducts, setAlert }) {
                 <th className="text-dark">Product ID</th>
                 <th className="text-dark">Product Detail</th>
                 <th className="text-dark">Category</th>
+                <th className="text-dark">Location</th>
                 <th className="text-dark">Unit Price</th>
                 <th className="text-dark">Stock Level</th>
                 <th className="text-dark">Actions Moderation</th>
@@ -50,7 +197,15 @@ export default function Products({ products, setProducts, setAlert }) {
                   <td className="font-bold text-dark">{p.id}</td>
                   <td>
                     <div className="table-product-cell">
-                      <img src={p.image} alt={p.title} className="table-product-thumb" />
+                      <img 
+                        src={p.image} 
+                        alt={p.title} 
+                        className="table-product-thumb" 
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&q=80&w=400';
+                        }}
+                      />
                       <div>
                         <div className="table-product-name text-dark font-semibold">{p.title}</div>
                         <div className="text-xs text-muted">ID: {p.id}</div>
@@ -58,7 +213,8 @@ export default function Products({ products, setProducts, setAlert }) {
                     </div>
                   </td>
                   <td className="text-dark">{p.category}</td>
-                  <td className="text-dark">₹{p.price.toFixed(2)} / {p.unit}</td>
+                  <td className="text-dark">{p.location || 'N/A'}</td>
+                  <td className="text-dark">₹{Number(p.price || 0).toFixed(2)} / {p.unit}</td>
                   <td className="text-dark font-medium">{p.stock} {p.unit}</td>
                   <td>
                     <button
@@ -77,7 +233,7 @@ export default function Products({ products, setProducts, setAlert }) {
         <div className="empty-state-card">
           <img src="/src/assets/icons/multiply.png" alt="" style={{ width: '48px', height: '48px', marginBottom: '16px' }} />
           <h3 className="empty-state-title text-dark">No products found</h3>
-          <p className="empty-state-desc text-muted">Try adjusting your search terms.</p>
+          <p className="empty-state-desc text-muted">Try adjusting your filters or search terms.</p>
         </div>
       )}
 
@@ -86,7 +242,7 @@ export default function Products({ products, setProducts, setAlert }) {
           <div className="dialog-modal-card">
             <h3 className="dialog-title">Moderate Product Removal?</h3>
             <p className="dialog-message text-muted">
-              Are you sure you want to remove this listing? The seller will be notified.
+              Are you sure you want to remove this listing? This will permanently delete it from the database.
             </p>
             <div className="dialog-actions">
               <button 

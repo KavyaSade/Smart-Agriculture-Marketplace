@@ -1,13 +1,38 @@
 import React, { useState } from 'react';
 import './Orders.css';
 
-export default function Orders({ orders, setOrders, setAlert }) {
+export default function Orders({ orders, setOrders, setAlert, onRefresh }) {
   const [orderFilter, setOrderFilter] = useState('all');
 
-  // change order status
-  const handleOrderStatusChange = (orderId, newStatus) => {
-    setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-    setAlert({ type: 'success', text: `Order marked as ${newStatus}!` });
+  // change order status on backend
+  const handleOrderStatusChange = async (orderId, newStatus) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'You must be logged in.' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        setAlert({ type: 'success', text: `Order marked as ${newStatus}!` });
+        if (onRefresh) await onRefresh();
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to update order status.' });
+      }
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
   };
 
   // filter orders by active status

@@ -4,14 +4,40 @@ import './Orders.css';
 export default function Orders({ orders, setOrders, setAlert }) {
   const [orderFilter, setOrderFilter] = useState('all');
 
-  const updateOrderStatus = (orderId, newStatus) => {
-    setOrders(orders.map(o => {
-      if (o.id === orderId) {
+  const updateOrderStatus = async (orderId, newStatus) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'You must be logged in.' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        const updated = await response.json();
+        setOrders(orders.map(o => {
+          if (o.id === orderId) {
+            return { ...o, status: updated.status };
+          }
+          return o;
+        }));
         setAlert({ type: 'success', text: `Order status overridden to ${newStatus}!` });
-        return { ...o, status: newStatus };
+      } else {
+        const data = await response.json();
+        setAlert({ type: 'error', text: data.message || 'Failed to override order status.' });
       }
-      return o;
-    }));
+    } catch (err) {
+      console.error('Error overriding order status:', err);
+      setAlert({ type: 'error', text: 'Network error.' });
+    }
   };
 
   const filteredOrders = orders.filter(o => 
@@ -53,7 +79,7 @@ export default function Orders({ orders, setOrders, setAlert }) {
                   <td className="text-dark">{o.date}</td>
                   <td className="text-dark">{o.buyerName}</td>
                   <td className="text-dark">{o.productName} (x{o.quantity} {o.unit})</td>
-                  <td className="text-dark font-bold">₹{o.total.toFixed(2)}</td>
+                  <td className="text-dark font-bold">₹{Number(o.total || 0).toFixed(2)}</td>
                   <td>
                     <span className={`order-status-badge ${o.status}`}>{o.status}</span>
                   </td>

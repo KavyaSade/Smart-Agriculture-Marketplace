@@ -10,9 +10,15 @@ export default function Products({
   setEditingProduct,
   deletingProductId,
   setDeletingProductId,
-  setAlert
+  setAlert,
+  onRefresh
 }) {
   const [productSearch, setProductSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [priceMinFilter, setPriceMinFilter] = useState('');
+  const [priceMaxFilter, setPriceMaxFilter] = useState('');
+  const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [formErrors, setFormErrors] = useState({});
 
   // state for new product inputs
@@ -23,103 +29,243 @@ export default function Products({
     stock: '',
     unit: 'kg',
     description: '',
-    image: ''
+    image: '',
+    location: ''
   });
 
-  // save new product to list
-  const handleAddProductSubmit = (e) => {
+  const handleFileChange = (e, isEdit = false) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const max_size = 400;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > max_size) {
+              height *= max_size / width;
+              width = max_size;
+            }
+          } else {
+            if (height > max_size) {
+              width *= max_size / height;
+              height = max_size;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          if (isEdit) {
+            setEditingProduct(prev => ({ ...prev, image: dataUrl }));
+          } else {
+            setNewProduct(prev => ({ ...prev, image: dataUrl }));
+          }
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // save new product to database
+  const handleAddProductSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
     if (!newProduct.title.trim()) errors.title = 'Product Title is required';
     if (!newProduct.price || parseFloat(newProduct.price) <= 0) errors.price = 'Please enter a valid price';
     if (!newProduct.stock || parseInt(newProduct.stock) < 0) errors.stock = 'Stock must be 0 or higher';
     if (!newProduct.description.trim()) errors.description = 'Description is required';
+    if (!newProduct.location.trim()) errors.location = 'Location is required';
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
 
-    const createdProduct = {
-      ...newProduct,
-      id: `PROD-${Math.floor(100 + Math.random() * 900)}`,
-      price: parseFloat(newProduct.price),
-      stock: parseInt(newProduct.stock),
-      image: newProduct.image.trim() || 'https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&q=80&w=400'
-    };
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'You must be logged in.' });
+      return;
+    }
 
-    setProducts([createdProduct, ...products]);
-    setNewProduct({
-      title: '',
-      category: 'Vegetables',
-      price: '',
-      stock: '',
-      unit: 'kg',
-      description: '',
-      image: ''
-    });
-    setFormErrors({});
-    setAlert({ type: 'success', text: 'Product added successfully!' });
-    setActiveTab('products');
+    try {
+      const response = await fetch('http://localhost:5000/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...newProduct,
+          price: parseFloat(newProduct.price),
+          stock: parseInt(newProduct.stock),
+          image: newProduct.image.trim() || 'https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&q=80&w=400'
+        })
+      });
+
+      if (response.ok) {
+        setNewProduct({
+          title: '',
+          category: 'Vegetables',
+          price: '',
+          stock: '',
+          unit: 'kg',
+          description: '',
+          image: '',
+          location: ''
+        });
+        setFormErrors({});
+        setAlert({ type: 'success', text: 'Product added successfully!' });
+        if (onRefresh) await onRefresh();
+        setActiveTab('products');
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to add product.' });
+      }
+    } catch (err) {
+      console.error('Error adding product:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
   };
 
   // select product to edit
   const openEditProductView = (product) => {
-    setEditingProduct(product);
+    setEditingProduct({
+      ...product,
+      location: product.location || ''
+    });
     setActiveTab('edit-product');
   };
 
   // save product edit changes
-  const handleEditProductSubmit = (e) => {
+  const handleEditProductSubmit = async (e) => {
     e.preventDefault();
     const errors = {};
     if (!editingProduct.title.trim()) errors.title = 'Product Title is required';
     if (!editingProduct.price || parseFloat(editingProduct.price) <= 0) errors.price = 'Please enter a valid price';
     if (!editingProduct.stock || parseInt(editingProduct.stock) < 0) errors.stock = 'Stock must be 0 or higher';
     if (!editingProduct.description.trim()) errors.description = 'Description is required';
+    if (!editingProduct.location.trim()) errors.location = 'Location is required';
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
       return;
     }
 
-    setProducts(products.map(p => p.id === editingProduct.id ? {
-      ...editingProduct,
-      price: parseFloat(editingProduct.price),
-      stock: parseInt(editingProduct.stock)
-    } : p));
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'You must be logged in.' });
+      return;
+    }
 
-    setEditingProduct(null);
-    setFormErrors({});
-    setAlert({ type: 'success', text: 'Product updated successfully!' });
-    setActiveTab('products');
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${editingProduct.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          ...editingProduct,
+          price: parseFloat(editingProduct.price),
+          stock: parseInt(editingProduct.stock)
+        })
+      });
+
+      if (response.ok) {
+        setEditingProduct(null);
+        setFormErrors({});
+        setAlert({ type: 'success', text: 'Product updated successfully!' });
+        if (onRefresh) await onRefresh();
+        setActiveTab('products');
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to update product.' });
+      }
+    } catch (err) {
+      console.error('Error updating product:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
   };
 
-  // delete product from inventory list
-  const executeProductDelete = () => {
-    setProducts(products.filter(p => p.id !== deletingProductId));
-    setDeletingProductId(null);
-    setAlert({ type: 'success', text: 'Product deleted successfully!' });
+  // delete product from database
+  const executeProductDelete = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'You must be logged in.' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${deletingProductId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        setDeletingProductId(null);
+        setAlert({ type: 'success', text: 'Product deleted successfully!' });
+        if (onRefresh) await onRefresh();
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to delete product.' });
+      }
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
   };
 
-  // filter products by search query
-  const filteredProducts = products.filter(p => 
-    p.title.toLowerCase().includes(productSearch.toLowerCase()) ||
-    p.category.toLowerCase().includes(productSearch.toLowerCase())
-  );
+  // filter products by search, category, location, price, and availability
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.title.toLowerCase().includes(productSearch.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || p.category.toLowerCase() === categoryFilter.toLowerCase();
+    const matchesLocation = !locationFilter || (p.location && p.location.toLowerCase().includes(locationFilter.toLowerCase()));
+    const matchesPriceMin = !priceMinFilter || p.price >= parseFloat(priceMinFilter);
+    const matchesPriceMax = !priceMaxFilter || p.price <= parseFloat(priceMaxFilter);
+    
+    let matchesAvailability = true;
+    if (availabilityFilter === 'instock') {
+      matchesAvailability = p.stock > 0;
+    } else if (availabilityFilter === 'outofstock') {
+      matchesAvailability = p.stock === 0;
+    } else if (availabilityFilter === 'lowstock') {
+      matchesAvailability = p.stock > 0 && p.stock <= 10;
+    }
+
+    return matchesSearch && matchesCategory && matchesLocation && matchesPriceMin && matchesPriceMax && matchesAvailability;
+  });
+
+  const clearAllFilters = () => {
+    setProductSearch('');
+    setCategoryFilter('all');
+    setLocationFilter('');
+    setPriceMinFilter('');
+    setPriceMaxFilter('');
+    setAvailabilityFilter('all');
+  };
 
   return (
     <>
       {/* my products list */}
       {activeTab === 'products' && (
         <div className="products-view">
+          {/* Header search bar */}
           <div className="view-header-actions">
             <div className="search-input-wrapper">
               <img src="/src/assets/icons/marker.png" alt="" className="search-input-icon-png text-muted" />
               <input
                 type="text"
                 className="form-input search-field"
-                placeholder="enter product name to search"
+                placeholder="Search by title..."
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
               />
@@ -130,6 +276,98 @@ export default function Products({
             </button>
           </div>
 
+          {/* Filter Bar */}
+          <div className="filter-controls-row" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '12px',
+            marginBottom: '20px',
+            padding: '15px',
+            backgroundColor: 'var(--card-bg, #ffffff)',
+            borderRadius: '12px',
+            border: '1px solid var(--border-color, #e2e8f0)'
+          }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="text-xs font-bold text-dark mb-1 block">Category</label>
+              <select
+                className="form-input"
+                style={{ padding: '6px 10px', height: '38px' }}
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                <option value="all">All Categories</option>
+                <option value="Vegetables">Vegetables</option>
+                <option value="Fruits">Fruits</option>
+                <option value="Grains">Grains</option>
+                <option value="Dairy">Dairy</option>
+                <option value="Tubers">Tubers</option>
+                <option value="Organic Fertilisers">Organic Fertilisers</option>
+              </select>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="text-xs font-bold text-dark mb-1 block">Location</label>
+              <input
+                type="text"
+                className="form-input"
+                style={{ padding: '6px 10px', height: '38px' }}
+                placeholder="Filter by location..."
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="text-xs font-bold text-dark mb-1 block">Min Price (₹)</label>
+              <input
+                type="number"
+                className="form-input"
+                style={{ padding: '6px 10px', height: '38px' }}
+                placeholder="Min"
+                value={priceMinFilter}
+                onChange={(e) => setPriceMinFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="text-xs font-bold text-dark mb-1 block">Max Price (₹)</label>
+              <input
+                type="number"
+                className="form-input"
+                style={{ padding: '6px 10px', height: '38px' }}
+                placeholder="Max"
+                value={priceMaxFilter}
+                onChange={(e) => setPriceMaxFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="text-xs font-bold text-dark mb-1 block">Availability</label>
+              <select
+                className="form-input"
+                style={{ padding: '6px 10px', height: '38px' }}
+                value={availabilityFilter}
+                onChange={(e) => setAvailabilityFilter(e.target.value)}
+              >
+                <option value="all">All Stock Statuses</option>
+                <option value="instock">In Stock</option>
+                <option value="lowstock">Low Stock</option>
+                <option value="outofstock">Out of Stock</option>
+              </select>
+            </div>
+
+            <div className="form-group" style={{ marginBottom: 0, display: 'flex', alignItems: 'flex-end' }}>
+              <button 
+                type="button" 
+                className="btn btn-secondary w-full"
+                style={{ height: '38px', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                onClick={clearAllFilters}
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
+
           {filteredProducts.length > 0 ? (
             <div className="responsive-table-wrapper">
               <table className="custom-dashboard-table">
@@ -137,6 +375,7 @@ export default function Products({
                   <tr>
                     <th className="text-dark">Product</th>
                     <th className="text-dark">Category</th>
+                    <th className="text-dark">Location</th>
                     <th className="text-dark">Price</th>
                     <th className="text-dark">Stock Level</th>
                     <th className="text-dark">Status</th>
@@ -153,7 +392,15 @@ export default function Products({
                       <tr key={p.id}>
                         <td>
                           <div className="table-product-cell">
-                            <img src={p.image} alt={p.title} className="table-product-thumb" />
+                            <img 
+                              src={p.image} 
+                              alt={p.title} 
+                              className="table-product-thumb" 
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&q=80&w=400';
+                              }}
+                            />
                             <div>
                               <div className="table-product-name text-dark">{p.title}</div>
                               <div className="text-xs text-muted">ID: {p.id}</div>
@@ -161,7 +408,8 @@ export default function Products({
                           </div>
                         </td>
                         <td className="text-dark">{p.category}</td>
-                        <td className="text-dark">₹{p.price.toFixed(2)} / {p.unit}</td>
+                        <td className="text-dark">{p.location || 'N/A'}</td>
+                        <td className="text-dark">₹{Number(p.price || 0).toFixed(2)} / {p.unit}</td>
                         <td className="text-dark">{p.stock} {p.unit}</td>
                         <td>
                           <span className={`status-pill ${stockStatus}`}>
@@ -199,13 +447,11 @@ export default function Products({
               <img src="/src/assets/icons/delete.png" alt="" style={{ width: '48px', height: '48px', marginBottom: '16px' }} />
               <h3 className="empty-state-title text-dark">No products found</h3>
               <p className="empty-state-desc text-muted">
-                {productSearch ? "No products match your search query." : "You have no products. Click add product to start."}
+                No products match your filters. Try adjusting your search criteria.
               </p>
-              {productSearch && (
-                <button className="btn btn-secondary" onClick={() => setProductSearch('')}>
-                  Clear Search
-                </button>
-              )}
+              <button className="btn btn-secondary" onClick={clearAllFilters}>
+                Reset Search Filters
+              </button>
             </div>
           )}
         </div>
@@ -266,7 +512,7 @@ export default function Products({
                   value={newProduct.stock}
                   onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
                 />
-                {formErrors.stock && <span className="input-feedback-error">{formErrors.stock}</span>}
+                {formErrors.stock && <span className="input-feedback-error">{newProduct.stock}</span>}
               </div>
 
               <div className="form-group">
@@ -285,14 +531,30 @@ export default function Products({
               </div>
 
               <div className="form-group">
-                <label className="form-label text-dark">Image URL</label>
+                <label className="form-label text-dark">Location *</label>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="enter the image url"
-                  value={newProduct.image}
-                  onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                  placeholder="enter farm location (e.g. Nellore, Andhra Pradesh)"
+                  value={newProduct.location}
+                  onChange={(e) => setNewProduct({ ...newProduct, location: e.target.value })}
                 />
+                {formErrors.location && <span className="input-feedback-error">{formErrors.location}</span>}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label text-dark">Upload Product Photo *</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="form-input"
+                  onChange={(e) => handleFileChange(e, false)}
+                />
+                {newProduct.image && (
+                  <div style={{ marginTop: '10px' }}>
+                    <img src={newProduct.image} alt="Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color, #e2e8f0)' }} />
+                  </div>
+                )}
               </div>
 
               <div className="form-group form-group-full">
@@ -313,7 +575,7 @@ export default function Products({
                 type="button" 
                 className="cancel-action-btn" 
                 onClick={() => {
-                  setNewProduct({ title: '', category: 'Vegetables', price: '', stock: '', unit: 'kg', description: '', image: '' });
+                  setNewProduct({ title: '', category: 'Vegetables', price: '', stock: '', unit: 'kg', description: '', image: '', location: '' });
                   setFormErrors({});
                   setActiveTab('products');
                 }}
@@ -383,7 +645,7 @@ export default function Products({
                   value={editingProduct.stock}
                   onChange={(e) => setEditingProduct({ ...editingProduct, stock: e.target.value })}
                 />
-                {formErrors.stock && <span className="input-feedback-error">{editingProduct.stock}</span>}
+                {formErrors.stock && <span className="input-feedback-error">{formErrors.stock}</span>}
               </div>
 
               <div className="form-group">
@@ -402,14 +664,30 @@ export default function Products({
               </div>
 
               <div className="form-group">
-                <label className="form-label text-dark">Image URL</label>
+                <label className="form-label text-dark">Location *</label>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="enter the image url"
-                  value={editingProduct.image}
-                  onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
+                  placeholder="enter farm location (e.g. Nellore, Andhra Pradesh)"
+                  value={editingProduct.location}
+                  onChange={(e) => setEditingProduct({ ...editingProduct, location: e.target.value })}
                 />
+                {formErrors.location && <span className="input-feedback-error">{formErrors.location}</span>}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label text-dark">Upload Product Photo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="form-input"
+                  onChange={(e) => handleFileChange(e, true)}
+                />
+                {editingProduct.image && (
+                  <div style={{ marginTop: '10px' }}>
+                    <img src={editingProduct.image} alt="Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color, #e2e8f0)' }} />
+                  </div>
+                )}
               </div>
 
               <div className="form-group form-group-full">

@@ -84,7 +84,7 @@ export default function Overview({
                     <td className="font-bold text-dark">{o.id}</td>
                     <td className="text-dark">{o.buyerName}</td>
                     <td className="text-dark">{o.productName} (x{o.quantity})</td>
-                    <td className="text-dark">₹{o.total.toFixed(2)}</td>
+                    <td className="text-dark">₹{Number(o.total || 0).toFixed(2)}</td>
                     <td>
                       <span className={`order-status-badge ${o.status}`}>{o.status}</span>
                     </td>
@@ -106,7 +106,15 @@ export default function Overview({
             <div className="flex flex-col gap-3">
               {products.filter(p => p.stock <= 10).map(p => (
                 <div key={p.id} className="warning-item-row animate-fade-in-up">
-                  <img src={p.image} alt={p.title} className="warning-item-img" />
+                  <img 
+                    src={p.image} 
+                    alt={p.title} 
+                    className="warning-item-img" 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = 'https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&q=80&w=400';
+                    }}
+                  />
                   <div className="flex-grow min-w-0">
                     <h4 className="warning-item-title truncate">{p.title}</h4>
                     <span className="warning-item-status">
