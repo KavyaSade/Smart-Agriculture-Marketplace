@@ -66,6 +66,7 @@ export default function Users({ users, setUsers, setAlert, onRefresh }) {
           >
             <option value="all">All Roles</option>
             <option value="retailer">Retailers</option>
+            <option value="farmer">Farmers</option>
             <option value="buyer">Buyers</option>
             <option value="admin">Administrators</option>
             <option value="user">Users</option>
@@ -100,7 +101,7 @@ export default function Users({ users, setUsers, setAlert, onRefresh }) {
                   <td className="text-dark">{u.email}</td>
                   <td>
                     <span className={`role-badge ${u.role}`}>
-                      {u.role === 'retailer' ? 'Retailer' : u.role}
+                      {u.role === 'retailer' ? 'Retailer' : u.role === 'farmer' ? 'Farmer' : u.role}
                     </span>
                   </td>
                   <td>

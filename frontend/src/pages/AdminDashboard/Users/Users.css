@@ -18,7 +18,15 @@ body.dark-theme .role-badge.retailer {
   background-color: rgba(64, 145, 108, 0.15);
   color: #52b788;
 }
+.role-badge.farmer {
+  background-color: #fef3c7;
+  color: #d97706;
+}
 
+body.dark-theme .role-badge.farmer {
+  background-color: rgba(217, 119, 6, 0.15);
+  color: #fbbf24;
+}
 .role-badge.buyer {
   background-color: #e8f0fe;
   color: #1a73e8;

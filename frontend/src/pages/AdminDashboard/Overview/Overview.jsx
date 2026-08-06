@@ -9,7 +9,7 @@ export default function Overview({
   setActiveTab,
   setAlert
 }) {
-  const totalSellers = users.filter(u => u.role === 'retailer').length;
+  const totalSellers = users.filter(u => u.role === 'retailer' || u.role === 'farmer').length;
   const totalBuyers = users.filter(u => u.role === 'buyer').length;
 
   const totalSales = orders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + Number(o.total || 0), 0);
