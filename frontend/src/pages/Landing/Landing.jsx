@@ -11,8 +11,6 @@ import Footer from '../../components/Footer/Footer';
 
 export default function Landing() {
   useEffect(() => {
-    if (loading) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -30,7 +28,7 @@ export default function Landing() {
     return () => {
       elements.forEach((el) => observer.unobserve(el));
     };
-  }, [loading]);
+  }, []);
 
   return (
     <>
