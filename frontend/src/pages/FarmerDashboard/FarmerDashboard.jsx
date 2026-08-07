@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../../components/Navbar/Navbar.css';
-import { 
-  LayoutDashboard, 
-  ShoppingBag, 
-  IndianRupee, 
-  Package, 
-  Clock, 
-  CheckCircle2, 
-  Plus, 
-  Search, 
-  Filter, 
-  Trash2, 
-  Edit, 
-  X, 
-  MapPin, 
-  TrendingUp, 
+import {
+  LayoutDashboard,
+  ShoppingBag,
+  IndianRupee,
+  Package,
+  Clock,
+  CheckCircle2,
+  Plus,
+  Search,
+  Filter,
+  Trash2,
+  Edit,
+  X,
+  MapPin,
+  TrendingUp,
   LogOut,
   ChevronRight,
   TrendingDown,
@@ -297,16 +297,19 @@ export default function FarmerDashboard() {
 
   // Trigger API data fetch when user is loaded.
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+    fetchProductsAndOrders();
+    const interval = setInterval(() => {
       fetchProductsAndOrders();
-    }
+    }, 10000);
+    return () => clearInterval(interval);
   }, [user]);
 
   // Update stats dynamically when products or orders change.
   useEffect(() => {
     const totalEarnings = orders
       .filter(o => o.status === 'delivered' || o.status === 'shipped')
-      .reduce((sum, current) => sum + current.amount, 0); 
+      .reduce((sum, current) => sum + current.amount, 0);
 
     const activeListings = products.length;
     const completedOrders = orders.filter(o => o.status === 'delivered').length;
@@ -337,6 +340,7 @@ export default function FarmerDashboard() {
 
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
+    fetchProductsAndOrders();
   };
 
   // Set inputs to empty and navigate to add product page.
@@ -479,9 +483,9 @@ export default function FarmerDashboard() {
 
       if (res.ok) {
         logActivity(
-          modalMode === 'add' 
-            ? `New listing created: ${formInputs.name}` 
-            : `Listing updated: ${formInputs.name}`, 
+          modalMode === 'add'
+            ? `New listing created: ${formInputs.name}`
+            : `Listing updated: ${formInputs.name}`,
           'inventory'
         );
         fetchProductsAndOrders();
@@ -557,6 +561,27 @@ export default function FarmerDashboard() {
     }
   };
 
+  // Mark a shipped order as out for delivery via the backend API.
+  const handleOrderOutForDelivery = async (orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: 'Out for Delivery' })
+      });
+      if (res.ok) {
+        fetchProductsAndOrders();
+        logActivity(`Order ${orderId} marked as out for delivery`, 'success');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Mark a shipped order as delivered via the backend API.
   const handleOrderDeliver = async (orderId) => {
     try {
@@ -584,8 +609,8 @@ export default function FarmerDashboard() {
     const locationText = prod.location || '';
     const catText = (prod.category || '').toLowerCase();
 
-    const matchesSearch = nameText.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          locationText.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = nameText.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      locationText.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || catText === categoryFilter.toLowerCase();
     return matchesSearch && matchesCategory;
   });
@@ -596,9 +621,9 @@ export default function FarmerDashboard() {
   });
 
   const filteredMarketCrops = marketplaceCrops.filter(crop => {
-    const matchesSearch = crop.name.toLowerCase().includes(marketSearchQuery.toLowerCase()) || 
-                          crop.farmer.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
-                          crop.location.toLowerCase().includes(marketSearchQuery.toLowerCase());
+    const matchesSearch = crop.name.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+      crop.farmer.toLowerCase().includes(marketSearchQuery.toLowerCase()) ||
+      crop.location.toLowerCase().includes(marketSearchQuery.toLowerCase());
     const matchesCategory = marketCategoryFilter === 'all' || crop.category === marketCategoryFilter;
     return matchesSearch && matchesCategory;
   });
@@ -639,8 +664,8 @@ export default function FarmerDashboard() {
 
         <ul className="sidebar-menu">
           <li className="menu-item">
-            <button 
-              onClick={() => handleTabChange('dashboard')} 
+            <button
+              onClick={() => handleTabChange('dashboard')}
               className={`menu-link ${activeTab === 'dashboard' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/graph.png" alt="" className="sidebar-link-img" />
@@ -648,8 +673,8 @@ export default function FarmerDashboard() {
             </button>
           </li>
           <li className="menu-item">
-            <button 
-              onClick={() => handleTabChange('products')} 
+            <button
+              onClick={() => handleTabChange('products')}
               className={`menu-link ${activeTab === 'products' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/shopping-bag.png" alt="" className="sidebar-link-img" />
@@ -657,8 +682,8 @@ export default function FarmerDashboard() {
             </button>
           </li>
           <li className="menu-item">
-            <button 
-              onClick={() => handleOpenAddModal()} 
+            <button
+              onClick={() => handleOpenAddModal()}
               className={`menu-link ${activeTab === 'add-product' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/sprout.png" alt="" className="sidebar-link-img" />
@@ -666,8 +691,8 @@ export default function FarmerDashboard() {
             </button>
           </li>
           <li className="menu-item">
-            <button 
-              onClick={() => handleTabChange('orders')} 
+            <button
+              onClick={() => handleTabChange('orders')}
               className={`menu-link ${activeTab === 'orders' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/delivery.png" alt="" className="sidebar-link-img" />
@@ -678,8 +703,8 @@ export default function FarmerDashboard() {
             </button>
           </li>
           <li className="menu-item">
-            <button 
-              onClick={() => handleTabChange('analytics')} 
+            <button
+              onClick={() => handleTabChange('analytics')}
               className={`menu-link ${activeTab === 'analytics' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/handshake.png" alt="" className="sidebar-link-img" />
@@ -687,8 +712,8 @@ export default function FarmerDashboard() {
             </button>
           </li>
           <li className="menu-item">
-            <button 
-              onClick={() => handleTabChange('settings')} 
+            <button
+              onClick={() => handleTabChange('settings')}
               className={`menu-link ${activeTab === 'settings' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/shield.png" alt="" className="sidebar-link-img" />
@@ -698,12 +723,12 @@ export default function FarmerDashboard() {
         </ul>
 
         <div className="sidebar-footer">
-          <button 
+          <button
             onClick={() => {
               if (window.confirm("Are you sure you want to log out?")) {
                 handleLogoutClick();
               }
-            }} 
+            }}
             className="logout-button"
           >
             <img src="/src/assets/icons/logout.png" alt="" className="sidebar-link-img" />
@@ -742,8 +767,8 @@ export default function FarmerDashboard() {
             </button>
 
             <div className="navbar-profile-container" ref={dropdownRef}>
-              <button 
-                className="navbar-profile-trigger" 
+              <button
+                className="navbar-profile-trigger"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 aria-haspopup="true"
                 aria-expanded={isDropdownOpen}
@@ -769,21 +794,21 @@ export default function FarmerDashboard() {
                   </div>
                   <div className="dropdown-divider"></div>
 
-                  <button 
+                  <button
                     onClick={() => {
                       handleTabChange('marketplace');
                       setIsDropdownOpen(false);
-                    }} 
+                    }}
                     className="dropdown-item"
                   >
                     Go to Marketplace
                   </button>
 
-                  <button 
+                  <button
                     onClick={() => {
                       handleTabChange('profile');
                       setIsDropdownOpen(false);
-                    }} 
+                    }}
                     className="dropdown-item"
                   >
                     My Profile
@@ -795,38 +820,39 @@ export default function FarmerDashboard() {
         </div>
 
         {activeTab === 'dashboard' && (
-          <Overview 
-            stats={stats} 
-            orders={orders} 
-            products={products} 
-            handleTabChange={handleTabChange} 
-            warningProducts={warningProducts} 
+          <Overview
+            stats={stats}
+            orders={orders}
+            products={products}
+            handleTabChange={handleTabChange}
+            warningProducts={warningProducts}
           />
         )}
 
         {activeTab === 'products' && (
-          <Products 
-            handleOpenAddModal={handleOpenAddModal} 
-            searchQuery={searchQuery} 
-            setSearchQuery={setSearchQuery} 
-            categoryFilter={categoryFilter} 
-            setCategoryFilter={setCategoryFilter} 
-            filteredProducts={filteredProducts} 
-            products={products} 
-            handleToggleStock={handleToggleStock} 
-            handleOpenEditModal={handleOpenEditModal} 
-            handleDeleteProduct={handleDeleteProduct} 
+          <Products
+            handleOpenAddModal={handleOpenAddModal}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            filteredProducts={filteredProducts}
+            products={products}
+            handleToggleStock={handleToggleStock}
+            handleOpenEditModal={handleOpenEditModal}
+            handleDeleteProduct={handleDeleteProduct}
           />
         )}
 
         {activeTab === 'orders' && (
-          <Orders 
-            orders={orders} 
-            orderStatusFilter={orderStatusFilter} 
-            setOrderStatusFilter={setOrderStatusFilter} 
-            filteredOrders={filteredOrders} 
-            handleOrderShip={handleOrderShip} 
-            handleOrderDeliver={handleOrderDeliver} 
+          <Orders
+            orders={orders}
+            orderStatusFilter={orderStatusFilter}
+            setOrderStatusFilter={setOrderStatusFilter}
+            filteredOrders={filteredOrders}
+            handleOrderShip={handleOrderShip}
+            handleOrderOutForDelivery={handleOrderOutForDelivery}
+            handleOrderDeliver={handleOrderDeliver}
           />
         )}
 
@@ -835,44 +861,44 @@ export default function FarmerDashboard() {
         )}
 
         {activeTab === 'profile' && (
-          <Profile 
-            profileData={profileData} 
-            isEditingProfile={isEditingProfile} 
-            setIsEditingProfile={setIsEditingProfile} 
-            profileFormInputs={profileFormInputs} 
-            setProfileFormInputs={setProfileFormInputs} 
-            handleSaveProfile={handleSaveProfile} 
+          <Profile
+            profileData={profileData}
+            isEditingProfile={isEditingProfile}
+            setIsEditingProfile={setIsEditingProfile}
+            profileFormInputs={profileFormInputs}
+            setProfileFormInputs={setProfileFormInputs}
+            handleSaveProfile={handleSaveProfile}
             handleUpdateProfileData={handleUpdateProfileData}
           />
         )}
 
         {activeTab === 'settings' && (
-          <SettingsTab 
-            isStoreOpen={isStoreOpen} 
-            setIsStoreOpen={setIsStoreOpen} 
-            emailNotifications={emailNotifications} 
-            setEmailNotifications={setEmailNotifications} 
-            smsNotifications={smsNotifications} 
-            setSmsNotifications={setSmsNotifications} 
-            isDarkTheme={isDarkTheme} 
-            setIsDarkTheme={setIsDarkTheme} 
-            logActivity={logActivity} 
+          <SettingsTab
+            isStoreOpen={isStoreOpen}
+            setIsStoreOpen={setIsStoreOpen}
+            emailNotifications={emailNotifications}
+            setEmailNotifications={setEmailNotifications}
+            smsNotifications={smsNotifications}
+            setSmsNotifications={setSmsNotifications}
+            isDarkTheme={isDarkTheme}
+            setIsDarkTheme={setIsDarkTheme}
+            logActivity={logActivity}
           />
         )}
 
         {activeTab === 'marketplace' && (
-          <Marketplace 
-            marketSearchQuery={marketSearchQuery} 
-            setMarketSearchQuery={setMarketSearchQuery} 
-            marketCategoryFilter={marketCategoryFilter} 
-            setMarketCategoryFilter={setMarketCategoryFilter} 
-            filteredMarketCrops={filteredMarketCrops} 
-            handleSimulatePurchase={handleSimulatePurchase} 
+          <Marketplace
+            marketSearchQuery={marketSearchQuery}
+            setMarketSearchQuery={setMarketSearchQuery}
+            marketCategoryFilter={marketCategoryFilter}
+            setMarketCategoryFilter={setMarketCategoryFilter}
+            filteredMarketCrops={filteredMarketCrops}
+            handleSimulatePurchase={handleSimulatePurchase}
           />
         )}
 
         {activeTab === 'add-product' && (
-          <AddProduct 
+          <AddProduct
             formInputs={formInputs}
             handleInputChange={handleInputChange}
             handleImageUpload={handleImageUpload}

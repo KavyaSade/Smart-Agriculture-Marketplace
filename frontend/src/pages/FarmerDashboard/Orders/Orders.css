@@ -92,6 +92,20 @@
   color: #059669;
 }
 
+.order-status-badge.status-Out for Delivery {
+  background-color: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+}
+
+.btn-order-out-for-delivery {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+
+.btn-order-out-for-delivery:hover {
+  background-color: #4f46e5;
+}
+
 .order-actions-container {
   display: flex;
   gap: 0.5rem;

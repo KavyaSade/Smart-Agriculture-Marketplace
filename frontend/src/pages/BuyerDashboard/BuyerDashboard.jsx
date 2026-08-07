@@ -58,16 +58,10 @@ export default function BuyerDashboard() {
   const [products, setProducts] = useState([]);
 
   // Initialize cart list state from localStorage.
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem(`cart_${user?.email || 'buyer'}`);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cart, setCart] = useState([]);
 
   // Initialize wishlist state from localStorage.
-  const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem(`wishlist_${user?.email || 'buyer'}`);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [wishlist, setWishlist] = useState([]);
 
   // Initialize orders list state as empty.
   const [orders, setOrders] = useState([]);
@@ -96,32 +90,98 @@ export default function BuyerDashboard() {
     }
   };
 
-  // Trigger data fetch on mount or user state change.
+  // Trigger data fetch on mount and start a polling interval for real-time tracking.
   useEffect(() => {
+    if (!user) return;
     fetchProductsAndOrders();
+    const interval = setInterval(() => {
+      fetchProductsAndOrders();
+    }, 10000);
+    return () => clearInterval(interval);
   }, [user]);
 
-  const [profileData, setProfileData] = useState(() => {
-    const storageKey = `profile_${user?.email || 'buyer'}`;
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try { return JSON.parse(saved); } catch (e) { console.error(e); }
-    }
-    return {
-      firstName: user?.fullName ? user.fullName.split(' ')[0] : 'Buyer',
-      lastName: user?.fullName ? user.fullName.split(' ').slice(1).join(' ') : '',
-      phone: '',
-      email: user?.email || '',
-      role: 'buyer',
-      addressStreet: '',
-      addressCity: '',
-      addressState: '',
-      addressPin: '',
-      profilePhoto: null
-    };
+  const [profileData, setProfileData] = useState({
+    firstName: 'Buyer',
+    lastName: '',
+    phone: '',
+    email: '',
+    role: 'buyer',
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressPin: '',
+    profilePhoto: null
   });
 
-  const [profileFormInputs, setProfileFormInputs] = useState({ ...profileData });
+  const [profileFormInputs, setProfileFormInputs] = useState({
+    firstName: 'Buyer',
+    lastName: '',
+    phone: '',
+    email: '',
+    role: 'buyer',
+    addressStreet: '',
+    addressCity: '',
+    addressState: '',
+    addressPin: '',
+    profilePhoto: null
+  });
+
+  // Load user data once user changes (page refresh or login)
+  useEffect(() => {
+    if (user?.email) {
+      // 1. Load Profile
+      const storageKey = `profile_${user.email}`;
+      const savedProfile = localStorage.getItem(storageKey);
+      let loadedProfile;
+      if (savedProfile) {
+        try {
+          loadedProfile = JSON.parse(savedProfile);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      if (!loadedProfile) {
+        loadedProfile = {
+          firstName: user.fullName ? user.fullName.split(' ')[0] : 'Buyer',
+          lastName: user.fullName ? user.fullName.split(' ').slice(1).join(' ') : '',
+          phone: user.phone || '',
+          email: user.email || '',
+          role: 'buyer',
+          addressStreet: '',
+          addressCity: '',
+          addressState: '',
+          addressPin: '',
+          profilePhoto: null
+        };
+      }
+      setProfileData(loadedProfile);
+      setProfileFormInputs(loadedProfile);
+
+      // 2. Load Cart
+      const savedCart = localStorage.getItem(`cart_${user.email}`);
+      if (savedCart) {
+        try {
+          setCart(JSON.parse(savedCart));
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setCart([]);
+      }
+
+      // 3. Load Wishlist
+      const savedWishlist = localStorage.getItem(`wishlist_${user.email}`);
+      if (savedWishlist) {
+        try {
+          setWishlist(JSON.parse(savedWishlist));
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setWishlist([]);
+      }
+    }
+  }, [user]);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
 
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -130,13 +190,7 @@ export default function BuyerDashboard() {
     return document.body.classList.contains('dark-theme');
   });
 
-  useEffect(() => {
-    localStorage.setItem(`cart_${user?.email || 'buyer'}`, JSON.stringify(cart));
-  }, [cart, user]);
-
-  useEffect(() => {
-    localStorage.setItem(`wishlist_${user?.email || 'buyer'}`, JSON.stringify(wishlist));
-  }, [wishlist, user]);
+  // Storage is synchronized directly inside the state modifier functions to prevent synchronization race conditions.
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -155,22 +209,29 @@ export default function BuyerDashboard() {
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
     setSearchQuery('');
+    fetchProductsAndOrders();
   };
 
   const handleAddToCart = (crop) => {
-    const existing = cart.find(item => item.id === crop.id);
+    const cropId = crop._id || crop.id;
+    const existing = cart.find(item => (item._id || item.id) === cropId);
+    let newCart;
     if (existing) {
       if (existing.quantity >= crop.stock) {
         alert('Cannot add more of this item. Maximum stock limit reached.');
         return;
       }
-      setCart(cart.map(item => 
-        item.id === crop.id 
+      newCart = cart.map(item => 
+        (item._id || item.id) === cropId 
           ? { ...item, quantity: item.quantity + 1 }
           : item
-      ));
+      );
     } else {
-      setCart([...cart, { ...crop, quantity: 1 }]);
+      newCart = [...cart, { ...crop, id: cropId, quantity: 1 }];
+    }
+    setCart(newCart);
+    if (user?.email) {
+      localStorage.setItem(`cart_${user.email}`, JSON.stringify(newCart));
     }
     showToast('Product added successfully');
     logActivity(`Added ${crop.name} to shopping cart`, 'cart');
@@ -181,23 +242,36 @@ export default function BuyerDashboard() {
       handleRemoveFromCart(id);
       return;
     }
-    setCart(cart.map(item => 
-      item.id === id ? { ...item, quantity: qty } : item
-    ));
+    const newCart = cart.map(item => 
+      (item._id || item.id) === id ? { ...item, quantity: qty } : item
+    );
+    setCart(newCart);
+    if (user?.email) {
+      localStorage.setItem(`cart_${user.email}`, JSON.stringify(newCart));
+    }
   };
 
   const handleRemoveFromCart = (id) => {
-    setCart(cart.filter(item => item.id !== id));
+    const newCart = cart.filter(item => (item._id || item.id) !== id);
+    setCart(newCart);
+    if (user?.email) {
+      localStorage.setItem(`cart_${user.email}`, JSON.stringify(newCart));
+    }
     logActivity(`Removed crop item from cart`, 'cart');
   };
 
   const handleToggleWishlist = (id) => {
+    let newWishlist;
     if (wishlist.includes(id)) {
-      setWishlist(wishlist.filter(item => item !== id));
+      newWishlist = wishlist.filter(item => item !== id);
       logActivity(`Removed crop from saved wishlist`, 'wishlist');
     } else {
-      setWishlist([...wishlist, id]);
+      newWishlist = [...wishlist, id];
       logActivity(`Saved crop item to wishlist`, 'wishlist');
+    }
+    setWishlist(newWishlist);
+    if (user?.email) {
+      localStorage.setItem(`wishlist_${user.email}`, JSON.stringify(newWishlist));
     }
   };
 
@@ -228,18 +302,21 @@ export default function BuyerDashboard() {
         if (!res.ok) {
           const errData = await res.json();
           alert(`Checkout failed: ${errData.message || 'Error occurred'}`);
-          return;
+          return false;
         }
       }
 
       setCart([]);
-      localStorage.removeItem(`cart_${user?.email || 'buyer'}`);
-      alert('Checkout Successful!\nYour order has been placed successfully and is pending shipment.');
+      if (user?.email) {
+        localStorage.removeItem(`cart_${user.email}`);
+      }
       
       // Refresh inventory and order history lists.
       fetchProductsAndOrders();
+      return true;
     } catch (err) {
       console.error(err);
+      return false;
     }
   };
 
@@ -268,8 +345,9 @@ export default function BuyerDashboard() {
 
   const handleUpdateProfileData = (updatedProfile) => {
     setProfileData(updatedProfile);
-    const storageKey = `profile_${user?.email || 'buyer'}`;
-    localStorage.setItem(storageKey, JSON.stringify(updatedProfile));
+    if (user?.email) {
+      localStorage.setItem(`profile_${user.email}`, JSON.stringify(updatedProfile));
+    }
     logActivity('Profile details updated successfully', 'success');
   };
 
@@ -494,6 +572,7 @@ export default function BuyerDashboard() {
             handleRemoveFromCart={handleRemoveFromCart}
             handleCheckout={handleCheckout}
             profileData={profileData}
+            onGoToOrders={() => handleTabChange('orders')}
           />
         )}
 
@@ -501,6 +580,7 @@ export default function BuyerDashboard() {
           <Orders 
             orders={orders}
             handleCancelOrder={handleCancelOrder}
+            onRefreshOrders={fetchProductsAndOrders}
           />
         )}
 

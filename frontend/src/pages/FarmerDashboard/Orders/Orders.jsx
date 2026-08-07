@@ -7,6 +7,7 @@ const Orders = ({
   setOrderStatusFilter,
   filteredOrders,
   handleOrderShip,
+  handleOrderOutForDelivery,
   handleOrderDeliver
 }) => {
   return (
@@ -14,26 +15,32 @@ const Orders = ({
       <div className="card-section-header">
         <h2>Orders Console</h2>
         <div className="filter-buttons">
-          <button 
-            onClick={() => setOrderStatusFilter('all')} 
+          <button
+            onClick={() => setOrderStatusFilter('all')}
             className={`filter-btn ${orderStatusFilter === 'all' ? 'active' : ''}`}
           >
-            All Orders ({orders.length})
+            All ({orders.length})
           </button>
-          <button 
-            onClick={() => setOrderStatusFilter('pending')} 
+          <button
+            onClick={() => setOrderStatusFilter('pending')}
             className={`filter-btn ${orderStatusFilter === 'pending' ? 'active' : ''}`}
           >
             Pending ({orders.filter(o => o.status === 'pending').length})
           </button>
-          <button 
-            onClick={() => setOrderStatusFilter('shipped')} 
+          <button
+            onClick={() => setOrderStatusFilter('shipped')}
             className={`filter-btn ${orderStatusFilter === 'shipped' ? 'active' : ''}`}
           >
             Shipped ({orders.filter(o => o.status === 'shipped').length})
           </button>
-          <button 
-            onClick={() => setOrderStatusFilter('delivered')} 
+          <button
+            onClick={() => setOrderStatusFilter('Out for Delivery')}
+            className={`filter-btn ${orderStatusFilter === 'Out for Delivery' ? 'active' : ''}`}
+          >
+            Out for Delivery ({orders.filter(o => o.status === 'Out for Delivery').length})
+          </button>
+          <button
+            onClick={() => setOrderStatusFilter('delivered')}
             className={`filter-btn ${orderStatusFilter === 'delivered' ? 'active' : ''}`}
           >
             Delivered ({orders.filter(o => o.status === 'delivered').length})
@@ -91,25 +98,37 @@ const Orders = ({
                   <td>
                     <div className="order-actions-container">
                       {order.status === 'pending' && (
-                        <button 
+                        <button
                           // Use database document id for API calls.
-                          onClick={() => handleOrderShip(order._id)} 
+                          onClick={() => handleOrderShip(order._id)}
                           className="btn-order-action btn-order-ship"
                         >
                           Ship Order
                         </button>
                       )}
                       {order.status === 'shipped' && (
-                        <button 
+                        <button
+                          // Uses database document id for API calls.
+                          onClick={() => handleOrderOutForDelivery(order._id)}
+                          className="btn-order-action btn-order-out-for-delivery"
+                        >
+                          Out for Delivery
+                        </button>
+                      )}
+                      {order.status === 'Out for Delivery' && (
+                        <button
                           // Use database document id for API calls.
-                          onClick={() => handleOrderDeliver(order._id)} 
+                          onClick={() => handleOrderDeliver(order._id)}
                           className="btn-order-action btn-order-deliver"
                         >
-                          Deliver
+                          Mark Delivered
                         </button>
                       )}
                       {order.status === 'delivered' && (
-                        <span className="text-muted">Finished</span>
+                        <span className="text-muted" style={{ fontSize: '0.8rem', color: '#7c8d84' }}>Finished</span>
+                      )}
+                      {order.status === 'cancelled' && (
+                        <span className="text-muted" style={{ fontSize: '0.8rem', color: '#dc2626' }}>Cancelled</span>
                       )}
                     </div>
                   </td>
