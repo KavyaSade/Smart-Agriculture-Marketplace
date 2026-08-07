@@ -278,6 +278,7 @@ export default function BuyerDashboard() {
   // redirect the user to the payment checkout screen
   const handleCheckout = (address, phone, amount) => {
     navigate('/payment/checkout', { state: { cart, address, phone, total: amount } });
+    return true;
   };
 
   // Cancel a pending order via the backend API.
