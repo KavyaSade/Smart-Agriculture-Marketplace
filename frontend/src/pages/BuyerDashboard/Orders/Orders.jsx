@@ -157,11 +157,11 @@ const Orders = ({
                   <td>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                       <button
-                        onClick={async () => {
-                          if (onRefreshOrders) {
-                            await onRefreshOrders();
-                          }
+                        onClick={() => {
                           setSelectedOrderId(order._id || order.id);
+                          if (onRefreshOrders) {
+                            onRefreshOrders();
+                          }
                         }}
                         className="btn-order-action"
                         style={{

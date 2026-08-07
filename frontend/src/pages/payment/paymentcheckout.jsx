@@ -82,7 +82,8 @@ export default function PaymentCheckout() {
             });
             const verifyData = await verifyRes.json();
             if (verifyData.success) {
-              navigate('/payment/success', { state: { cart, address, phone, total } });
+              const checkoutId = 'CHK-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+              navigate('/payment/success', { state: { cart, address, phone, total, checkoutId } });
             } else {
               navigate('/payment/failure', { state: { message: 'signature verification failed' } });
             }

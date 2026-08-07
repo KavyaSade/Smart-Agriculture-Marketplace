@@ -5,7 +5,7 @@ import './payment.css';
 export default function PaymentSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { cart, address, phone } = location.state || {};
+  const { cart, address, phone, checkoutId } = location.state || {};
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,6 +13,16 @@ export default function PaymentSuccess() {
     if (!cart || !address || !phone) {
       navigate('/buyer-dashboard');
       return;
+    }
+
+    // Prevent duplicate execution (e.g. React 18 StrictMode double-mounting)
+    const orderPlacedKey = checkoutId ? `order_placed_${checkoutId}` : null;
+    if (orderPlacedKey && sessionStorage.getItem(orderPlacedKey)) {
+      setLoading(false);
+      return;
+    }
+    if (orderPlacedKey) {
+      sessionStorage.setItem(orderPlacedKey, 'true');
     }
 
     const placeOrders = async () => {
