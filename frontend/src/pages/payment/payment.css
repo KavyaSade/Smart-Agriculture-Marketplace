@@ -1,0 +1,251 @@
+/* payment page custom styling */
+
+.payment-layout-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+  background-color: #f0faf4;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  transition: all 0.3s ease;
+}
+
+body.dark-theme .payment-layout-container {
+  background-color: #0b1510;
+}
+
+.payment-card-box {
+  width: 100%;
+  max-width: 600px;
+  background: #ffffff;
+  border: 1px solid rgba(82, 183, 136, 0.15);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 12px 32px rgba(27, 67, 50, 0.04);
+  transition: all 0.3s ease;
+}
+
+body.dark-theme .payment-card-box {
+  background: #11251e;
+  border-color: rgba(82, 183, 136, 0.25);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.payment-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1b4332;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+body.dark-theme .payment-title {
+  color: #ffffff;
+}
+
+.payment-summary {
+  background: rgba(82, 183, 136, 0.05);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+body.dark-theme .payment-summary {
+  background: rgba(82, 183, 136, 0.08);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #55625b;
+}
+
+body.dark-theme .summary-row {
+  color: #a5b5ab;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(82, 183, 136, 0.15);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1b4332;
+}
+
+body.dark-theme .summary-total {
+  color: #ffffff;
+}
+
+.payment-selection {
+  margin-bottom: 2rem;
+}
+
+.payment-options-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.payment-option-btn {
+  background: #ffffff;
+  border: 2px solid rgba(82, 183, 136, 0.2);
+  border-radius: 16px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+body.dark-theme .payment-option-btn {
+  background: #163026;
+  border-color: rgba(82, 183, 136, 0.15);
+}
+
+.payment-option-btn:hover {
+  border-color: #52b788;
+  background-color: rgba(82, 183, 136, 0.05);
+}
+
+.payment-option-btn.active {
+  border-color: #40916c;
+  background-color: rgba(82, 183, 136, 0.08);
+}
+
+.option-icon {
+  font-size: 1.5rem;
+}
+
+.option-details {
+  text-align: left;
+}
+
+.option-title {
+  font-weight: 600;
+  color: #1b4332;
+  display: block;
+}
+
+body.dark-theme .option-title {
+  color: #ffffff;
+}
+
+.option-subtitle {
+  font-size: 0.8rem;
+  color: #7c8d84;
+}
+
+body.dark-theme .option-subtitle {
+  color: #a5b5ab;
+}
+
+.paypal-btn-container {
+  margin-top: 1.5rem;
+  min-height: 50px;
+}
+
+/* simulation card checkout style */
+.simulation-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.simulation-card-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.submit-payment-btn {
+  background-color: #40916c;
+  color: #ffffff;
+  padding: 0.9rem;
+  border-radius: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.submit-payment-btn:hover {
+  background-color: #52b788;
+}
+
+.status-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.status-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  font-size: 2.5rem;
+}
+
+.status-icon-box.success {
+  background-color: rgba(82, 183, 136, 0.15);
+  color: #40916c;
+}
+
+.status-icon-box.failure {
+  background-color: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+}
+
+.status-desc {
+  font-size: 1rem;
+  color: #55625b;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+body.dark-theme .status-desc {
+  color: #a5b5ab;
+}
+
+/* loading animation spinner */
+.spinner-loader {
+  border: 4px solid rgba(82, 183, 136, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-left-color: #40916c;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.text-lowercase {
+  text-transform: lowercase;
+}
+
+.payment-status-png {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}

@@ -92,12 +92,24 @@ export default function AdminDashboard() {
       });
       if (response.ok) {
         const data = await response.json();
-        const mapped = data.map(o => ({
-          ...o,
-          id: o._id,
-          total: o.amount,
-          date: new Date(o.date).toISOString().split('T')[0]
-        }));
+        const mapped = data.map(o => {
+          // parse the date safely to avoid crashes
+          let parseddate = o.date;
+          try {
+            const d = new Date(o.date);
+            if (!isNaN(d.getTime())) {
+              parseddate = d.toISOString().split('T')[0];
+            }
+          } catch (err) {
+            // fallback to original date if parsing fails
+          }
+          return {
+            ...o,
+            id: o._id,
+            total: o.amount,
+            date: parseddate
+          };
+        });
         setOrders(mapped);
 
         // Calculate dynamic platform earnings (commission) from delivered orders

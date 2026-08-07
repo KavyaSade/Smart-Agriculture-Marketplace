@@ -275,49 +275,9 @@ export default function BuyerDashboard() {
     }
   };
 
-  // Place crop orders and deduct inventory stock via the backend API.
-  const handleCheckout = async (address, phone, amount) => {
-    try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-
-      // Loop through each cart item and place an order.
-      for (const item of cart) {
-        const payload = {
-          productId: item._id || item.id,
-          quantity: item.quantity,
-          buyerPhone: phone,
-          buyerAddress: address
-        };
-
-        const res = await fetch('http://localhost:5000/api/orders', {
-          method: 'POST',
-          headers,
-          body: JSON.stringify(payload)
-        });
-
-        if (!res.ok) {
-          const errData = await res.json();
-          alert(`Checkout failed: ${errData.message || 'Error occurred'}`);
-          return false;
-        }
-      }
-
-      setCart([]);
-      if (user?.email) {
-        localStorage.removeItem(`cart_${user.email}`);
-      }
-      
-      // Refresh inventory and order history lists.
-      fetchProductsAndOrders();
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+  // redirect the user to the payment checkout screen
+  const handleCheckout = (address, phone, amount) => {
+    navigate('/payment/checkout', { state: { cart, address, phone, total: amount } });
   };
 
   // Cancel a pending order via the backend API.

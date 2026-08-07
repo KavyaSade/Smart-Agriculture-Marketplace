@@ -8,6 +8,9 @@ import FarmerDashboard from './pages/FarmerDashboard/FarmerDashboard';
 import BuyerDashboard from './pages/BuyerDashboard/BuyerDashboard';
 import RetailerDashboard from './pages/RetailerDashboard/RetailerDashboard';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
+import PaymentCheckout from './pages/payment/paymentcheckout';
+import PaymentSuccess from './pages/payment/paymentsuccess';
+import PaymentFailure from './pages/payment/paymentfailure';
 import './styles/global.css';
 
 export default function App() {
@@ -22,6 +25,9 @@ export default function App() {
         <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
         <Route path="/retailer-dashboard" element={<RetailerDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/payment/checkout" element={<PaymentCheckout />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/failure" element={<PaymentFailure />} />
         <Route path="*" element={<Landing />} />
       </Routes>
     </Router>
