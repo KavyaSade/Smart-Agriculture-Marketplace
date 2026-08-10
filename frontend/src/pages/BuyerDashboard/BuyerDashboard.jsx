@@ -130,16 +130,34 @@ export default function BuyerDashboard() {
   useEffect(() => {
     if (user?.email) {
       // 1. Load Profile
-      const storageKey = `profile_${user.email}`;
-      const savedProfile = localStorage.getItem(storageKey);
-      let loadedProfile;
-      if (savedProfile) {
-        try {
-          loadedProfile = JSON.parse(savedProfile);
-        } catch (e) {
-          console.error(e);
+      let loadedProfile = null;
+      if (user && (user.addressStreet || user.profilePhoto || user.phone || user.bio)) {
+        loadedProfile = {
+          firstName: user.fullName ? user.fullName.split(' ')[0] : 'Buyer',
+          lastName: user.fullName ? user.fullName.split(' ').slice(1).join(' ') : '',
+          phone: user.phone || '',
+          email: user.email || '',
+          role: 'buyer',
+          addressStreet: user.addressStreet || '',
+          addressCity: user.addressCity || '',
+          addressState: user.addressState || '',
+          addressPin: user.addressPin || '',
+          profilePhoto: user.profilePhoto || null
+        };
+      }
+
+      if (!loadedProfile) {
+        const storageKey = `profile_${user.email}`;
+        const savedProfile = localStorage.getItem(storageKey);
+        if (savedProfile) {
+          try {
+            loadedProfile = JSON.parse(savedProfile);
+          } catch (e) {
+            console.error(e);
+          }
         }
       }
+
       if (!loadedProfile) {
         loadedProfile = {
           firstName: user.fullName ? user.fullName.split(' ')[0] : 'Buyer',
@@ -304,10 +322,34 @@ export default function BuyerDashboard() {
     }
   };
 
-  const handleUpdateProfileData = (updatedProfile) => {
+  const handleUpdateProfileData = async (updatedProfile) => {
     setProfileData(updatedProfile);
     if (user?.email) {
       localStorage.setItem(`profile_${user.email}`, JSON.stringify(updatedProfile));
+    }
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await fetch('http://localhost:5000/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fullName: `${updatedProfile.firstName} ${updatedProfile.lastName}`.trim(),
+            phone: updatedProfile.phone,
+            addressStreet: updatedProfile.addressStreet || '',
+            addressCity: updatedProfile.addressCity || '',
+            addressState: updatedProfile.addressState || '',
+            addressPin: updatedProfile.addressPin || '',
+            profilePhoto: updatedProfile.profilePhoto || null
+          })
+        });
+      } catch (err) {
+        console.error('Error saving profile to database:', err);
+      }
     }
     logActivity('Profile details updated successfully', 'success');
   };
@@ -523,6 +565,7 @@ export default function BuyerDashboard() {
             handleToggleWishlist={handleToggleWishlist}
             cart={cart}
             onGoToCart={() => handleTabChange('cart')}
+            currentUser={user}
           />
         )}
 

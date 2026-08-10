@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Heart, MapPin, User, ShoppingCart } from 'lucide-react';
+import ProductDetailsModal from '../../../components/ProductDetailsModal';
+import FarmerProfileModal from '../../../components/FarmerProfileModal';
 import './Browse.css';
 
 const Browse = ({
@@ -12,8 +14,13 @@ const Browse = ({
   wishlist,
   handleToggleWishlist,
   cart = [],
-  onGoToCart
+  onGoToCart,
+  currentUser
 }) => {
+  // Modal states
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedFarmerEmail, setSelectedFarmerEmail] = useState(null);
+
   // State for filtering by location.
   const [locationFilter, setLocationFilter] = useState('');
 
@@ -52,6 +59,28 @@ const Browse = ({
 
     return matchesSearch && matchesCategory && matchesLocation && matchesPrice && matchesAvailability;
   });
+
+  const renderStars = (ratingVal) => {
+    const stars = [];
+    const rounded = Math.round(ratingVal || 0);
+    for (let i = 1; i <= 5; i++) {
+      const isFilled = i <= rounded;
+      stars.push(
+        <img 
+          key={i} 
+          src="/src/assets/icons/star.png" 
+          alt="star"
+          style={{
+            width: '14px',
+            height: '14px',
+            filter: isFilled ? 'none' : 'grayscale(100%) brightness(1.5)',
+            opacity: isFilled ? 1 : 0.3
+          }}
+        />
+      );
+    }
+    return <div style={{ display: 'flex', gap: '2px', alignItems: 'center' }}>{stars}</div>;
+  };
 
   return (
     <div className="section-card animate-fade-in">
@@ -164,7 +193,12 @@ const Browse = ({
             const cropFarmerName = crop.farmerName || crop.farmer || 'Local Farmer';
 
             return (
-              <div key={crop._id || crop.id} className="product-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+              <div 
+                key={crop._id || crop.id} 
+                className="product-card" 
+                onClick={() => setSelectedProduct(crop)}
+                style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', cursor: 'pointer' }}
+              >
 
                 <div className="product-card-image-wrapper" style={{ height: '180px', position: 'relative', overflow: 'hidden', borderRadius: '12px' }}>
                   <img 
@@ -177,7 +211,10 @@ const Browse = ({
                   </span>
 
                   <button 
-                    onClick={() => handleToggleWishlist(crop._id || crop.id)} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleWishlist(crop._id || crop.id);
+                    }} 
                     className={`wishlist-toggle-btn ${isFavorited ? 'active' : ''}`}
                     style={{
                       position: 'absolute', 
@@ -201,11 +238,18 @@ const Browse = ({
                 </div>
 
                 <div className="product-card-body" style={{ padding: '1rem 0 0 0', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#1b4332' }} className="welcome-banner-title">{cropName}</h3>
                     <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#40916c' }}>
                       ₹{crop.price}/{cropPriceUnit}
                     </span>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    {renderStars(crop.averageRating || 0)}
+                    {crop.totalReviews > 0 && (
+                      <span style={{ fontSize: '0.75rem', color: '#7c8d84', fontWeight: 600 }}>({crop.totalReviews})</span>
+                    )}
                   </div>
 
                   <p style={{ fontSize: '0.85rem', color: '#55625b', margin: '0 0 1rem 0', flexGrow: 1 }} className="welcome-banner-subtitle">
@@ -213,9 +257,17 @@ const Browse = ({
                   </p>
 
                   <div style={{ borderTop: '1px solid rgba(82, 183, 136, 0.1)', paddingTop: '0.75rem', marginTop: 'auto' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem', fontSize: '0.85rem', color: '#7c8d84' }}>
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (crop.farmerEmail) {
+                          setSelectedFarmerEmail(crop.farmerEmail);
+                        }
+                      }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem', fontSize: '0.85rem', color: '#7c8d84', cursor: 'pointer' }}
+                    >
                       <User size={14} />
-                      <span>Farmer: <strong>{cropFarmerName}</strong></span>
+                      <span>Farmer: <strong style={{ textDecoration: 'underline', color: '#40916c' }}>{cropFarmerName}</strong></span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.85rem', color: '#7c8d84' }}>
                       <MapPin size={14} />
@@ -239,7 +291,10 @@ const Browse = ({
                     </div>
 
                     <button 
-                      onClick={() => handleAddToCart(crop)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(crop);
+                      }}
                       disabled={isOutOfStock}
                       className="btn btn-primary"
                       style={{ width: '100%', justifyContent: 'center', display: 'flex', gap: '0.5rem', alignItems: 'center' }}
@@ -258,6 +313,30 @@ const Browse = ({
           <h3>No crops found matching filters</h3>
           <p>Try modifying your search text or selected category filter.</p>
         </div>
+      )}
+
+      {/* Overlays/Modals */}
+      {selectedProduct && (
+        <ProductDetailsModal
+          product={selectedProduct}
+          currentUser={currentUser}
+          onClose={() => setSelectedProduct(null)}
+          onOpenFarmer={(email) => {
+            setSelectedFarmerEmail(email);
+          }}
+        />
+      )}
+
+      {selectedFarmerEmail && (
+        <FarmerProfileModal
+          farmerEmail={selectedFarmerEmail}
+          onClose={() => setSelectedFarmerEmail(null)}
+          handleAddToCart={handleAddToCart}
+          onProductClick={(crop) => {
+            setSelectedProduct(crop);
+            setSelectedFarmerEmail(null);
+          }}
+        />
       )}
     </div>
   );

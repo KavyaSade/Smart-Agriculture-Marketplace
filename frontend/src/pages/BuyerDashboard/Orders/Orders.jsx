@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { X } from 'lucide-react';
 import './Orders.css';
 
 const Orders = ({
@@ -8,6 +8,58 @@ const Orders = ({
 }) => {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const selectedOrder = orders.find(o => o._id === selectedOrderId || o.id === selectedOrderId);
+
+  // Review states
+  const [reviewingOrder, setReviewingOrder] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState(null);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!comment.trim() || !reviewingOrder) return;
+
+    setSubmittingReview(true);
+    setReviewError(null);
+    setReviewSuccess(false);
+
+    const token = localStorage.getItem('token');
+    const prodId = reviewingOrder.productId;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/products/${prodId}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ rating, comment })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setReviewSuccess(true);
+        setComment('');
+        setRating(5);
+        if (onRefreshOrders) {
+          onRefreshOrders();
+        }
+        setTimeout(() => {
+          setReviewingOrder(null);
+          setReviewSuccess(false);
+        }, 1500);
+      } else {
+        setReviewError(data.message || 'Failed to submit review.');
+      }
+    } catch (err) {
+      console.error(err);
+      setReviewError('Failed to connect to server.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const handleDownloadReceipt = (order) => {
     const receiptWindow = window.open('', '_blank');
@@ -181,6 +233,29 @@ const Orders = ({
                         <img src="/src/assets/icons/marker.png" alt="" style={{ width: '12px', height: '12px' }} />
                         <span>Track</span>
                       </button>
+
+                      {order.status === 'delivered' && (
+                        <button
+                          onClick={() => setReviewingOrder(order)}
+                          className="btn-order-action"
+                          style={{
+                            backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                            color: '#d97706',
+                            border: '1px solid rgba(245, 158, 11, 0.2)',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '6px',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem'
+                          }}
+                        >
+                          <img src="/src/assets/icons/star.png" alt="" style={{ width: '12px', height: '12px' }} />
+                          <span>Review</span>
+                        </button>
+                      )}
 
                       {order.status === 'pending' ? (
                         <button
@@ -364,6 +439,186 @@ const Orders = ({
         </div>
       )}
 
+      {/* Review & Rating Modal */}
+      {reviewingOrder && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.45)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1200,
+          padding: '1.5rem',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '20px',
+            width: '100%',
+            maxWidth: '450px',
+            padding: '2rem',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+            position: 'relative',
+            animation: 'slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+          }}>
+            <button
+              onClick={() => {
+                setReviewingOrder(null);
+                setReviewError(null);
+                setReviewSuccess(false);
+              }}
+              style={{
+                position: 'absolute',
+                top: '1.25rem',
+                right: '1.25rem',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#64748b',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                borderRadius: '50%'
+              }}
+              className="hover:bg-slate-100 transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 800, color: '#1e293b' }}>
+              Rate & Review Crop
+            </h3>
+            <p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
+              Share your experience with <strong>{reviewingOrder.productName}</strong> purchased from <strong>{reviewingOrder.farmerName}</strong>.
+            </p>
+
+            {reviewSuccess ? (
+              <div style={{ textAlign: 'center', padding: '1.5rem 0' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  backgroundColor: '#d1fae5',
+                  color: '#059669',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 1rem auto'
+                }}>
+                  <img src="/src/assets/icons/star.png" alt="success" style={{ width: '24px', height: '24px' }} />
+                </div>
+                <h4 style={{ margin: 0, color: '#059669', fontSize: '1.1rem', fontWeight: 700 }}>Thank You!</h4>
+                <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#64748b' }}>Your review has been submitted successfully.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmitReview} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#475569', marginBottom: '0.5rem' }}>
+                    Your Rating:
+                  </label>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const isFilled = star <= rating;
+                      return (
+                        <img
+                          key={star}
+                          src="/src/assets/icons/star.png"
+                          alt="star"
+                          style={{
+                            width: '28px',
+                            height: '28px',
+                            cursor: 'pointer',
+                            filter: isFilled ? 'none' : 'grayscale(100%) brightness(1.5)',
+                            opacity: isFilled ? 1 : 0.3,
+                            transition: 'transform 0.15s'
+                          }}
+                          className="hover:scale-110"
+                          onClick={() => setRating(star)}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="review-comment" style={{ display: 'block', fontSize: '0.875rem', fontWeight: 600, color: '#475569', marginBottom: '0.5rem' }}>
+                    Review Comment:
+                  </label>
+                  <textarea
+                    id="review-comment"
+                    placeholder="Tell us about the crop quality, freshness, and packaging..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    style={{
+                      width: '100%',
+                      minHeight: '100px',
+                      padding: '0.75rem',
+                      borderRadius: '10px',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '0.875rem',
+                      outline: 'none',
+                      fontFamily: 'inherit',
+                      resize: 'vertical'
+                    }}
+                    className="focus:border-emerald-500 transition-colors"
+                    required
+                  />
+                </div>
+
+                {reviewError && (
+                  <div style={{ color: '#ef4444', fontSize: '0.8rem', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    {reviewError}
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <button
+                    type="submit"
+                    disabled={submittingReview}
+                    style={{
+                      flexGrow: 1,
+                      backgroundColor: '#10b981',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '0.75rem',
+                      fontSize: '0.875rem',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                    className="hover:bg-emerald-600 transition-colors disabled:opacity-50"
+                  >
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setReviewingOrder(null)}
+                    style={{
+                      backgroundColor: '#f1f5f9',
+                      color: '#475569',
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '0.75rem 1.25rem',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                    className="hover:bg-slate-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

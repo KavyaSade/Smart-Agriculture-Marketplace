@@ -28,6 +28,42 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  bio: {
+    type: String,
+    default: ''
+  },
+  farmName: {
+    type: String,
+    default: ''
+  },
+  experience: {
+    type: String,
+    default: ''
+  },
+  addressStreet: {
+    type: String,
+    default: ''
+  },
+  addressCity: {
+    type: String,
+    default: ''
+  },
+  addressState: {
+    type: String,
+    default: ''
+  },
+  addressPin: {
+    type: String,
+    default: ''
+  },
+  profilePhoto: {
+    type: String,
+    default: null
+  },
+  sector: {
+    type: String,
+    default: 'grains'
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -37,6 +37,7 @@ import Profile from './Profile/Profile';
 import SettingsTab from './Settings/Settings';
 import Marketplace from './Marketplace/Marketplace';
 import AddProduct from './AddProduct/AddProduct';
+import FarmerReviews from './Reviews/FarmerReviews';
 
 export default function FarmerDashboard() {
   const navigate = useNavigate();
@@ -99,39 +100,108 @@ export default function FarmerDashboard() {
   });
 
   useEffect(() => {
-    const storageKey = `profile_${user?.email || 'kavya20050203@gmail.com'}`;
-    const savedProfile = localStorage.getItem(storageKey);
-    if (savedProfile) {
-      try {
-        setProfileData(JSON.parse(savedProfile));
-        return;
-      } catch (e) {
-        console.error('Error parsing saved profile from localStorage:', e);
+    const fetchProfile = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:5000/api/users/profile/me', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const userData = await res.json();
+            const nameParts = (userData.fullName || '').split(' ');
+            const fName = nameParts[0] || '';
+            const lName = nameParts.slice(1).join(' ') || '';
+            setProfileData({
+              firstName: fName,
+              lastName: lName,
+              phone: userData.phone || '',
+              email: userData.email || '',
+              bio: userData.bio || '',
+              farmName: userData.farmName || '',
+              experience: userData.experience || '',
+              addressStreet: userData.addressStreet || '',
+              addressCity: userData.addressCity || '',
+              addressState: userData.addressState || '',
+              addressPin: userData.addressPin || '',
+              profilePhoto: userData.profilePhoto || null,
+              sector: userData.sector || 'fruits',
+              role: userData.role || 'farmer'
+            });
+            return;
+          }
+        } catch (err) {
+          console.error('Error fetching profile from backend:', err);
+        }
       }
-    }
+      
+      const storageKey = `profile_${user?.email || 'kavya20050203@gmail.com'}`;
+      const savedProfile = localStorage.getItem(storageKey);
+      if (savedProfile) {
+        try {
+          setProfileData(JSON.parse(savedProfile));
+          return;
+        } catch (e) {
+          console.error('Error parsing saved profile from localStorage:', e);
+        }
+      }
 
-    const nameParts = (user?.fullName || 'Sk Prasad').split(' ');
-    const fName = nameParts[0] || 'Sk';
-    const lName = nameParts.slice(1).join(' ') || 'Prasad';
-    setProfileData({
-      firstName: fName,
-      lastName: lName,
-      phone: user?.phone || '+91 98765 43210',
-      email: user?.email || 'kavya20050203@gmail.com',
-      sector: 'fruits',
-      addressStreet: '12, Green Field Road, SK Farms',
-      addressCity: 'Coimbatore',
-      addressState: 'Tamil Nadu',
-      addressPin: '641001',
-      profilePhoto: null,
-      role: user?.role || 'farmer'
-    });
+      const nameParts = (user?.fullName || 'Sk Prasad').split(' ');
+      const fName = nameParts[0] || 'Sk';
+      const lName = nameParts.slice(1).join(' ') || 'Prasad';
+      setProfileData({
+        firstName: fName,
+        lastName: lName,
+        phone: user?.phone || '+91 98765 43210',
+        email: user?.email || 'kavya20050203@gmail.com',
+        sector: 'fruits',
+        farmName: '',
+        experience: '',
+        bio: '',
+        addressStreet: '12, Green Field Road, SK Farms',
+        addressCity: 'Coimbatore',
+        addressState: 'Tamil Nadu',
+        addressPin: '641001',
+        profilePhoto: null,
+        role: user?.role || 'farmer'
+      });
+    };
+
+    fetchProfile();
   }, [user]);
 
-  const handleUpdateProfileData = (updatedProfile) => {
+  const handleUpdateProfileData = async (updatedProfile) => {
     setProfileData(updatedProfile);
     const storageKey = `profile_${user?.email || 'kavya20050203@gmail.com'}`;
     localStorage.setItem(storageKey, JSON.stringify(updatedProfile));
+    
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await fetch('http://localhost:5000/api/users/profile', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fullName: `${updatedProfile.firstName} ${updatedProfile.lastName}`.trim(),
+            phone: updatedProfile.phone,
+            bio: updatedProfile.bio || '',
+            farmName: updatedProfile.farmName || '',
+            experience: updatedProfile.experience || '',
+            addressStreet: updatedProfile.addressStreet || '',
+            addressCity: updatedProfile.addressCity || '',
+            addressState: updatedProfile.addressState || '',
+            addressPin: updatedProfile.addressPin || '',
+            profilePhoto: updatedProfile.profilePhoto || null,
+            sector: updatedProfile.sector || 'fruits'
+          })
+        });
+      } catch (err) {
+        console.error('Error saving profile to database:', err);
+      }
+    }
     logActivity('Profile details updated successfully', 'success');
   };
 
@@ -148,7 +218,10 @@ export default function FarmerDashboard() {
       addressCity: profileFormInputs.addressCity,
       addressState: profileFormInputs.addressState,
       addressPin: profileFormInputs.addressPin,
-      profilePhoto: profileFormInputs.profilePhoto
+      profilePhoto: profileFormInputs.profilePhoto,
+      farmName: profileFormInputs.farmName,
+      experience: profileFormInputs.experience,
+      bio: profileFormInputs.bio
     };
 
     handleUpdateProfileData(updatedProfile);
@@ -713,6 +786,25 @@ export default function FarmerDashboard() {
           </li>
           <li className="menu-item">
             <button
+              onClick={() => handleTabChange('reviews')}
+              className={`menu-link ${activeTab === 'reviews' ? 'active' : ''}`}
+            >
+              <img 
+                src="/src/assets/icons/star.png" 
+                alt="" 
+                className="sidebar-link-img" 
+                style={{ 
+                  width: '16px', 
+                  height: '16px', 
+                  filter: activeTab === 'reviews' ? 'none' : 'grayscale(100%) brightness(1.5)', 
+                  opacity: activeTab === 'reviews' ? 1 : 0.6 
+                }} 
+              />
+              <span>Reviews & Ratings</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button
               onClick={() => handleTabChange('settings')}
               className={`menu-link ${activeTab === 'settings' ? 'active' : ''}`}
             >
@@ -870,6 +962,10 @@ export default function FarmerDashboard() {
             handleSaveProfile={handleSaveProfile}
             handleUpdateProfileData={handleUpdateProfileData}
           />
+        )}
+
+        {activeTab === 'reviews' && (
+          <FarmerReviews email={profileData.email} />
         )}
 
         {activeTab === 'settings' && (

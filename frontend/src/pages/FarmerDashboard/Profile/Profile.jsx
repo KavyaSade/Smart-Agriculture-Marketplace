@@ -134,6 +134,18 @@ const Profile = ({
                       {profileData.sector === 'fruits' ? 'Fruits & Vegetables' : profileData.sector}
                     </span>
                   </div>
+                  <div className="profile-minimal-item">
+                    <span className="profile-minimal-label">Farm Name</span>
+                    <span className="profile-minimal-value">{profileData.farmName || 'Not Specified'}</span>
+                  </div>
+                  <div className="profile-minimal-item">
+                    <span className="profile-minimal-label">Farming Experience</span>
+                    <span className="profile-minimal-value">{profileData.experience || 'Not Specified'}</span>
+                  </div>
+                  <div className="profile-minimal-item" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                    <span className="profile-minimal-label">Farm Bio / About Us</span>
+                    <span className="profile-minimal-value" style={{ marginTop: '0.25rem', whiteSpace: 'pre-line', width: '100%' }}>{profileData.bio || 'No bio written yet.'}</span>
+                  </div>
                 </div>
               </div>
 
@@ -172,7 +184,10 @@ const Profile = ({
                   addressCity: profileData.addressCity,
                   addressState: profileData.addressState,
                   addressPin: profileData.addressPin,
-                  profilePhoto: profileData.profilePhoto
+                  profilePhoto: profileData.profilePhoto,
+                  farmName: profileData.farmName || '',
+                  experience: profileData.experience || '',
+                  bio: profileData.bio || ''
                 });
                 setIsEditingProfile(true);
               }} 
@@ -293,6 +308,42 @@ const Profile = ({
                     <option value="dairy">Dairy Products</option>
                     <option value="spices">Spices</option>
                   </select>
+                </div>
+
+                <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                  <label className="form-label" htmlFor="p-farmname">Farm Name</label>
+                  <input 
+                    type="text" 
+                    id="p-farmname"
+                    className="form-input" 
+                    value={profileFormInputs.farmName || ''}
+                    onChange={(e) => setProfileFormInputs(prev => ({ ...prev, farmName: e.target.value }))}
+                    placeholder="e.g. Green Valley Farm"
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                  <label className="form-label" htmlFor="p-experience">Farming Experience</label>
+                  <input 
+                    type="text" 
+                    id="p-experience"
+                    className="form-input" 
+                    value={profileFormInputs.experience || ''}
+                    onChange={(e) => setProfileFormInputs(prev => ({ ...prev, experience: e.target.value }))}
+                    placeholder="e.g. 5 Years"
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                  <label className="form-label" htmlFor="p-bio">Farm Bio / About Us</label>
+                  <textarea 
+                    id="p-bio"
+                    className="form-input" 
+                    style={{ minHeight: '80px', fontFamily: 'inherit', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid rgba(82, 183, 136, 0.2)' }}
+                    value={profileFormInputs.bio || ''}
+                    onChange={(e) => setProfileFormInputs(prev => ({ ...prev, bio: e.target.value }))}
+                    placeholder="Describe your farming practices, organic standards, and products..."
+                  />
                 </div>
               </div>
 

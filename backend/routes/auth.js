@@ -10,7 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_agri_market_2026'
 // helper function to generate a JSON Web Token (JWT) for a user
 const generateToken = (user) => {
   return jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
+    { id: user._id, email: user.email, role: user.role, fullName: user.fullName },
     JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -63,7 +63,16 @@ router.post('/register', async (req, res) => {
         fullName: newUser.fullName,
         email: newUser.email,
         phone: newUser.phone,
-        role: newUser.role
+        role: newUser.role,
+        bio: newUser.bio,
+        farmName: newUser.farmName,
+        experience: newUser.experience,
+        addressStreet: newUser.addressStreet,
+        addressCity: newUser.addressCity,
+        addressState: newUser.addressState,
+        addressPin: newUser.addressPin,
+        profilePhoto: newUser.profilePhoto,
+        sector: newUser.sector
       }
     });
 
@@ -129,7 +138,16 @@ router.post('/login', async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        bio: user.bio,
+        farmName: user.farmName,
+        experience: user.experience,
+        addressStreet: user.addressStreet,
+        addressCity: user.addressCity,
+        addressState: user.addressState,
+        addressPin: user.addressPin,
+        profilePhoto: user.profilePhoto,
+        sector: user.sector
       }
     });
 
@@ -156,7 +174,16 @@ router.get('/me', authenticateToken, async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        bio: user.bio,
+        farmName: user.farmName,
+        experience: user.experience,
+        addressStreet: user.addressStreet,
+        addressCity: user.addressCity,
+        addressState: user.addressState,
+        addressPin: user.addressPin,
+        profilePhoto: user.profilePhoto,
+        sector: user.sector
       }
     });
 
@@ -211,7 +238,16 @@ router.post('/google-login', async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         phone: user.phone,
-        role: user.role
+        role: user.role,
+        bio: user.bio,
+        farmName: user.farmName,
+        experience: user.experience,
+        addressStreet: user.addressStreet,
+        addressCity: user.addressCity,
+        addressState: user.addressState,
+        addressPin: user.addressPin,
+        profilePhoto: user.profilePhoto,
+        sector: user.sector
       }
     });
 
