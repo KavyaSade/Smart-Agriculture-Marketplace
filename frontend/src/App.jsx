@@ -11,11 +11,13 @@ import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import PaymentCheckout from './pages/payment/paymentcheckout';
 import PaymentSuccess from './pages/payment/paymentsuccess';
 import PaymentFailure from './pages/payment/paymentfailure';
+import SessionTimeout from './components/SessionTimeout/SessionTimeout';
 import './styles/global.css';
 
 export default function App() {
   return (
     <Router>
+      <SessionTimeout />
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />

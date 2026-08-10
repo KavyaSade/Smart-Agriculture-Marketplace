@@ -10,7 +10,8 @@ import {
   LogOut, 
   Bell, 
   Leaf,
-  User
+  User,
+  Menu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import '../FarmerDashboard/FarmerDashboard.css';
@@ -34,6 +35,7 @@ export default function BuyerDashboard() {
   }, [user, loading, navigate]);
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -227,6 +229,7 @@ export default function BuyerDashboard() {
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
     setSearchQuery('');
+    setSidebarOpen(false);
     fetchProductsAndOrders();
   };
 
@@ -375,12 +378,15 @@ export default function BuyerDashboard() {
 
   return (
     <div className="farmer-dashboard-layout buyer-dashboard-layout">
+      {sidebarOpen && (
+        <div className="sidebar-backdrop-mobile" onClick={() => setSidebarOpen(false)}></div>
+      )}
 
-      <aside className="farmer-sidebar">
-        <Link to="/" className="sidebar-logo">
+      <aside className={`farmer-sidebar ${sidebarOpen ? 'mobile-visible' : ''}`}>
+        <div className="sidebar-logo" onClick={() => { handleTabChange('dashboard'); setSidebarOpen(false); }} style={{ cursor: 'pointer' }}>
           <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="sidebar-logo-img" />
           <span>Agri<span className="logo-accent">Market</span></span>
-        </Link>
+        </div>
 
         <div className="sidebar-user-card">
           {profileData.profilePhoto ? (
@@ -465,6 +471,13 @@ export default function BuyerDashboard() {
 
         <header className="dashboard-topnav">
           <div className="topnav-left">
+            <button 
+              className="hamburger-toggle-menu" 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle menu"
+            >
+              <Menu size={22} />
+            </button>
             <h2 className="topnav-title">
               {activeTab === 'dashboard' && 'Hello'}
               {activeTab === 'browse' && 'Browse Catalog'}
@@ -536,6 +549,19 @@ export default function BuyerDashboard() {
                     className="dropdown-item"
                   >
                     Settings
+                  </button>
+                  <button 
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to log out?")) {
+                        setIsDropdownOpen(false);
+                        logout();
+                        navigate('/');
+                      }
+                    }} 
+                    className="dropdown-item"
+                    style={{ color: '#dc2626' }}
+                  >
+                    Log Out
                   </button>
                 </div>
               )}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ImageUploader from '../../../components/ImageUploader/ImageUploader';
 import './Products.css';
 
 export default function Products({
@@ -543,18 +544,11 @@ export default function Products({
               </div>
 
               <div className="form-group">
-                <label className="form-label text-dark">Upload Product Photo *</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="form-input"
-                  onChange={(e) => handleFileChange(e, false)}
+                <ImageUploader
+                  image={newProduct.image}
+                  onImageChange={(dataUrl) => setNewProduct({ ...newProduct, image: dataUrl })}
+                  label="Upload Product Photo *"
                 />
-                {newProduct.image && (
-                  <div style={{ marginTop: '10px' }}>
-                    <img src={newProduct.image} alt="Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color, #e2e8f0)' }} />
-                  </div>
-                )}
               </div>
 
               <div className="form-group form-group-full">
@@ -676,18 +670,11 @@ export default function Products({
               </div>
 
               <div className="form-group">
-                <label className="form-label text-dark">Upload Product Photo</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="form-input"
-                  onChange={(e) => handleFileChange(e, true)}
+                <ImageUploader
+                  image={editingProduct.image}
+                  onImageChange={(dataUrl) => setEditingProduct({ ...editingProduct, image: dataUrl })}
+                  label="Upload Product Photo"
                 />
-                {editingProduct.image && (
-                  <div style={{ marginTop: '10px' }}>
-                    <img src={editingProduct.image} alt="Preview" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color, #e2e8f0)' }} />
-                  </div>
-                )}
               </div>
 
               <div className="form-group form-group-full">

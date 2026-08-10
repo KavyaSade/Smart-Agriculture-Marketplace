@@ -25,7 +25,8 @@ import {
   User,
   Bell,
   Truck,
-  Settings
+  Settings,
+  Menu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './FarmerDashboard.css';
@@ -50,6 +51,7 @@ export default function FarmerDashboard() {
   }, [user, loading, navigate]);
 
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const dropdownRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -413,6 +415,7 @@ export default function FarmerDashboard() {
 
   const handleTabChange = (tabName) => {
     setActiveTab(tabName);
+    setSidebarOpen(false);
     fetchProductsAndOrders();
   };
 
@@ -431,6 +434,7 @@ export default function FarmerDashboard() {
       image: ''
     });
     setActiveTab('add-product');
+    setSidebarOpen(false);
   };
 
   // Set inputs to product details and navigate to edit product page.
@@ -712,12 +716,15 @@ export default function FarmerDashboard() {
 
   return (
     <div className="farmer-dashboard-layout">
+      {sidebarOpen && (
+        <div className="sidebar-backdrop-mobile" onClick={() => setSidebarOpen(false)}></div>
+      )}
 
-      <aside className="farmer-sidebar">
-        <Link to="/" className="sidebar-logo">
+      <aside className={`farmer-sidebar ${sidebarOpen ? 'mobile-visible' : ''}`}>
+        <div className="sidebar-logo" onClick={() => { handleTabChange('dashboard'); setSidebarOpen(false); }} style={{ cursor: 'pointer' }}>
           <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="sidebar-logo-img" />
           <span>Agri<span className="logo-accent">Market</span></span>
-        </Link>
+        </div>
 
         <div className="sidebar-user-card">
           {profileData.profilePhoto ? (
@@ -833,6 +840,13 @@ export default function FarmerDashboard() {
 
         <div className="dashboard-topnav">
           <div className="topnav-left">
+            <button 
+              className="hamburger-toggle-menu" 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle menu"
+            >
+              <Menu size={22} />
+            </button>
             <h2 className="topnav-title">
               {activeTab === 'dashboard' && "Farmer's Dashboard"}
               {activeTab === 'products' && 'Crop Inventory'}
@@ -904,6 +918,19 @@ export default function FarmerDashboard() {
                     className="dropdown-item"
                   >
                     My Profile
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      if (window.confirm("Are you sure you want to log out?")) {
+                        setIsDropdownOpen(false);
+                        handleLogoutClick();
+                      }
+                    }}
+                    className="dropdown-item"
+                    style={{ color: '#dc2626' }}
+                  >
+                    Log Out
                   </button>
                 </div>
               )}

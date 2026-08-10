@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Upload } from 'lucide-react';
+import ImageUploader from '../../../components/ImageUploader/ImageUploader';
 import './AddProduct.css';
 
 const AddProduct = ({
@@ -133,35 +133,11 @@ const AddProduct = ({
 
         <div className="form-grid-row">
           <div className="form-group">
-            <label className="form-label" htmlFor="page-m-image">Product Image (Photo)</label>
-            <div className="file-upload-wrapper">
-              <Upload size={18} className="upload-icon" />
-              <input 
-                type="file" 
-                id="page-m-image"
-                accept="image/*"
-                className="form-input-file" 
-                onChange={handleImageUpload}
-              />
-              <span className="file-upload-text">Choose PNG or JPG image</span>
-            </div>
-            
-            {formInputs.image && (
-              <div className="product-image-preview-container" style={{ marginTop: '0.75rem', position: 'relative' }}>
-                <img 
-                  src={formInputs.image} 
-                  alt="Crop preview" 
-                  style={{ width: '100%', height: '180px', objectFit: 'cover', borderRadius: '12px', border: '1px solid rgba(82, 183, 136, 0.2)' }} 
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setFormInputs(prev => ({ ...prev, image: '' }))}
-                  style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', backgroundColor: 'rgba(0, 0, 0, 0.6)', color: '#ffffff', border: 'none', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            )}
+            <ImageUploader 
+              image={formInputs.image}
+              onImageChange={(dataUrl) => setFormInputs(prev => ({ ...prev, image: dataUrl }))}
+              label="Product Image (Photo)"
+            />
           </div>
 
           <div className="form-group">

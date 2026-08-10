@@ -166,10 +166,10 @@ export default function AdminDashboard() {
 
       {/* admin sidebar navigation */}
       <aside className={`dashboard-sidebar ${sidebarOpen ? 'mobile-visible' : ''}`}>
-        <Link to="/" className="sidebar-brand" onClick={() => setSidebarOpen(false)}>
+        <div className="sidebar-brand" onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }} style={{ cursor: 'pointer' }}>
           <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="sidebar-logo-img" />
           <span>Agri<span className="sidebar-brand-accent">Market</span></span>
-        </Link>
+        </div>
 
         {/* user card header */}
         <div className="sidebar-user-card">

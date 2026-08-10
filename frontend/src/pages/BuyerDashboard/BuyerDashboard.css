@@ -294,3 +294,14 @@ body.dark-theme .dropdown-item:hover {
   background-color: #162f23;
   color: #52b788;
 }
+
+@media (max-width: 991px) {
+  .buyer-dashboard-layout {
+    flex-direction: column;
+  }
+
+  .buyer-dashboard-main {
+    padding: 1.5rem 1rem;
+  }
+}
+
