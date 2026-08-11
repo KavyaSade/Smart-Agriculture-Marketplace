@@ -7,18 +7,14 @@ export const sendOTPEmail = async (toEmail, otpCode) => {
 
   // check if email settings are in .env file
   if (!user || !pass) {
-    throw new Error('add SMTP_USER and SMTP_PASS to .env file.');
+    console.warn(`\n[2FA OTP EMAIL SIMULATED]\nTo: ${toEmail}\nCODE: ${otpCode}\n(Configure SMTP_USER and SMTP_PASS in .env for real emails)\n`);
+    return true;
   }
 
   // create mail transporter settings
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // false for port 587
-    auth: { user, pass },
-    tls: {
-      rejectUnauthorized: false // bypass SSL check
-    }
+    service: 'gmail',
+    auth: { user, pass }
   });
 
   // email content details

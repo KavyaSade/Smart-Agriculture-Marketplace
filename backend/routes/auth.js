@@ -140,7 +140,7 @@ router.post('/login', async (req, res) => {
       console.log(`[2FA OTP GENERATED (Login)] User: ${user.email} (${user.role})`);
 
       // send email to user
-      sendOTPEmail(user.email, otpCode);
+      await sendOTPEmail(user.email, otpCode);
 
       return res.status(200).json({
         require2FA: true,
@@ -261,7 +261,7 @@ router.post('/google-login', async (req, res) => {
       console.log(`[2FA OTP GENERATED (Google Login)] User: ${user.email} (${user.role})`);
 
       // send email to user
-      sendOTPEmail(user.email, otpCode);
+      await sendOTPEmail(user.email, otpCode);
 
       return res.status(200).json({
         require2FA: true,
@@ -387,7 +387,7 @@ router.post('/resend-2fa', async (req, res) => {
     console.log(`[2FA OTP RESENT] User: ${user.email} (${user.role})`);
 
     // send email to user
-    sendOTPEmail(user.email, otpCode);
+    await sendOTPEmail(user.email, otpCode);
 
     res.status(200).json({
       message: 'Verification code resent successfully.'
