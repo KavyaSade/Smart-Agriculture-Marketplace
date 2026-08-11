@@ -976,7 +976,7 @@ export default function FarmerDashboard() {
         )}
 
         {activeTab === 'analytics' && (
-          <Analytics />
+          <Analytics orders={orders} products={products} />
         )}
 
         {activeTab === 'profile' && (
