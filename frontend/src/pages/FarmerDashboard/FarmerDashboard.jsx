@@ -128,7 +128,8 @@ export default function FarmerDashboard() {
               addressPin: userData.addressPin || '',
               profilePhoto: userData.profilePhoto || null,
               sector: userData.sector || 'fruits',
-              role: userData.role || 'farmer'
+              role: userData.role || 'farmer',
+              isTwoFactorEnabled: userData.isTwoFactorEnabled || false
             });
             return;
           }
@@ -822,6 +823,29 @@ export default function FarmerDashboard() {
         </ul>
 
         <div className="sidebar-footer">
+          <button
+            onClick={() => {
+              setActiveTab('profile');
+              setSidebarOpen(false);
+              setTimeout(() => {
+                const element = document.querySelector('.two-factor-setup-card');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }, 150);
+            }}
+            className="logout-button"
+            style={{ 
+              marginBottom: '0.5rem', 
+              background: 'rgba(82, 183, 136, 0.1)', 
+              color: '#40916c', 
+              border: '1px solid rgba(82, 183, 136, 0.2)' 
+            }}
+          >
+            <img src="/src/assets/icons/shield.png" alt="" className="sidebar-link-img" />
+            <span>2FA Settings</span>
+          </button>
+
           <button
             onClick={() => {
               if (window.confirm("Are you sure you want to log out?")) {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Edit } from 'lucide-react';
 import '../../FarmerDashboard/Profile/Profile.css';
+import TwoFactorSetup from '../../../components/2fa/setup';
 
 const convertImageToPng = (file, callback, maxDim = 400) => {
   const reader = new FileReader();
@@ -170,11 +171,21 @@ const Profile = ({
                 setIsEditingProfile(true);
               }} 
               className="btn btn-primary profile-action-btn"
-              style={{ marginTop: '1.5rem' }}
+              style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}
             >
               <Edit size={16} />
               <span>Edit Profile Details</span>
             </button>
+
+            <TwoFactorSetup 
+              isTwoFactorEnabled={profileData.isTwoFactorEnabled} 
+              onToggleSuccess={(newVal) => {
+                handleUpdateProfileData({
+                  ...profileData,
+                  isTwoFactorEnabled: newVal
+                });
+              }}
+            />
           </div>
         ) : (
 

@@ -64,6 +64,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'grains'
   },
+  isTwoFactorEnabled: {
+    type: Boolean,
+    default: false
+  },
+  twoFactorCode: {
+    type: String,
+    default: null
+  },
+  twoFactorExpires: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

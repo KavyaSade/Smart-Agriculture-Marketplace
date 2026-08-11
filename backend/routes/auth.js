@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { sendOTPEmail } from '../utils/email.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_agri_market_2026';
@@ -72,7 +73,8 @@ router.post('/register', async (req, res) => {
         addressState: newUser.addressState,
         addressPin: newUser.addressPin,
         profilePhoto: newUser.profilePhoto,
-        sector: newUser.sector
+        sector: newUser.sector,
+        isTwoFactorEnabled: newUser.isTwoFactorEnabled
       }
     });
 
@@ -128,6 +130,25 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid email, password, or role selection.' });
     }
 
+    // Intercept with 2FA check (skip for admin)
+    if (user.isTwoFactorEnabled && role !== 'admin') {
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      user.twoFactorCode = otpCode;
+      user.twoFactorExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+      await user.save();
+
+      console.log(`[2FA OTP GENERATED (Login)] User: ${user.email} (${user.role})`);
+
+      // send email to user
+      sendOTPEmail(user.email, otpCode);
+
+      return res.status(200).json({
+        require2FA: true,
+        email: user.email,
+        role: user.role
+      });
+    }
+
     // generate JWT token
     const token = generateToken(user);
 
@@ -147,7 +168,8 @@ router.post('/login', async (req, res) => {
         addressState: user.addressState,
         addressPin: user.addressPin,
         profilePhoto: user.profilePhoto,
-        sector: user.sector
+        sector: user.sector,
+        isTwoFactorEnabled: user.isTwoFactorEnabled
       }
     });
 
@@ -183,7 +205,8 @@ router.get('/me', authenticateToken, async (req, res) => {
         addressState: user.addressState,
         addressPin: user.addressPin,
         profilePhoto: user.profilePhoto,
-        sector: user.sector
+        sector: user.sector,
+        isTwoFactorEnabled: user.isTwoFactorEnabled
       }
     });
 
@@ -228,6 +251,25 @@ router.post('/google-login', async (req, res) => {
       await user.save();
     }
 
+    // Intercept with 2FA check (skip for admin)
+    if (user.isTwoFactorEnabled && role !== 'admin') {
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      user.twoFactorCode = otpCode;
+      user.twoFactorExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+      await user.save();
+
+      console.log(`[2FA OTP GENERATED (Google Login)] User: ${user.email} (${user.role})`);
+
+      // send email to user
+      sendOTPEmail(user.email, otpCode);
+
+      return res.status(200).json({
+        require2FA: true,
+        email: user.email,
+        role: user.role
+      });
+    }
+
     // generate JWT token
     const token = generateToken(user);
 
@@ -247,12 +289,111 @@ router.post('/google-login', async (req, res) => {
         addressState: user.addressState,
         addressPin: user.addressPin,
         profilePhoto: user.profilePhoto,
-        sector: user.sector
+        sector: user.sector,
+        isTwoFactorEnabled: user.isTwoFactorEnabled
       }
     });
 
   } catch (error) {
     console.error('Google login error:', error);
+    res.status(500).json({ message: 'Internal Server Error.' });
+  }
+});
+
+// @route   POST /api/auth/verify-2fa
+// @desc    verifies the 2FA code and issues a JWT token
+// @access  public
+router.post('/verify-2fa', async (req, res) => {
+  try {
+    const { email, role, code } = req.body;
+
+    if (!email || !role || !code) {
+      return res.status(400).json({ message: 'Email, role, and verification code are required.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase(), role });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found.' });
+    }
+
+    if (!user.isTwoFactorEnabled) {
+      return res.status(400).json({ message: 'Two-factor authentication is not enabled for this user.' });
+    }
+
+    // Check code matches and not expired
+    if (!user.twoFactorCode || user.twoFactorCode !== code || new Date() > user.twoFactorExpires) {
+      return res.status(400).json({ message: 'Invalid or expired verification code.' });
+    }
+
+    // Clear code and save
+    user.twoFactorCode = null;
+    user.twoFactorExpires = null;
+    await user.save();
+
+    // generate JWT token
+    const token = generateToken(user);
+
+    res.status(200).json({
+      token,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        bio: user.bio,
+        farmName: user.farmName,
+        experience: user.experience,
+        addressStreet: user.addressStreet,
+        addressCity: user.addressCity,
+        addressState: user.addressState,
+        addressPin: user.addressPin,
+        profilePhoto: user.profilePhoto,
+        sector: user.sector,
+        isTwoFactorEnabled: user.isTwoFactorEnabled
+      }
+    });
+  } catch (error) {
+    console.error('2FA verification error:', error);
+    res.status(500).json({ message: 'Internal Server Error.' });
+  }
+});
+
+// @route   POST /api/auth/resend-2fa
+// @desc    regenerates and resends/returns a new 2FA code
+// @access  public
+router.post('/resend-2fa', async (req, res) => {
+  try {
+    const { email, role } = req.body;
+
+    if (!email || !role) {
+      return res.status(400).json({ message: 'Email and role are required.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase(), role });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found.' });
+    }
+
+    if (!user.isTwoFactorEnabled) {
+      return res.status(400).json({ message: 'Two-factor authentication is not enabled for this user.' });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    user.twoFactorCode = otpCode;
+    user.twoFactorExpires = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+    await user.save();
+
+    console.log(`[2FA OTP RESENT] User: ${user.email} (${user.role})`);
+
+    // send email to user
+    sendOTPEmail(user.email, otpCode);
+
+    res.status(200).json({
+      message: 'Verification code resent successfully.'
+    });
+  } catch (error) {
+    console.error('2FA resend error:', error);
     res.status(500).json({ message: 'Internal Server Error.' });
   }
 });

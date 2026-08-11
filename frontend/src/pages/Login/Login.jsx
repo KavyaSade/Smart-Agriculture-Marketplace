@@ -3,13 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Login.css';
+import TwoFactorVerify from '../../components/2fa/verify';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, complete2FALogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('buyer'); // 'buyer', 'farmer', or 'admin'
+  const [show2FAVerify, setShow2FAVerify] = useState(false);
+  const [twoFAData, setTwoFAData] = useState({ email: '', role: '', tempCode: '' });
 
   const handleGoogleClick = async () => {
     setIsSubmitting(true);
@@ -20,6 +23,11 @@ export default function Login() {
     setIsSubmitting(false);
 
     if (result.success) {
+      if (result.require2FA) {
+        setTwoFAData({ email: result.email, role: result.role, tempCode: result.tempCode });
+        setShow2FAVerify(true);
+        return;
+      }
       setSubmitMessage('Successfully logged in with Google!');
       setTimeout(() => {
         if (role === 'buyer') {
@@ -87,6 +95,11 @@ export default function Login() {
     setIsSubmitting(false);
 
     if (result.success) {
+      if (result.require2FA) {
+        setTwoFAData({ email: result.email, role: result.role, tempCode: result.tempCode });
+        setShow2FAVerify(true);
+        return;
+      }
       setSubmitMessage('Successfully logged in! Redirecting to marketplace...');
       setTimeout(() => {
         if (role === 'buyer') {
@@ -292,6 +305,30 @@ export default function Login() {
           </div>
         </div>
       </div>
+      {show2FAVerify && (
+        <TwoFactorVerify
+          email={twoFAData.email}
+          role={twoFAData.role}
+          initialTempCode={twoFAData.tempCode}
+          onSuccess={(loggedInUser) => {
+            complete2FALogin(loggedInUser);
+            setShow2FAVerify(false);
+            const currentRole = loggedInUser.role || role;
+            if (currentRole === 'buyer') {
+              navigate('/buyer-dashboard');
+            } else if (currentRole === 'farmer') {
+              navigate('/farmer-dashboard');
+            } else if (currentRole === 'retailer') {
+              navigate('/retailer-dashboard');
+            } else if (currentRole === 'admin') {
+              navigate('/admin-dashboard');
+            } else {
+              navigate('/');
+            }
+          }}
+          onCancel={() => setShow2FAVerify(false)}
+        />
+      )}
     </div>
   );
 }

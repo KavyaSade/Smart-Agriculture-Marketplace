@@ -133,7 +133,7 @@ export default function BuyerDashboard() {
     if (user?.email) {
       // 1. Load Profile
       let loadedProfile = null;
-      if (user && (user.addressStreet || user.profilePhoto || user.phone || user.bio)) {
+      if (user && (user.addressStreet || user.profilePhoto || user.phone || user.bio || user.isTwoFactorEnabled)) {
         loadedProfile = {
           firstName: user.fullName ? user.fullName.split(' ')[0] : 'Buyer',
           lastName: user.fullName ? user.fullName.split(' ').slice(1).join(' ') : '',
@@ -144,7 +144,8 @@ export default function BuyerDashboard() {
           addressCity: user.addressCity || '',
           addressState: user.addressState || '',
           addressPin: user.addressPin || '',
-          profilePhoto: user.profilePhoto || null
+          profilePhoto: user.profilePhoto || null,
+          isTwoFactorEnabled: user.isTwoFactorEnabled || false
         };
       }
 
@@ -171,7 +172,8 @@ export default function BuyerDashboard() {
           addressCity: '',
           addressState: '',
           addressPin: '',
-          profilePhoto: null
+          profilePhoto: null,
+          isTwoFactorEnabled: user.isTwoFactorEnabled || false
         };
       }
       setProfileData(loadedProfile);
@@ -453,6 +455,29 @@ export default function BuyerDashboard() {
         </ul>
 
         <div className="sidebar-footer">
+          <button
+            onClick={() => {
+              setActiveTab('profile');
+              setSidebarOpen(false);
+              setTimeout(() => {
+                const element = document.querySelector('.two-factor-setup-card');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }, 150);
+            }}
+            className="logout-button"
+            style={{ 
+              marginBottom: '0.5rem', 
+              background: 'rgba(82, 183, 136, 0.1)', 
+              color: '#40916c', 
+              border: '1px solid rgba(82, 183, 136, 0.2)' 
+            }}
+          >
+            <img src="/src/assets/icons/shield.png" alt="" className="sidebar-link-img" />
+            <span>2FA Settings</span>
+          </button>
+
           <button 
             onClick={() => {
               if (window.confirm("Are you sure you want to log out?")) {

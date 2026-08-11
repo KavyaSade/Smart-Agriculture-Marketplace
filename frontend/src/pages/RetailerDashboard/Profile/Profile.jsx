@@ -1,5 +1,6 @@
 import React from 'react';
 import './Profile.css';
+import TwoFactorSetup from '../../../components/2fa/setup';
 
 export default function Profile({ profile, setProfile, profilePhoto, setProfilePhoto, setAlert }) {
   // handle profile picture changes
@@ -132,6 +133,16 @@ export default function Profile({ profile, setProfile, profilePhoto, setProfileP
           </button>
         </div>
       </form>
+
+      <TwoFactorSetup 
+        isTwoFactorEnabled={profile.isTwoFactorEnabled}
+        onToggleSuccess={(newVal) => {
+          setProfile(prev => ({
+            ...prev,
+            isTwoFactorEnabled: newVal
+          }));
+        }}
+      />
     </div>
   );
 }

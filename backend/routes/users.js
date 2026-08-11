@@ -107,6 +107,37 @@ router.put('/profile', authenticateToken, async (req, res) => {
   }
 });
 
+// Toggle two-factor authentication
+router.put('/profile/2fa', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    const { enabled } = req.body;
+    if (enabled === undefined) {
+      return res.status(400).json({ message: 'enabled state is required.' });
+    }
+
+    user.isTwoFactorEnabled = !!enabled;
+    // If disabling, clear active 2fa code
+    if (!enabled) {
+      user.twoFactorCode = null;
+      user.twoFactorExpires = null;
+    }
+    await user.save();
+
+    res.status(200).json({
+      message: `Two-factor authentication ${enabled ? 'enabled' : 'disabled'} successfully.`,
+      isTwoFactorEnabled: user.isTwoFactorEnabled
+    });
+  } catch (error) {
+    console.error('Error toggling 2FA:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Retrieve a farmer's profile including their listings and average rating (Public)
 router.get('/farmer/:email', async (req, res) => {
   try {

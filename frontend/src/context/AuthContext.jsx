@@ -72,6 +72,10 @@ export const AuthProvider = ({ children }) => {
             throw new Error(data.message || 'Failed to sync with backend.');
           }
 
+          if (data.require2FA) {
+            return { success: true, require2FA: true, email: data.email, role: data.role, tempCode: data.tempCode };
+          }
+
           localStorage.setItem('token', data.token);
           setUser(data.user);
           return { success: true, user: data.user };
@@ -93,6 +97,10 @@ export const AuthProvider = ({ children }) => {
 
       if (!response.ok) {
         throw new Error(data.message || 'Failed to login.');
+      }
+
+      if (data.require2FA) {
+        return { success: true, require2FA: true, email: data.email, role: data.role, tempCode: data.tempCode };
       }
 
       localStorage.setItem('token', data.token);
@@ -190,6 +198,11 @@ export const AuthProvider = ({ children }) => {
           throw new Error(data.message || 'Failed to login with Google simulation.');
         }
 
+        if (data.require2FA) {
+          setLoading(false);
+          return { success: true, require2FA: true, email: data.email, role: data.role, tempCode: data.tempCode };
+        }
+
         localStorage.setItem('token', data.token);
         setUser(data.user);
         setLoading(false);
@@ -222,6 +235,11 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Failed to register/login Google account on backend.');
+      }
+
+      if (data.require2FA) {
+        setLoading(false);
+        return { success: true, require2FA: true, email: data.email, role: data.role, tempCode: data.tempCode };
       }
 
       localStorage.setItem('token', data.token);
@@ -264,8 +282,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Complete 2FA login verification
+   * @param {object} loggedInUser 
+   */
+  const complete2FALogin = (loggedInUser) => {
+    setUser(loggedInUser);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, loginWithGoogle, register, logout, sendPasswordReset }}>
+    <AuthContext.Provider value={{ user, loading, error, login, loginWithGoogle, register, logout, sendPasswordReset, complete2FALogin }}>
       {children}
     </AuthContext.Provider>
   );

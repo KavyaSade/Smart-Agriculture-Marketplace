@@ -15,7 +15,7 @@ export default function SessionTimeout() {
       timeoutId = setTimeout(() => {
         logout();
         window.location.href = '/login';
-      }, 3600000); // 3,600,000 ms = 1 hour
+      }, 60000); // 60,000 ms = 1 minute
     };
 
     // Listen to user interactions

@@ -137,14 +137,14 @@ export default function RetailerDashboard() {
   // state for user profile picture
   const [profilePhoto, setProfilePhoto] = useState(null);
 
-  // sync profile data if user changes
   useEffect(() => {
     if (user) {
       setProfile(prev => ({
         ...prev,
         fullName: user.fullName || prev.fullName,
         email: user.email || prev.email,
-        phone: user.phone || prev.phone
+        phone: user.phone || prev.phone,
+        isTwoFactorEnabled: user.isTwoFactorEnabled || false
       }));
     }
   }, [user]);
@@ -272,9 +272,31 @@ export default function RetailerDashboard() {
             </button>
           </li>
         </ul>
-
         {/* log out action */}
         <div className="sidebar-footer">
+          <button
+            onClick={() => {
+              setActiveTab('profile');
+              setSidebarOpen(false);
+              setTimeout(() => {
+                const element = document.querySelector('.two-factor-setup-card');
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth' });
+                }
+              }, 150);
+            }}
+            className="logout-button"
+            style={{ 
+              marginBottom: '0.5rem', 
+              background: 'rgba(82, 183, 136, 0.1)', 
+              color: '#40916c', 
+              border: '1px solid rgba(82, 183, 136, 0.2)' 
+            }}
+          >
+            <img src="/src/assets/icons/shield.png" alt="" className="sidebar-link-img" />
+            <span>2FA Settings</span>
+          </button>
+
           <button 
             onClick={() => {
               if (window.confirm("Are you sure you want to log out?")) {
