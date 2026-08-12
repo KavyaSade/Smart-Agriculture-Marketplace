@@ -8,7 +8,7 @@ const Wishlist = ({
   handleToggleWishlist,
   handleAddToCart
 }) => {
-  const favoritedCrops = products.filter(p => wishlist.includes(p.id));
+  const favoritedCrops = products.filter(p => wishlist.includes(p._id || p.id));
 
   return (
     <div className="section-card animate-fade-in">
@@ -26,7 +26,7 @@ const Wishlist = ({
           {favoritedCrops.map(crop => {
             const isOutOfStock = crop.stock <= 0 || !crop.inStock;
             return (
-              <div key={crop.id} className="product-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
+              <div key={crop._id || crop.id} className="product-card" style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
 
                 <div className="product-card-image-wrapper" style={{ height: '180px', position: 'relative', overflow: 'hidden', borderRadius: '12px' }}>
                   <img 
@@ -39,7 +39,7 @@ const Wishlist = ({
                   </span>
 
                   <button 
-                    onClick={() => handleToggleWishlist(crop.id)} 
+                    onClick={() => handleToggleWishlist(crop._id || crop.id)} 
                     style={{
                       position: 'absolute', 
                       top: '0.75rem', 

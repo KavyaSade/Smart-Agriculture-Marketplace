@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Categories.css';
 
 export default function Categories() {
@@ -219,9 +220,9 @@ export default function Categories() {
                   </div>
 
                   <hr className="product-card-divider" />
-                  <button className="btn btn-secondary product-card-btn">
+                  <Link to="/login" className="btn btn-secondary product-card-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
                     View Details &rarr;
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

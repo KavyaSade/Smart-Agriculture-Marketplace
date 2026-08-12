@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
+import { motion } from 'motion/react';
 import Navbar from '../../components/Navbar/Navbar';
 import Hero from '../../components/Hero/Hero';
 import Features from '../../components/Features/Features';
@@ -10,48 +11,35 @@ import Contact from '../../components/Contact/Contact';
 import Footer from '../../components/Footer/Footer';
 
 export default function Landing() {
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('reveal-visible');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    const elements = document.querySelectorAll('.reveal');
-    elements.forEach((el) => observer.observe(el));
-
-    return () => {
-      elements.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
+  const sectionAnimation = {
+    initial: { opacity: 0, y: 40 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.15 },
+    transition: { duration: 0.6, ease: 'easeOut' }
+  };
 
   return (
     <>
       <Navbar />
       <Hero />
-      <div className="reveal">
+      <motion.div {...sectionAnimation}>
         <Features />
-      </div>
-      <div className="reveal">
+      </motion.div>
+      <motion.div {...sectionAnimation}>
         <Categories />
-      </div>
-      <div className="reveal">
+      </motion.div>
+      <motion.div {...sectionAnimation}>
         <HowItWorks />
-      </div>
-      <div className="reveal">
+      </motion.div>
+      <motion.div {...sectionAnimation}>
         <Testimonials />
-      </div>
-      <div className="reveal">
+      </motion.div>
+      <motion.div {...sectionAnimation}>
         <CTA />
-      </div>
-      <div className="reveal">
+      </motion.div>
+      <motion.div {...sectionAnimation}>
         <Contact />
-      </div>
+      </motion.div>
       <Footer />
     </>
   );
