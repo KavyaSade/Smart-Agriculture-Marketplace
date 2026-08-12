@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ThemeToggle from '../ThemeToggle/ThemeToggle';
+import NotificationBell from '../NotificationBell/NotificationBell';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -51,9 +52,10 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo" onClick={() => setIsOpen(false)}>
-          <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="navbar-logo-img" /><span>Agri<span className="navbar-logo-accent">Market</span></span>
-        </Link>
+        <div className="navbar-logo" onClick={() => navigate('/')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+          <img src="/src/assets/icons/leaf-outline.png" alt="AgriMarket Logo" className="navbar-logo-img" />
+          <span>Agri<span className="navbar-logo-accent">Market</span></span>
+        </div>
         <ul className="navbar-menu">
           {links.map(([label, href]) => (
             <li key={href}>
@@ -71,6 +73,7 @@ export default function Navbar() {
         </ul>
         <div className="navbar-actions">
           <ThemeToggle />
+          {user && <NotificationBell />}
           {user ? (
             <div className="navbar-profile-container" ref={dropdownRef}>
               <button 
