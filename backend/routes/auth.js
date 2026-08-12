@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { sendOTPEmail } from '../utils/email.js';
+import { sendPushNotification } from '../utils/fcm.js';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_agri_market_2026';
@@ -52,6 +53,22 @@ router.post('/register', async (req, res) => {
     });
 
     await newUser.save();
+
+    // Trigger FCM notification: "New user registration" to Admins
+    try {
+      const admins = await User.find({ role: 'admin' });
+      for (const admin of admins) {
+        await sendPushNotification(admin._id, {
+          title: 'New User Registered',
+          body: `A new user "${newUser.fullName}" has registered on the platform as a "${newUser.role}".`,
+          type: 'new_user_registered',
+          referenceId: newUser._id.toString(),
+          referenceType: 'User'
+        });
+      }
+    } catch (notifErr) {
+      console.error('Error sending registration notification:', notifErr);
+    }
 
     // generate JWT token
     const token = generateToken(newUser);
@@ -249,6 +266,22 @@ router.post('/google-login', async (req, res) => {
         password: dummyPassword
       });
       await user.save();
+
+      // Trigger FCM notification: "New user registration" to Admins
+      try {
+        const admins = await User.find({ role: 'admin' });
+        for (const admin of admins) {
+          await sendPushNotification(admin._id, {
+            title: 'New User Registered',
+            body: `A new user "${user.fullName}" has registered on the platform as a "${user.role}" via Google.`,
+            type: 'new_user_registered',
+            referenceId: user._id.toString(),
+            referenceType: 'User'
+          });
+        }
+      } catch (notifErr) {
+        console.error('Error sending Google registration notification:', notifErr);
+      }
     }
 
     // Intercept with 2FA check (skip for admin)
