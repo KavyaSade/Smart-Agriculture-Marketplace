@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import NotificationBell from '../../components/NotificationBell/NotificationBell';
+import { useLocation } from 'react-router-dom';
 import './RetailerDashboard.css';
+import logoBanner from '../../assets/logo-banner.png';
 
 // Import subfolder components
 import Overview from './Overview/Overview';
@@ -14,6 +17,7 @@ import Settings from './Settings/Settings';
 
 export default function RetailerDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   
   // state for mobile menu toggle
@@ -21,6 +25,15 @@ export default function RetailerDashboard() {
 
   // state for current active tab
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Sync tab with navigation state/query params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab') || location.state?.activeTab;
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [location]);
 
   // state for alert messages
   const [alert, setAlert] = useState(null);
@@ -182,8 +195,7 @@ export default function RetailerDashboard() {
       {/* sidebar navigation panel */}
       <aside className={`dashboard-sidebar ${sidebarOpen ? 'mobile-visible' : ''}`}>
         <div className="sidebar-brand" onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }} style={{ cursor: 'pointer' }}>
-          <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="sidebar-logo-img" />
-          <span>Agri<span className="sidebar-brand-accent">Market</span></span>
+          <img src={logoBanner} alt="AgriMarket Logo" className="sidebar-logo-img" />
         </div>
 
         {/* user avatar and info */}
@@ -344,10 +356,7 @@ export default function RetailerDashboard() {
           </div>
           
           <div className="topbar-actions">
-            <button className="notification-bell-btn" aria-label="Notifications">
-              <img src="/src/assets/icons/bell.png" alt="" className="topbar-bell-img" />
-              {activeOrdersCount > 0 && <span className="notification-badge"></span>}
-            </button>
+            <NotificationBell />
           </div>
         </header>
 

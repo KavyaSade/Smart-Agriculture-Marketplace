@@ -29,7 +29,9 @@ import {
   Menu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import './FarmerDashboard.css';
+import NotificationBell from '../../components/NotificationBell/NotificationBell';
+import { useLocation } from 'react-router-dom';
+import logoBanner from '../../assets/logo-banner.png';
 import Overview from './Overview/Overview';
 import Products from './Products/Products';
 import Orders from './Orders/Orders';
@@ -42,6 +44,7 @@ import FarmerReviews from './Reviews/FarmerReviews';
 
 export default function FarmerDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, loading, logout } = useAuth();
 
   useEffect(() => {
@@ -52,6 +55,15 @@ export default function FarmerDashboard() {
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Sync tab with navigation state/query params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab') || location.state?.activeTab;
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [location]);
 
   const dropdownRef = useRef(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -723,8 +735,7 @@ export default function FarmerDashboard() {
 
       <aside className={`farmer-sidebar ${sidebarOpen ? 'mobile-visible' : ''}`}>
         <div className="sidebar-logo" onClick={() => { handleTabChange('dashboard'); setSidebarOpen(false); }} style={{ cursor: 'pointer' }}>
-          <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="sidebar-logo-img" />
-          <span>Agri<span className="logo-accent">Market</span></span>
+          <img src={logoBanner} alt="AgriMarket Logo" className="sidebar-logo-img" />
         </div>
 
         <div className="sidebar-user-card">
@@ -891,10 +902,7 @@ export default function FarmerDashboard() {
             </p>
           </div>
           <div className="topnav-right">
-            <button className="topnav-notification-bell" aria-label="Notifications" style={{ marginRight: '1rem' }}>
-              <Bell size={20} />
-              <span className="bell-badge"></span>
-            </button>
+            <NotificationBell />
 
             <div className="navbar-profile-container" ref={dropdownRef}>
               <button
