@@ -4,6 +4,8 @@ import User from '../models/User.js';
 import Product from '../models/product.js';
 import Review from '../models/Review.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { sendPushNotification } from '../utils/fcm.js';
+import Notification from '../models/Notification.js';
 
 const router = Router();
 
@@ -15,6 +17,88 @@ const verifyAdmin = (req, res, next) => {
     res.status(403).json({ message: 'Access denied. Administrators only.' });
   }
 };
+
+// Register FCM token
+router.post('/fcm-token', authenticateToken, async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: 'Token is required.' });
+    }
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    if (!user.fcmTokens) {
+      user.fcmTokens = [];
+    }
+    if (!user.fcmTokens.includes(token)) {
+      user.fcmTokens.push(token);
+      await user.save();
+    }
+
+    // Trigger welcome / welcome back notification
+    try {
+      const isNewUser = (Date.now() - user.createdAt.getTime()) < 5 * 60 * 1000;
+      
+      // Anti-duplicate lock: Check if user already got a welcome notification in the last 2 minutes
+      const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+      const existingWelcome = await Notification.findOne({
+        recipient: user._id,
+        type: { $in: ['welcome', 'welcome_back'] },
+        createdAt: { $gte: twoMinutesAgo }
+      });
+
+      if (!existingWelcome) {
+        if (isNewUser) {
+          await sendPushNotification(user._id, {
+            title: 'Welcome to AgriMarket!',
+            body: `Welcome, ${user.fullName}! We are excited to have you on board.`,
+            type: 'welcome',
+            referenceId: user._id.toString(),
+            referenceType: 'User'
+          });
+        } else {
+          await sendPushNotification(user._id, {
+            title: 'Welcome Back!',
+            body: `Welcome back, ${user.fullName}! Happy trading on the marketplace.`,
+            type: 'welcome_back',
+            referenceId: user._id.toString(),
+            referenceType: 'User'
+          });
+        }
+      }
+    } catch (notifErr) {
+      console.error('Error sending welcome notification:', notifErr);
+    }
+    res.status(200).json({ message: 'FCM token registered successfully.' });
+  } catch (error) {
+    console.error('Error registering FCM token:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Unregister FCM token
+router.post('/fcm-token/unregister', authenticateToken, async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: 'Token is required.' });
+    }
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    if (user.fcmTokens) {
+      user.fcmTokens = user.fcmTokens.filter(t => t !== token);
+      await user.save();
+    }
+    res.status(200).json({ message: 'FCM token unregistered successfully.' });
+  } catch (error) {
+    console.error('Error unregistering FCM token:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // Retrieve all users (Admin only)
 router.get('/', authenticateToken, verifyAdmin, async (req, res) => {
@@ -96,6 +180,15 @@ router.put('/profile', authenticateToken, async (req, res) => {
     user.sector = sector !== undefined ? sector : user.sector;
 
     await user.save();
+
+    // Trigger notification upon changing profile details
+    await sendPushNotification(user._id, {
+      title: 'Profile Updated',
+      body: 'Your profile details have been successfully updated.',
+      type: 'profile_updated',
+      referenceId: user._id.toString(),
+      referenceType: 'User'
+    });
 
     res.status(200).json({
       message: 'Profile updated successfully.',

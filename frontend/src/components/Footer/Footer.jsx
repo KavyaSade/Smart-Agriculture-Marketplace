@@ -28,8 +28,7 @@ export default function Footer() {
           {/* Brand Info Column */}
           <div className="footer-col">
             <a href="#" onClick={(e) => handleNavClick(e, '#')} className="footer-logo">
-              <img src="/src/assets/icons/leaf.png" alt="Leaf Logo" className="footer-logo-img" />
-              <span>Agri<span className="footer-logo-accent">Market</span></span>
+              <img src="/src/assets/logo-banner.png" alt="AgriMarket Logo" className="footer-logo-img" />
             </a>
             <p className="footer-desc">
               Helping farmers and buyers connect through a simple and secure online marketplace.

@@ -2,8 +2,59 @@ import { Router } from 'express';
 import Order from '../models/orders.js';
 import Product from '../models/product.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { sendPushNotification } from '../utils/fcm.js';
+import User from '../models/User.js';
 
 const router = Router();
+
+const sendOrderStatusNotification = async (order) => {
+  try {
+    const buyer = await User.findOne({ email: order.buyerEmail.toLowerCase() });
+    if (!buyer) return;
+
+    let title = '';
+    let body = '';
+    let type = '';
+
+    if (order.status === 'shipped') {
+      await sendPushNotification(buyer._id, {
+        title: 'Order Accepted',
+        body: `Your order ${order.id} has been accepted by the farmer.`,
+        type: 'order_accepted',
+        referenceId: order._id.toString(),
+        referenceType: 'Order'
+      });
+
+      title = 'Order Shipped';
+      body = `Your order ${order.id} has been shipped. Tracking: ${order.trackingNumber || 'N/A'}`;
+      type = 'order_shipped';
+    } else if (order.status === 'Out for Delivery') {
+      title = 'Order Out for Delivery';
+      body = `Your order ${order.id} is out for delivery today.`;
+      type = 'order_out_for_delivery';
+    } else if (order.status === 'delivered') {
+      title = 'Order Delivered';
+      body = `Your order ${order.id} has been marked as delivered.`;
+      type = 'order_delivered';
+    } else if (order.status === 'cancelled') {
+      title = 'Order Cancelled/Rejected';
+      body = `Your order ${order.id} has been cancelled or rejected.`;
+      type = 'order_cancelled';
+    }
+
+    if (title && body && type) {
+      await sendPushNotification(buyer._id, {
+        title,
+        body,
+        type,
+        referenceId: order._id.toString(),
+        referenceType: 'Order'
+      });
+    }
+  } catch (err) {
+    console.error('Error sending order status notification:', err);
+  }
+};
 
 // Retrieve orders list (filtered by user role)
 router.get('/', authenticateToken, async (req, res) => {
@@ -98,6 +149,62 @@ router.post('/', authenticateToken, async (req, res) => {
     });
 
     await order.save();
+
+    // Trigger FCM notifications for new order
+    try {
+      const buyer = await User.findOne({ email: req.user.email.toLowerCase() });
+      const seller = product.seller 
+        ? await User.findById(product.seller) 
+        : await User.findOne({ email: product.farmerEmail.toLowerCase() });
+
+      if (buyer) {
+        await sendPushNotification(buyer._id, {
+          title: 'Payment Successful',
+          body: `Payment of ₹${order.amount.toLocaleString()} was verified successfully.`,
+          type: 'payment_success',
+          referenceId: order._id.toString(),
+          referenceType: 'Order'
+        });
+        await sendPushNotification(buyer._id, {
+          title: 'Order Placed Successfully',
+          body: `Your order ${order.id} for "${order.productName}" has been successfully placed.`,
+          type: 'order_placed',
+          referenceId: order._id.toString(),
+          referenceType: 'Order'
+        });
+      }
+
+      if (seller) {
+        await sendPushNotification(seller._id, {
+          title: 'New Order Received',
+          body: `You received a new order ${order.id} for ${order.quantity} ${order.unit} of "${order.productName}" from ${order.buyerName}.`,
+          type: 'order_received',
+          referenceId: order._id.toString(),
+          referenceType: 'Order'
+        });
+        await sendPushNotification(seller._id, {
+          title: 'Payment Captured',
+          body: `Verification completed for order ${order.id} payment. Payout will trigger upon completion.`,
+          type: 'payment_success',
+          referenceId: order._id.toString(),
+          referenceType: 'Order'
+        });
+
+        // Trigger Low Stock alert if stock is low (e.g. <= 10)
+        if (product.stock <= 10) {
+          await sendPushNotification(seller._id, {
+            title: 'Low Stock Alert',
+            body: `Low stock alert: Only ${product.stock} ${product.stockUnit || 'Kg'} remaining for "${product.name || product.title}".`,
+            type: 'low_stock',
+            referenceId: product._id.toString(),
+            referenceType: 'Product'
+          });
+        }
+      }
+    } catch (notifErr) {
+      console.error('Error triggering order placement notifications:', notifErr);
+    }
+
     res.status(201).json(order);
   } catch (error) {
     res.status(500).json({ message: 'Error placing order.' });
@@ -154,6 +261,7 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
     else if (status === 'cancelled') order.deliveryStatus = 'cancelled';
 
     await order.save();
+    await sendOrderStatusNotification(order);
     res.status(200).json(order);
   } catch (error) {
     res.status(500).json({ message: 'Error updating order status.' });
@@ -205,6 +313,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     else if (status === 'cancelled') order.deliveryStatus = 'cancelled';
 
     await order.save();
+    await sendOrderStatusNotification(order);
     res.status(200).json(order);
   } catch (error) {
     console.error('Error updating order status:', error);
