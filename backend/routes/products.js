@@ -4,8 +4,18 @@ import Review from '../models/Review.js';
 import Order from '../models/orders.js';
 import User from '../models/User.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { sendPushNotification } from '../utils/fcm.js';
 
 const router = Router();
+
+// Middleware to restrict access to Admins only
+const verifyAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Administrators only.' });
+  }
+};
 
 // Retrieve all crop listings with optional search and filters.
 router.get('/', async (req, res) => {
@@ -13,7 +23,12 @@ router.get('/', async (req, res) => {
     const { search, category, minPrice, maxPrice, inStock, location, seller } = req.query;
     
    
-    const query = {};
+    const query = {
+      $or: [
+        { status: 'approved' },
+        { status: { $exists: false } }
+      ]
+    };
 
     if (seller) {
       query.seller = seller;
@@ -116,10 +131,28 @@ router.post('/', authenticateToken, async (req, res) => {
       inStock: stock > 0,
       farmerEmail: req.user.email,
       farmerName,
-      seller: req.user.id
+      seller: req.user.id,
+      status: 'pending' // Explicitly require approval for newly listed products
     });
 
     await product.save();
+
+    // Trigger Admin notification: "New product requiring approval"
+    try {
+      const admins = await User.find({ role: 'admin' });
+      for (const admin of admins) {
+        await sendPushNotification(admin._id, {
+          title: 'New Product Requiring Approval',
+          body: `Farmer ${farmerName} created a new product "${product.name}" that requires approval.`,
+          type: 'product_approval_required',
+          referenceId: product._id.toString(),
+          referenceType: 'Product'
+        });
+      }
+    } catch (notifErr) {
+      console.error('Error triggering product creation notifications:', notifErr);
+    }
+
     res.status(201).json(product);
   } catch (error) {
     res.status(500).json({ message: 'Error creating product listing.' });
@@ -275,6 +308,24 @@ router.post('/:id/reviews', authenticateToken, async (req, res) => {
     product.totalReviews = totalReviews;
     await product.save();
 
+    // Notify Farmer of new product review
+    try {
+      const seller = product.seller
+        ? await User.findById(product.seller)
+        : await User.findOne({ email: product.farmerEmail.toLowerCase() });
+      if (seller) {
+        await sendPushNotification(seller._id, {
+          title: 'New Product Review',
+          body: `Buyer ${review.userName} left a ${review.rating}-star review on your listing "${product.name || product.title}".`,
+          type: 'new_product_review',
+          referenceId: product._id.toString(),
+          referenceType: 'Product'
+        });
+      }
+    } catch (notifErr) {
+      console.error('Error sending product review notification:', notifErr);
+    }
+
     res.status(201).json({
       message: 'Review added successfully.',
       review,
@@ -284,6 +335,99 @@ router.post('/:id/reviews', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error creating review:', error);
     res.status(500).json({ message: 'Error creating product review.' });
+  }
+});
+
+// Approve product (Admin only)
+router.patch('/:id/approve', authenticateToken, verifyAdmin, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product listing not found.' });
+    }
+
+    product.status = 'approved';
+    await product.save();
+
+    // Notify farmer
+    const farmer = product.seller
+      ? await User.findById(product.seller)
+      : await User.findOne({ email: product.farmerEmail.toLowerCase() });
+
+    if (farmer) {
+      await sendPushNotification(farmer._id, {
+        title: 'Product Approved',
+        body: `Your product listing "${product.name}" has been approved and is now live on the marketplace.`,
+        type: 'product_approved',
+        referenceId: product._id.toString(),
+        referenceType: 'Product'
+      });
+    }
+
+    res.status(200).json({ message: 'Product approved successfully.', product });
+  } catch (error) {
+    console.error('Error approving product:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Reject product (Admin only)
+router.patch('/:id/reject', authenticateToken, verifyAdmin, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product listing not found.' });
+    }
+
+    product.status = 'rejected';
+    await product.save();
+
+    // Notify farmer
+    const farmer = product.seller
+      ? await User.findById(product.seller)
+      : await User.findOne({ email: product.farmerEmail.toLowerCase() });
+
+    if (farmer) {
+      await sendPushNotification(farmer._id, {
+        title: 'Product Rejected',
+        body: `Your product listing "${product.name}" has been rejected by administration.`,
+        type: 'product_rejected',
+        referenceId: product._id.toString(),
+        referenceType: 'Product'
+      });
+    }
+
+    res.status(200).json({ message: 'Product rejected successfully.', product });
+  } catch (error) {
+    console.error('Error rejecting product:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Report product listing (Authenticated buyer)
+router.post('/:id/report', authenticateToken, async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product listing not found.' });
+    }
+
+    // Trigger Admin notification
+    const admins = await User.find({ role: 'admin' });
+    for (const admin of admins) {
+      await sendPushNotification(admin._id, {
+        title: 'Reported Product Listing',
+        body: `User ${req.user.fullName || req.user.email} reported listing "${product.name}" (ID: ${product._id}).`,
+        type: 'reported_product',
+        referenceId: product._id.toString(),
+        referenceType: 'Product'
+      });
+    }
+
+    res.status(200).json({ message: 'Product report submitted successfully to administrators.' });
+  } catch (error) {
+    console.error('Error reporting product:', error);
+    res.status(500).json({ message: 'Server error reporting product.' });
   }
 });
 

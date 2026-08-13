@@ -24,19 +24,22 @@
 }
 
 .sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #1b4332;
-  text-decoration: none;
-  margin-bottom: 2rem;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  margin-top: -1.5rem !important;
+  margin-bottom: -2.5rem !important;
 }
 
 .sidebar-logo-img {
-  width: 32px;
-  height: 32px;
+  display: block !important;
+  width: 240% !important;
+  max-width: none !important;
+  margin-left: -70% !important;
+  height: auto !important;
+  max-height: 120px !important;
+  object-fit: contain !important;
 }
 
 .logo-accent {
@@ -51,7 +54,7 @@
   padding: 1rem;
   background-color: #f4faf6;
   border-radius: 16px;
-  margin-bottom: 2rem;
+  margin-bottom: 0.8rem !important;
   transition: background-color 0.3s;
 }
 
@@ -2012,7 +2015,7 @@ body.dark-theme .profile-minimal-avatar-placeholder {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 2rem 1.5rem;
+  padding: 0.5rem 1.5rem 2rem 1.5rem !important;
   position: sticky;
   top: 0;
   height: 100vh;

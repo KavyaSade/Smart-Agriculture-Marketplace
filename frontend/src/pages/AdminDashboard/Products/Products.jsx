@@ -10,6 +10,54 @@ export default function Products({ products, setProducts, setAlert, onRefresh })
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [deletingProductId, setDeletingProductId] = useState(null);
 
+  const approveProductListing = async (productId) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'Access denied.' });
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${productId}/approve`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setAlert({ type: 'success', text: 'Product listing approved by Administrator!' });
+        if (onRefresh) await onRefresh();
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to approve product.' });
+      }
+    } catch (err) {
+      console.error('Error approving product:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
+  };
+
+  const rejectProductListing = async (productId) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setAlert({ type: 'error', text: 'Access denied.' });
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/products/${productId}/reject`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        setAlert({ type: 'success', text: 'Product listing rejected by Administrator.' });
+        if (onRefresh) await onRefresh();
+      } else {
+        const errorData = await response.json();
+        setAlert({ type: 'error', text: errorData.message || 'Failed to reject product.' });
+      }
+    } catch (err) {
+      console.error('Error rejecting product:', err);
+      setAlert({ type: 'error', text: 'Network error. Please try again.' });
+    }
+  };
+
   const deleteProductListing = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -188,6 +236,7 @@ export default function Products({ products, setProducts, setAlert, onRefresh })
                 <th className="text-dark">Location</th>
                 <th className="text-dark">Unit Price</th>
                 <th className="text-dark">Stock Level</th>
+                <th className="text-dark">Status</th>
                 <th className="text-dark">Actions Moderation</th>
               </tr>
             </thead>
@@ -217,12 +266,37 @@ export default function Products({ products, setProducts, setAlert, onRefresh })
                   <td className="text-dark">₹{Number(p.price || 0).toFixed(2)} / {p.unit}</td>
                   <td className="text-dark font-medium">{p.stock} {p.unit}</td>
                   <td>
-                    <button
-                      className="action-btn-small danger"
-                      onClick={() => setDeletingProductId(p.id)}
-                    >
-                      Delete Item
-                    </button>
+                    <span className={`order-status-badge status-${p.status || 'approved'}`} style={{ fontSize: '0.75rem', padding: '2px 8px' }}>
+                      {(p.status || 'approved').toUpperCase()}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      {(p.status === 'pending' || p.status === 'rejected') && (
+                        <button
+                          className="action-btn-small success"
+                          style={{ backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '0.75rem', cursor: 'pointer' }}
+                          onClick={() => approveProductListing(p.id)}
+                        >
+                          Approve
+                        </button>
+                      )}
+                      {(p.status === 'pending' || p.status === 'approved' || !p.status) && (
+                        <button
+                          className="action-btn-small warning"
+                          style={{ backgroundColor: '#f59e0b', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '4px 8px', fontSize: '0.75rem', cursor: 'pointer' }}
+                          onClick={() => rejectProductListing(p.id)}
+                        >
+                          Reject
+                        </button>
+                      )}
+                      <button
+                        className="action-btn-small danger"
+                        onClick={() => setDeletingProductId(p.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

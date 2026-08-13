@@ -1,15 +1,13 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import productRoutes from './routes/products.js';
 import orderRoutes from './routes/orders.js';
 import userRoutes from './routes/users.js';
 import paymentRoutes from './payment/payment.js';
+import notificationRoutes from './routes/notifications.js';
 import { connectDB } from './utils/db.js';
-
-// load environment variables
-dotenv.config();
 
 // connect to database
 connectDB();
@@ -32,6 +30,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // check endpoint
 app.get('/health', (req, res) => {

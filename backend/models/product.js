@@ -66,6 +66,11 @@ const productSchema = new mongoose.Schema({
   totalReviews: {
     type: Number,
     default: 0
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'approved'
   }
 }, {
   timestamps: true
