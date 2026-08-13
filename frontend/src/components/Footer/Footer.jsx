@@ -1,4 +1,8 @@
 import React from 'react';
+import {
+  generatePrivacyPolicyPDF,
+  generateTermsOfServicePDF
+} from '../../utils/pdfGenerator';
 import './Footer.css';
 
 export default function Footer() {
@@ -18,6 +22,16 @@ export default function Footer() {
         }
       }
     }
+  };
+
+  const handlePrivacyDownload = async (e) => {
+    e.preventDefault();
+    await generatePrivacyPolicyPDF();
+  };
+
+  const handleTermsDownload = async (e) => {
+    e.preventDefault();
+    await generateTermsOfServicePDF();
   };
 
   return (
@@ -79,8 +93,8 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} AgriMarket. All Rights Reserved.
           </p>
           <div className="footer-legal">
-            <a href="#" className="footer-legal-link">Privacy Policy</a>
-            <a href="#" className="footer-legal-link">Terms of Service</a>
+            <a href="#" onClick={handlePrivacyDownload} className="footer-legal-link">Privacy Policy</a>
+            <a href="#" onClick={handleTermsDownload} className="footer-legal-link">Terms of Service</a>
           </div>
         </div>
       </div>
