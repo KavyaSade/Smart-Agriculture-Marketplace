@@ -47,6 +47,17 @@ export default function Footer() {
             <p className="footer-desc">
               Helping farmers and buyers connect through a simple and secure online marketplace.
             </p>
+            <div className="footer-socials">
+              <a href="https://www.linkedin.com/in/rishimacha/" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                <img src="/src/assets/icons/linkedin.png" alt="LinkedIn" className="footer-social-icon" />
+              </a>
+              <a href="https://github.com/KavyaSade" target="_blank" rel="noopener noreferrer" className="footer-social-link github-link">
+                <img src="/src/assets/icons/github.png" alt="GitHub" className="footer-social-icon" />
+              </a>
+              <a href="https://www.instagram.com/agri_market_sam?igsh=ZHkweHU3YmQ3YmZz" target="_blank" rel="noopener noreferrer" className="footer-social-link">
+                <img src="/src/assets/icons/instagram.png" alt="Instagram" className="footer-social-icon" />
+              </a>
+            </div>
           </div>
 
           {/* Contact Column */}
