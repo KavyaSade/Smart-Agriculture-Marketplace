@@ -30,10 +30,13 @@ export default function RetailerDashboard() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') || location.state?.activeTab;
-    if (tabParam) {
-      setActiveTab(tabParam);
-    }
+    setActiveTab(tabParam || 'overview');
   }, [location]);
+
+  const handleTabChange = (tabName) => {
+    navigate(`?tab=${tabName}`);
+    setSidebarOpen(false);
+  };
 
   // state for alert messages
   const [alert, setAlert] = useState(null);
@@ -175,7 +178,7 @@ export default function RetailerDashboard() {
   // select product to edit
   const openEditProductView = (product) => {
     setEditingProduct(product);
-    setActiveTab('edit-product');
+    navigate('?tab=edit-product');
   };
 
   // helper calculations for total stats
@@ -194,7 +197,7 @@ export default function RetailerDashboard() {
 
       {/* sidebar navigation panel */}
       <aside className={`dashboard-sidebar ${sidebarOpen ? 'mobile-visible' : ''}`}>
-        <div className="sidebar-brand" onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }} style={{ cursor: 'pointer' }}>
+        <div className="sidebar-brand" onClick={() => handleTabChange('overview')} style={{ cursor: 'pointer' }}>
           <img src={logoBanner} alt="AgriMarket Logo" className="sidebar-logo-img" />
         </div>
 
@@ -217,7 +220,7 @@ export default function RetailerDashboard() {
         <ul className="sidebar-menu">
           <li>
             <button
-              onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('overview')}
               className={`sidebar-link ${activeTab === 'overview' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/graph.png" alt="" className="sidebar-link-img" />
@@ -226,7 +229,7 @@ export default function RetailerDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('products'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('products')}
               className={`sidebar-link ${['products', 'add-product', 'edit-product'].includes(activeTab) ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/shopping-bag.png" alt="" className="sidebar-link-img" />
@@ -235,7 +238,7 @@ export default function RetailerDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('orders'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('orders')}
               className={`sidebar-link ${activeTab === 'orders' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/delivery.png" alt="" className="sidebar-link-img" />
@@ -249,7 +252,7 @@ export default function RetailerDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('sales'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('sales')}
               className={`sidebar-link ${activeTab === 'sales' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/handshake.png" alt="" className="sidebar-link-img" />
@@ -258,7 +261,7 @@ export default function RetailerDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('revenue'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('revenue')}
               className={`sidebar-link ${activeTab === 'revenue' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/rupee.png" alt="" className="sidebar-link-img" />
@@ -267,7 +270,7 @@ export default function RetailerDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('profile'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('profile')}
               className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/add-user.png" alt="" className="sidebar-link-img" />
@@ -276,7 +279,7 @@ export default function RetailerDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('settings'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('settings')}
               className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/shield.png" alt="" className="sidebar-link-img" />
@@ -288,7 +291,7 @@ export default function RetailerDashboard() {
         <div className="sidebar-footer">
           <button
             onClick={() => {
-              setActiveTab('profile');
+              navigate('?tab=profile');
               setSidebarOpen(false);
               setTimeout(() => {
                 const element = document.querySelector('.two-factor-setup-card');
@@ -378,7 +381,7 @@ export default function RetailerDashboard() {
               products={products}
               totalRevenue={totalRevenue}
               revenueBalance={revenueBalance}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleTabChange}
               openEditProductView={openEditProductView}
             />
           )}
@@ -388,7 +391,7 @@ export default function RetailerDashboard() {
               products={products}
               setProducts={setProducts}
               activeTab={activeTab}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleTabChange}
               editingProduct={editingProduct}
               setEditingProduct={setEditingProduct}
               deletingProductId={deletingProductId}
