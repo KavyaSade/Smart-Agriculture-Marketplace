@@ -12,6 +12,8 @@ import PaymentCheckout from './pages/payment/paymentcheckout';
 import PaymentSuccess from './pages/payment/paymentsuccess';
 import PaymentFailure from './pages/payment/paymentfailure';
 import SessionTimeout from './components/SessionTimeout/SessionTimeout';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 import './styles/global.css';
 
 export default function App() {
@@ -20,16 +22,63 @@ export default function App() {
       <SessionTimeout />
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Register />} />
-        <Route path="/forgot-password" element={<ResetPassword />} />
-        <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
-        <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
-        <Route path="/retailer-dashboard" element={<RetailerDashboard />} />
-        <Route path="/admin-dashboard" element={<AdminDashboard />} />
-        <Route path="/payment/checkout" element={<PaymentCheckout />} />
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/failure" element={<PaymentFailure />} />
+        
+        {/* Public-only routes (redirects to dashboard if already logged in) */}
+        <Route path="/login" element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        } />
+        <Route path="/signup" element={
+          <PublicRoute>
+            <Register />
+          </PublicRoute>
+        } />
+        <Route path="/forgot-password" element={
+          <PublicRoute>
+            <ResetPassword />
+          </PublicRoute>
+        } />
+
+        {/* Protected Dashboard routes */}
+        <Route path="/farmer-dashboard" element={
+          <ProtectedRoute allowedRoles={['farmer']}>
+            <FarmerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/buyer-dashboard" element={
+          <ProtectedRoute allowedRoles={['buyer']}>
+            <BuyerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/retailer-dashboard" element={
+          <ProtectedRoute allowedRoles={['retailer']}>
+            <RetailerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin-dashboard" element={
+          <ProtectedRoute allowedRoles={['admin']}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
+
+        {/* Protected payment checkout routes */}
+        <Route path="/payment/checkout" element={
+          <ProtectedRoute allowedRoles={['buyer', 'retailer']}>
+            <PaymentCheckout />
+          </ProtectedRoute>
+        } />
+        <Route path="/payment/success" element={
+          <ProtectedRoute allowedRoles={['buyer', 'retailer']}>
+            <PaymentSuccess />
+          </ProtectedRoute>
+        } />
+        <Route path="/payment/failure" element={
+          <ProtectedRoute allowedRoles={['buyer', 'retailer']}>
+            <PaymentFailure />
+          </ProtectedRoute>
+        } />
+
         <Route path="*" element={<Landing />} />
       </Routes>
     </Router>

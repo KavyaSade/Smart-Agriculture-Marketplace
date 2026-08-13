@@ -31,15 +31,15 @@ export default function Login() {
       setSubmitMessage('Successfully logged in with Google!');
       setTimeout(() => {
         if (role === 'buyer') {
-          navigate('/buyer-dashboard');
+          navigate('/buyer-dashboard', { replace: true });
         } else if (role === 'farmer') {
-          navigate('/farmer-dashboard');
+          navigate('/farmer-dashboard', { replace: true });
         } else if (role === 'retailer') {
-          navigate('/retailer-dashboard');
+          navigate('/retailer-dashboard', { replace: true });
         } else if (role === 'admin') {
-          navigate('/admin-dashboard');
+          navigate('/admin-dashboard', { replace: true });
         } else {
-          navigate('/');
+          navigate('/', { replace: true });
         }
       }, 1500);
     } else {
@@ -103,15 +103,15 @@ export default function Login() {
       setSubmitMessage('Successfully logged in! Redirecting to marketplace...');
       setTimeout(() => {
         if (role === 'buyer') {
-          navigate('/buyer-dashboard');
+          navigate('/buyer-dashboard', { replace: true });
         } else if (role === 'farmer') {
-          navigate('/farmer-dashboard');
+          navigate('/farmer-dashboard', { replace: true });
         } else if (role === 'retailer') {
-          navigate('/retailer-dashboard');
+          navigate('/retailer-dashboard', { replace: true });
         } else if (role === 'admin') {
-          navigate('/admin-dashboard');
+          navigate('/admin-dashboard', { replace: true });
         } else {
-          navigate('/');
+          navigate('/', { replace: true });
         }
       }, 1500);
     } else {

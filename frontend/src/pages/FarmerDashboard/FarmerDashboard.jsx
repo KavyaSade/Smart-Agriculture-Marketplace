@@ -60,9 +60,7 @@ export default function FarmerDashboard() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') || location.state?.activeTab;
-    if (tabParam) {
-      setActiveTab(tabParam);
-    }
+    setActiveTab(tabParam || 'dashboard');
   }, [location]);
 
   const dropdownRef = useRef(null);
@@ -427,7 +425,7 @@ export default function FarmerDashboard() {
   };
 
   const handleTabChange = (tabName) => {
-    setActiveTab(tabName);
+    navigate(`?tab=${tabName}`);
     setSidebarOpen(false);
     fetchProductsAndOrders();
   };
@@ -446,7 +444,7 @@ export default function FarmerDashboard() {
       location: user?.fullName ? `${user.fullName} Farm` : 'My Farm',
       image: ''
     });
-    setActiveTab('add-product');
+    navigate('?tab=add-product');
     setSidebarOpen(false);
   };
 
@@ -466,7 +464,7 @@ export default function FarmerDashboard() {
       location: prod.location,
       image: prod.image
     });
-    setActiveTab('add-product');
+    navigate('?tab=add-product');
   };
 
   const handleInputChange = (e) => {
@@ -580,7 +578,7 @@ export default function FarmerDashboard() {
         );
         fetchProductsAndOrders();
         // Navigate back to the products list page.
-        setActiveTab('products');
+        navigate('?tab=products');
       } else {
         const errData = await res.json().catch(() => ({}));
         alert(`Failed to save product: ${errData.message || 'Server error (' + res.status + ')'}`);
@@ -836,7 +834,7 @@ export default function FarmerDashboard() {
         <div className="sidebar-footer">
           <button
             onClick={() => {
-              setActiveTab('profile');
+              navigate('?tab=profile');
               setSidebarOpen(false);
               setTimeout(() => {
                 const element = document.querySelector('.two-factor-setup-card');
