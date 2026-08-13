@@ -26,3 +26,6 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+# Credentials / Service Accounts
+backend/firebase-service-account.json
+
