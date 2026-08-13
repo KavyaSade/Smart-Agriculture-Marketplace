@@ -19,7 +19,7 @@ export default function Register() {
     if (result.success) {
       setSubmitMessage('Successfully registered and logged in with Google!');
       setTimeout(() => {
-        navigate('/', { replace: true });
+        navigate('/');
       }, 1500);
     } else {
       setSubmitMessage(result.error || 'Google Registration failed.');

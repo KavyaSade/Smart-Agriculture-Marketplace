@@ -1,9 +1,10 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigationType } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function PublicRoute({ children }) {
   const { user, loading } = useAuth();
+  const navType = useNavigationType();
 
   if (loading) {
     return (
@@ -34,7 +35,9 @@ export default function PublicRoute({ children }) {
     );
   }
 
-  if (user) {
+  // Only redirect authenticated users if they accessed this route directly (PUSH)
+  // If they reached it using browser Back/Forward (POP), let them stay on the page.
+  if (user && navType === 'PUSH') {
     if (user.role === 'farmer') return <Navigate to="/farmer-dashboard" replace />;
     if (user.role === 'buyer') return <Navigate to="/buyer-dashboard" replace />;
     if (user.role === 'retailer') return <Navigate to="/retailer-dashboard" replace />;
