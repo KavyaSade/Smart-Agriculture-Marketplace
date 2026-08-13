@@ -65,6 +65,40 @@
   max-width: 340px;
 }
 
+.footer-socials {
+  display: flex;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.footer-social-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(45, 106, 79, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.footer-social-link:hover {
+  background-color: #40916c;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(64, 145, 108, 0.2);
+}
+
+.footer-social-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  transition: filter 0.3s ease;
+}
+
+.footer-social-link.github-link:hover .footer-social-icon {
+  filter: brightness(0) invert(1);
+}
+
 .footer-title {
   font-size: 1.1rem;
   font-weight: 700;

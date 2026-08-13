@@ -78,7 +78,6 @@ export default function App() {
             <PaymentFailure />
           </ProtectedRoute>
         } />
-
         <Route path="*" element={<Landing />} />
       </Routes>
     </Router>
