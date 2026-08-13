@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Landing from './pages/Landing/Landing';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
@@ -14,11 +14,41 @@ import PaymentFailure from './pages/payment/paymentfailure';
 import SessionTimeout from './components/SessionTimeout/SessionTimeout';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import { useAuth } from './context/AuthContext';
 import './styles/global.css';
+
+function SessionGuard() {
+  const location = useLocation();
+  const { user, logout } = useAuth();
+  const prevPathRef = useRef(location.pathname);
+
+  useEffect(() => {
+    const securePaths = [
+      '/farmer-dashboard',
+      '/buyer-dashboard',
+      '/retailer-dashboard',
+      '/admin-dashboard',
+      '/payment'
+    ];
+
+    const wasSecure = securePaths.some(path => prevPathRef.current.startsWith(path));
+    const isSecure = securePaths.some(path => location.pathname.startsWith(path));
+
+    // If the user was on a secure path and navigated to a public path, log them out.
+    if (wasSecure && !isSecure && user) {
+      logout();
+    }
+
+    prevPathRef.current = location.pathname;
+  }, [location, user, logout]);
+
+  return null;
+}
 
 export default function App() {
   return (
     <Router>
+      <SessionGuard />
       <SessionTimeout />
       <Routes>
         <Route path="/" element={<Landing />} />
