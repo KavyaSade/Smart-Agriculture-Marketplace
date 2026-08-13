@@ -28,10 +28,13 @@ export default function AdminDashboard() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') || location.state?.activeTab;
-    if (tabParam) {
-      setActiveTab(tabParam);
-    }
+    setActiveTab(tabParam || 'overview');
   }, [location]);
+
+  const handleTabChange = (tabName) => {
+    navigate(`?tab=${tabName}`);
+    setSidebarOpen(false);
+  };
 
   // hide alert banners automatically
   useEffect(() => {
@@ -179,7 +182,7 @@ export default function AdminDashboard() {
 
       {/* admin sidebar navigation */}
       <aside className={`dashboard-sidebar ${sidebarOpen ? 'mobile-visible' : ''}`}>
-        <div className="sidebar-brand" onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }} style={{ cursor: 'pointer' }}>
+        <div className="sidebar-brand" onClick={() => handleTabChange('overview')} style={{ cursor: 'pointer' }}>
           <img src={logoBanner} alt="AgriMarket Logo" className="sidebar-logo-img" />
         </div>
 
@@ -202,7 +205,7 @@ export default function AdminDashboard() {
         <ul className="sidebar-menu">
           <li>
             <button
-              onClick={() => { setActiveTab('overview'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('overview')}
               className={`sidebar-link ${activeTab === 'overview' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/graph.png" alt="" className="sidebar-link-img" />
@@ -211,7 +214,7 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('users'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('users')}
               className={`sidebar-link ${activeTab === 'users' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/group.png" alt="" className="sidebar-link-img" />
@@ -220,7 +223,7 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('products'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('products')}
               className={`sidebar-link ${activeTab === 'products' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/wheat.png" alt="" className="sidebar-link-img" />
@@ -229,7 +232,7 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('orders'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('orders')}
               className={`sidebar-link ${activeTab === 'orders' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/delivery.png" alt="" className="sidebar-link-img" />
@@ -238,7 +241,7 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('payments'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('payments')}
               className={`sidebar-link ${activeTab === 'payments' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/rupee.png" alt="" className="sidebar-link-img" />
@@ -252,7 +255,7 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('profile'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('profile')}
               className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/group.png" alt="" className="sidebar-link-img" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
@@ -261,7 +264,7 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
-              onClick={() => { setActiveTab('settings'); setSidebarOpen(false); }}
+              onClick={() => handleTabChange('settings')}
               className={`sidebar-link ${activeTab === 'settings' ? 'active' : ''}`}
             >
               <img src="/src/assets/icons/shield.png" alt="" className="sidebar-link-img" />
@@ -335,7 +338,7 @@ export default function AdminDashboard() {
               products={products}
               orders={orders}
               platformEarnings={platformEarnings}
-              setActiveTab={setActiveTab}
+              setActiveTab={handleTabChange}
               setAlert={setAlert}
             />
           )}

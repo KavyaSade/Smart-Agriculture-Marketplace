@@ -44,9 +44,7 @@ export default function BuyerDashboard() {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') || location.state?.activeTab;
-    if (tabParam) {
-      setActiveTab(tabParam);
-    }
+    setActiveTab(tabParam || 'dashboard');
   }, [location]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -241,7 +239,7 @@ export default function BuyerDashboard() {
   };
 
   const handleTabChange = (tabName) => {
-    setActiveTab(tabName);
+    navigate(`?tab=${tabName}`);
     setSearchQuery('');
     setSidebarOpen(false);
     fetchProductsAndOrders();
@@ -468,7 +466,7 @@ export default function BuyerDashboard() {
         <div className="sidebar-footer">
           <button
             onClick={() => {
-              setActiveTab('profile');
+              navigate('?tab=profile');
               setSidebarOpen(false);
               setTimeout(() => {
                 const element = document.querySelector('.two-factor-setup-card');
@@ -567,7 +565,7 @@ export default function BuyerDashboard() {
 
                   <button 
                     onClick={() => {
-                      setActiveTab('profile');
+                      navigate('?tab=profile');
                       setIsDropdownOpen(false);
                     }} 
                     className="dropdown-item"
@@ -576,7 +574,7 @@ export default function BuyerDashboard() {
                   </button>
                   <button 
                     onClick={() => {
-                      setActiveTab('settings');
+                      navigate('?tab=settings');
                       setIsDropdownOpen(false);
                     }} 
                     className="dropdown-item"
