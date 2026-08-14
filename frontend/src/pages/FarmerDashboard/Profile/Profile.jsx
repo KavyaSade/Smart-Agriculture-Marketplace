@@ -329,7 +329,7 @@ const Profile = ({
                     className="form-input" 
                     value={profileFormInputs.farmName || ''}
                     onChange={(e) => setProfileFormInputs(prev => ({ ...prev, farmName: e.target.value }))}
-                    placeholder="e.g. Green Valley Farm"
+                    placeholder="Enter Farm Name"
                   />
                 </div>
 
@@ -341,7 +341,7 @@ const Profile = ({
                     className="form-input" 
                     value={profileFormInputs.experience || ''}
                     onChange={(e) => setProfileFormInputs(prev => ({ ...prev, experience: e.target.value }))}
-                    placeholder="e.g. 5 Years"
+                    placeholder="Enter Farming Experience"
                   />
                 </div>
 

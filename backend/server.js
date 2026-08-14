@@ -7,6 +7,7 @@ import orderRoutes from './routes/orders.js';
 import userRoutes from './routes/users.js';
 import paymentRoutes from './payment/payment.js';
 import notificationRoutes from './routes/notifications.js';
+import couponRoutes from './routes/coupons.js';
 import { connectDB } from './utils/db.js';
 
 // connect to database
@@ -31,6 +32,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // check endpoint
 app.get('/health', (req, res) => {

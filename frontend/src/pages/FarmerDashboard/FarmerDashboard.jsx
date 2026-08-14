@@ -38,6 +38,7 @@ import Orders from './Orders/Orders';
 import Analytics from './Analytics/Analytics';
 import Profile from './Profile/Profile';
 import SettingsTab from './Settings/Settings';
+import FarmerCoupons from './Coupons/FarmerCoupons';
 import Marketplace from './Marketplace/Marketplace';
 import AddProduct from './AddProduct/AddProduct';
 import FarmerReviews from './Reviews/FarmerReviews';
@@ -822,6 +823,15 @@ export default function FarmerDashboard() {
           </li>
           <li className="menu-item">
             <button
+              onClick={() => handleTabChange('coupons')}
+              className={`menu-link ${activeTab === 'coupons' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/rupee.png" alt="" className="sidebar-link-img" />
+              <span>My Coupons</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button
               onClick={() => handleTabChange('settings')}
               className={`menu-link ${activeTab === 'settings' ? 'active' : ''}`}
             >
@@ -880,7 +890,7 @@ export default function FarmerDashboard() {
             >
               <Menu size={22} />
             </button>
-            <h2 className="topnav-title">
+             <h2 className="topnav-title">
               {activeTab === 'dashboard' && "Farmer's Dashboard"}
               {activeTab === 'products' && 'Crop Inventory'}
               {activeTab === 'orders' && 'Orders Console'}
@@ -888,6 +898,7 @@ export default function FarmerDashboard() {
               {activeTab === 'profile' && 'Farmer Profile'}
               {activeTab === 'marketplace' && 'Crop Marketplace Catalog'}
               {activeTab === 'settings' && 'Account Settings'}
+              {activeTab === 'coupons' && 'My Coupons'}
             </h2>
             <p className="topnav-subtitle">
               {activeTab === 'dashboard' && `Dashboard Overview • Welcome back, ${profileData.firstName} ${profileData.lastName} • Store status: ${isStoreOpen ? 'Open' : 'Closed'}`}
@@ -897,6 +908,7 @@ export default function FarmerDashboard() {
               {activeTab === 'profile' && `Configure personal details, contact address, and farm sector.`}
               {activeTab === 'marketplace' && `Browse agricultural listings from other farmers and simulate orders.`}
               {activeTab === 'settings' && `Configure application theme, notifications preferences, and store operational status.`}
+              {activeTab === 'coupons' && `Create discounts for your own crops, configure minimum orders, and view usage performance.`}
             </p>
           </div>
           <div className="topnav-right">
@@ -1037,6 +1049,10 @@ export default function FarmerDashboard() {
             setIsDarkTheme={setIsDarkTheme}
             logActivity={logActivity}
           />
+        )}
+
+        {activeTab === 'coupons' && (
+          <FarmerCoupons />
         )}
 
         {activeTab === 'marketplace' && (

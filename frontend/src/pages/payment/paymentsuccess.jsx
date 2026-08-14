@@ -5,7 +5,7 @@ import './payment.css';
 export default function PaymentSuccess() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { cart, address, phone, checkoutId } = location.state || {};
+  const { cart, address, phone, checkoutId, couponCode } = location.state || {};
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +39,10 @@ export default function PaymentSuccess() {
             productId: item._id || item.id,
             quantity: item.quantity,
             buyerPhone: phone,
-            buyerAddress: address
+            buyerAddress: address,
+            couponCode,
+            checkoutId,
+            cart: cart.map(c => ({ id: c._id || c.id, quantity: c.quantity }))
           };
 
           await fetch('http://localhost:5000/api/orders', {
