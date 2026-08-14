@@ -101,9 +101,15 @@ export default function NotificationBell() {
       setupNotifications();
       fetchNotifications();
 
+      // poll notifications every 10 seconds for real time dashboard update
+      const interval = setInterval(() => {
+        fetchNotifications();
+      }, 10000);
+
       // Listen for foreground FCM pushes
+      let unsubscribe = null;
       if (messaging) {
-        const unsubscribe = onMessage(messaging, (payload) => {
+        unsubscribe = onMessage(messaging, (payload) => {
           console.log('Foreground push received:', payload);
           
           const newToast = {
@@ -127,7 +133,6 @@ export default function NotificationBell() {
             }
           }
 
-          
           fetchNotifications();
 
           // Auto-remove toast after 10 seconds
@@ -135,11 +140,12 @@ export default function NotificationBell() {
             setToasts((prev) => prev.filter(t => t.id !== newToast.id));
           }, 10000);
         });
-
-        return () => {
-          if (unsubscribe) unsubscribe();
-        };
       }
+
+      return () => {
+        clearInterval(interval);
+        if (unsubscribe) unsubscribe();
+      };
     }
   }, [user]);
 
@@ -253,10 +259,19 @@ export default function NotificationBell() {
         navigate('/admin-dashboard', { state: { activeTab: 'products' } });
       }
     } else if (refType === 'User') {
-      if (role === 'admin') {
-        navigate('/admin-dashboard', { state: { activeTab: 'users' } });
+      if (type === 'new_chat_message') {
+        // redirect to chat tab in dashboards
+        if (role === 'buyer') {
+          navigate('/buyer-dashboard', { state: { activeTab: 'chat' } });
+        } else if (role === 'farmer' || role === 'retailer') {
+          navigate('/farmer-dashboard', { state: { activeTab: 'chat' } });
+        }
       } else {
-        navigate('/profile');
+        if (role === 'admin') {
+          navigate('/admin-dashboard', { state: { activeTab: 'users' } });
+        } else {
+          navigate('/profile');
+        }
       }
     }
   };

@@ -42,6 +42,7 @@ import FarmerCoupons from './Coupons/FarmerCoupons';
 import Marketplace from './Marketplace/Marketplace';
 import AddProduct from './AddProduct/AddProduct';
 import FarmerReviews from './Reviews/FarmerReviews';
+import Chat from '../../components/Chat/Chat';
 
 export default function FarmerDashboard() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function FarmerDashboard() {
   const { user, loading, logout } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !localStorage.getItem('token')) {
       navigate('/login');
     }
   }, [user, loading, navigate]);
@@ -344,6 +345,9 @@ export default function FarmerDashboard() {
   // Initialize received orders list state as empty.
   const [orders, setOrders] = useState([]);
 
+  // state for storing unread chat messages count
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
   // Initialize activities log state.
   const [activities, setActivities] = useState([
     { id: 2, text: 'Listing Guntur Red Tomatoes stock updated to 400 Kg', type: 'inventory', time: '2 hours ago' },
@@ -376,6 +380,17 @@ export default function FarmerDashboard() {
       if (ordersRes.ok) {
         const ordersData = await ordersRes.json();
         setOrders(ordersData);
+      }
+
+      // fetch unread chat count
+      try {
+        const chatRes = await fetch('http://localhost:5000/api/chat/unread-count', { headers });
+        if (chatRes.ok) {
+          const chatData = await chatRes.json();
+          setUnreadChatCount(chatData.unreadCount || 0);
+        }
+      } catch (chatErr) {
+        console.error('error fetching unread chat count:', chatErr);
       }
     } catch (err) {
       console.error(err);
@@ -429,6 +444,9 @@ export default function FarmerDashboard() {
     navigate(`?tab=${tabName}`);
     setSidebarOpen(false);
     fetchProductsAndOrders();
+    if (tabName === 'chat') {
+      setUnreadChatCount(0);
+    }
   };
 
   // Set inputs to empty and navigate to add product page.
@@ -832,6 +850,20 @@ export default function FarmerDashboard() {
           </li>
           <li className="menu-item">
             <button
+              onClick={() => handleTabChange('chat')}
+              className={`menu-link ${activeTab === 'chat' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/chat.png" alt="" className="sidebar-link-img" />
+              <span>Chat</span>
+              {unreadChatCount > 0 && (
+                <span className="chat-unread-badge" style={{ backgroundColor: '#dc2626', color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '50%', marginLeft: 'auto' }}>
+                  {unreadChatCount}
+                </span>
+              )}
+            </button>
+          </li>
+          <li className="menu-item">
+            <button
               onClick={() => handleTabChange('settings')}
               className={`menu-link ${activeTab === 'settings' ? 'active' : ''}`}
             >
@@ -899,6 +931,7 @@ export default function FarmerDashboard() {
               {activeTab === 'marketplace' && 'Crop Marketplace Catalog'}
               {activeTab === 'settings' && 'Account Settings'}
               {activeTab === 'coupons' && 'My Coupons'}
+              {activeTab === 'chat' && 'Chat'}
             </h2>
             <p className="topnav-subtitle">
               {activeTab === 'dashboard' && `Dashboard Overview • Welcome back, ${profileData.firstName} ${profileData.lastName} • Store status: ${isStoreOpen ? 'Open' : 'Closed'}`}
@@ -909,6 +942,7 @@ export default function FarmerDashboard() {
               {activeTab === 'marketplace' && `Browse agricultural listings from other farmers and simulate orders.`}
               {activeTab === 'settings' && `Configure application theme, notifications preferences, and store operational status.`}
               {activeTab === 'coupons' && `Create discounts for your own crops, configure minimum orders, and view usage performance.`}
+              {activeTab === 'chat' && `Discuss orders, pricing and details directly with buyers.`}
             </p>
           </div>
           <div className="topnav-right">
@@ -1053,6 +1087,10 @@ export default function FarmerDashboard() {
 
         {activeTab === 'coupons' && (
           <FarmerCoupons />
+        )}
+
+        {activeTab === 'chat' && (
+          <Chat currentUser={user} />
         )}
 
         {activeTab === 'marketplace' && (

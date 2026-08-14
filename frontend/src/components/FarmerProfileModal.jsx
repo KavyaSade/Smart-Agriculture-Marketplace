@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, MapPin, Phone, Mail, Award, Leaf, ShoppingCart } from 'lucide-react';
 
-export default function FarmerProfileModal({ farmerEmail, onClose, handleAddToCart, onProductClick }) {
+export default function FarmerProfileModal({ farmerEmail, onClose, handleAddToCart, onProductClick, onStartChat }) {
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -164,6 +164,43 @@ export default function FarmerProfileModal({ farmerEmail, onClose, handleAddToCa
                 </div>
               </div>
             </div>
+
+            {/* direct chat button */}
+            {profile.id && onStartChat && (
+              <button
+                onClick={() => {
+                  onStartChat({
+                    _id: profile.id,
+                    fullName: profile.fullName,
+                    email: profile.email,
+                    profilePhoto: profile.profilePhoto
+                  });
+                  onClose();
+                }}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#40916c',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '0.75rem',
+                  fontSize: '0.95rem',
+                  fontFamily: 'inherit',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  transition: 'background-color 0.2s',
+                  textTransform: 'lowercase'
+                }}
+                className="hover:bg-emerald-800"
+              >
+                <span>chat with farmer</span>
+              </button>
+            )}
 
             {/* Active Crop Listings */}
             <div>

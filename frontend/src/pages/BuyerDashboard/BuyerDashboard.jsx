@@ -25,6 +25,7 @@ import Orders from './Orders/Orders';
 import Wishlist from './Wishlist/Wishlist';
 import Profile from './Profile/Profile';
 import SettingsTab from './Settings/Settings';
+import Chat from '../../components/Chat/Chat';
 
 export default function BuyerDashboard() {
   const navigate = useNavigate();
@@ -32,13 +33,21 @@ export default function BuyerDashboard() {
   const { user, loading, logout } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !localStorage.getItem('token')) {
       navigate('/login');
     }
   }, [user, loading, navigate]);
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  // state for storing selected farmer to chat with
+  const [selectedChatPartner, setSelectedChatPartner] = useState(null);
+
+  // handler to initiate chat and change active tab
+  const handleStartChat = (partner) => {
+    setSelectedChatPartner(partner);
+    handleTabChange('chat');
+  };
 
   // Sync tab with navigation state/query params
   useEffect(() => {
@@ -78,6 +87,9 @@ export default function BuyerDashboard() {
   // Initialize orders list state as empty.
   const [orders, setOrders] = useState([]);
 
+  // state for storing unread chat messages count
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
   // Fetch crop listings and placed orders from the backend API.
   const fetchProductsAndOrders = async () => {
     try {
@@ -95,6 +107,17 @@ export default function BuyerDashboard() {
         if (ordersRes.ok) {
           const ordersData = await ordersRes.json();
           setOrders(ordersData);
+        }
+
+        // fetch unread chat count
+        try {
+          const chatRes = await fetch('http://localhost:5000/api/chat/unread-count', { headers });
+          if (chatRes.ok) {
+            const chatData = await chatRes.json();
+            setUnreadChatCount(chatData.unreadCount || 0);
+          }
+        } catch (chatErr) {
+          console.error('error fetching unread chat count:', chatErr);
         }
       }
     } catch (err) {
@@ -243,6 +266,9 @@ export default function BuyerDashboard() {
     setSearchQuery('');
     setSidebarOpen(false);
     fetchProductsAndOrders();
+    if (tabName === 'chat') {
+      setUnreadChatCount(0);
+    }
   };
 
   const handleAddToCart = (crop) => {
@@ -461,6 +487,20 @@ export default function BuyerDashboard() {
               <span>Saved Crops</span>
             </button>
           </li>
+          <li className="menu-item">
+            <button 
+              onClick={() => handleTabChange('chat')} 
+              className={`menu-link ${activeTab === 'chat' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/chat.png" alt="" className="sidebar-link-img" />
+              <span>Chat</span>
+              {unreadChatCount > 0 && (
+                <span className="chat-unread-badge" style={{ backgroundColor: '#dc2626', color: '#ffffff', fontSize: '0.75rem', fontWeight: 'bold', padding: '2px 6px', borderRadius: '50%', marginLeft: 'auto' }}>
+                  {unreadChatCount}
+                </span>
+              )}
+            </button>
+          </li>
         </ul>
 
         <div className="sidebar-footer">
@@ -520,6 +560,7 @@ export default function BuyerDashboard() {
               {activeTab === 'wishlist' && 'My Saved Crops'}
               {activeTab === 'profile' && 'My Profile'}
               {activeTab === 'settings' && 'Account Settings'}
+              {activeTab === 'chat' && 'Chat'}
             </h2>
             <p className="topnav-subtitle">
               {activeTab === 'dashboard' && `Support local farming by buying organic produce direct.`}
@@ -529,6 +570,7 @@ export default function BuyerDashboard() {
               {activeTab === 'wishlist' && 'View crops you saved to buy or inspect later.'}
               {activeTab === 'profile' && 'Configure personal details, contact address, and photo.'}
               {activeTab === 'settings' && 'Manage your notifications and visual dashboard themes.'}
+              {activeTab === 'chat' && 'discuss crops, pricing and delivery directly with farmers.'}
             </p>
           </div>
 
@@ -623,6 +665,7 @@ export default function BuyerDashboard() {
             cart={cart}
             onGoToCart={() => handleTabChange('cart')}
             currentUser={user}
+            onStartChat={handleStartChat}
           />
         )}
 
@@ -675,6 +718,13 @@ export default function BuyerDashboard() {
             isDarkTheme={isDarkTheme}
             setIsDarkTheme={setIsDarkTheme}
             logActivity={logActivity}
+          />
+        )}
+
+        {activeTab === 'chat' && (
+          <Chat 
+            currentUser={user}
+            initialPartner={selectedChatPartner}
           />
         )}
       </main>

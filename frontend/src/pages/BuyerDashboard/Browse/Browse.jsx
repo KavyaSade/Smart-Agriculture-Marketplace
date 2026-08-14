@@ -15,7 +15,8 @@ const Browse = ({
   handleToggleWishlist,
   cart = [],
   onGoToCart,
-  currentUser
+  currentUser,
+  onStartChat
 }) => {
   // Modal states
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -258,16 +259,45 @@ const Browse = ({
 
                   <div style={{ borderTop: '1px solid rgba(82, 183, 136, 0.1)', paddingTop: '0.75rem', marginTop: 'auto' }}>
                     <div 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (crop.farmerEmail) {
-                          setSelectedFarmerEmail(crop.farmerEmail);
-                        }
-                      }}
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.45rem', fontSize: '0.85rem', color: '#7c8d84', cursor: 'pointer' }}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.45rem' }}
                     >
-                      <User size={14} />
-                      <span>Farmer: <strong style={{ textDecoration: 'underline', color: '#40916c' }}>{cropFarmerName}</strong></span>
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (crop.farmerEmail) {
+                            setSelectedFarmerEmail(crop.farmerEmail);
+                          }
+                        }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: '#7c8d84', cursor: 'pointer' }}
+                      >
+                        <User size={14} />
+                        <span>Farmer: <strong style={{ textDecoration: 'underline', color: '#40916c' }}>{cropFarmerName}</strong></span>
+                      </div>
+                      {crop.seller && onStartChat && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // start chat handler
+                            onStartChat({
+                              _id: crop.seller,
+                              fullName: cropFarmerName,
+                              email: crop.farmerEmail
+                            });
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#40916c',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                            padding: 0
+                          }}
+                        >
+                          chat
+                        </button>
+                      )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', fontSize: '0.85rem', color: '#7c8d84' }}>
                       <MapPin size={14} />
@@ -336,6 +366,7 @@ const Browse = ({
             setSelectedProduct(crop);
             setSelectedFarmerEmail(null);
           }}
+          onStartChat={onStartChat}
         />
       )}
     </div>

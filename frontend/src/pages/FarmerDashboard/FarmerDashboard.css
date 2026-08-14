@@ -140,6 +140,10 @@
   border-left-color: #40916c;
 }
 
+.menu-link:active {
+  transform: scale(0.97);
+}
+
 .sidebar-link-img {
   width: 20px;
   height: 20px;
