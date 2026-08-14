@@ -67,6 +67,26 @@ const orderSchema = new mongoose.Schema({
   seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
+  },
+  checkoutId: {
+    type: String
+  },
+  couponCode: {
+    type: String
+  },
+  couponId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Coupon'
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
+  originalAmount: {
+    type: Number
+  },
+  finalAmount: {
+    type: Number
   }
 }, {
   timestamps: true

@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import Order from '../models/orders.js';
 import Product from '../models/product.js';
+import Coupon from '../models/Coupon.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { sendPushNotification } from '../utils/fcm.js';
 import User from '../models/User.js';
+import { validateCouponForCart } from '../utils/couponHelper.js';
 
 const router = Router();
 
@@ -99,7 +101,7 @@ router.get('/farmer', authenticateToken, async (req, res) => {
 // Placing a new order and deducting stock level.
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    const { productId, quantity, buyerPhone, buyerAddress } = req.body;
+    const { productId, quantity, buyerPhone, buyerAddress, couponCode, checkoutId, cart } = req.body;
 
 
     if (!productId || !quantity || quantity <= 0) {
@@ -125,6 +127,68 @@ router.post('/', authenticateToken, async (req, res) => {
     }
     await product.save();
 
+    // Calculate coupon discount
+    let couponDetails = {
+      couponCode: undefined,
+      couponId: undefined,
+      discountAmount: 0,
+      originalAmount: product.price * quantity,
+      finalAmount: product.price * quantity,
+      checkoutId: checkoutId
+    };
+
+    if (couponCode) {
+      const coupon = await Coupon.findOne({ code: couponCode.trim().toUpperCase() });
+      if (!coupon) {
+        return res.status(400).json({ message: 'Coupon not found' });
+      }
+
+      // Check if this checkout session already incremented the coupon count
+      let alreadyConsumed = false;
+      if (checkoutId) {
+        alreadyConsumed = await Order.exists({ checkoutId, couponCode: coupon.code });
+      }
+
+      if (!alreadyConsumed) {
+        // Automatic update to increment usedCount safely
+        const updatedCoupon = await Coupon.findOneAndUpdate(
+          {
+            code: coupon.code,
+            isActive: true,
+            $or: [
+              { usageLimit: { $exists: false } },
+              { usageLimit: null },
+              { $expr: { $lt: ["$usedCount", "$usageLimit"] } }
+            ]
+          },
+          { $inc: { usedCount: 1 } },
+          { new: true }
+        );
+
+        if (!updatedCoupon) {
+          return res.status(400).json({ message: 'Coupon limit has been reached or is inactive' });
+        }
+      }
+
+      // Re-validate the cart to determine discount
+      const itemsToValidate = cart && Array.isArray(cart) ? cart : [{ id: productId, quantity }];
+      const validation = await validateCouponForCart(coupon, itemsToValidate, req.user.email);
+      
+      const currentItemSubtotal = product.price * quantity;
+      const currentItem = validation.eligibleItems.find(item => item.id === productId.toString());
+
+      if (currentItem) {
+        // Proportional discount distribution
+        const proportionalDiscount = validation.discountAmount * (currentItem.subtotal / validation.eligibleSubtotal);
+        const roundedProportionalDiscount = Math.round(proportionalDiscount * 100) / 100;
+        
+        couponDetails.couponCode = coupon.code;
+        couponDetails.couponId = coupon._id;
+        couponDetails.discountAmount = roundedProportionalDiscount;
+        couponDetails.finalAmount = Math.max(0, currentItemSubtotal - roundedProportionalDiscount);
+      }
+    }
+
     // order invoice.
     const trackingNumber = 'AGRI-TRK-' + Math.floor(100000 + Math.random() * 900000);
     const order = new Order({
@@ -133,7 +197,7 @@ router.post('/', authenticateToken, async (req, res) => {
       productId: product._id,
       quantity,
       unit: product.stockUnit || product.unit || 'kg',
-      amount: product.price * quantity,
+      amount: couponDetails.finalAmount,
       buyerEmail: req.user.email,
       buyerName: req.user.fullName || 'Buyer User',
       buyerPhone,
@@ -145,7 +209,14 @@ router.post('/', authenticateToken, async (req, res) => {
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
       status: 'pending',
       trackingNumber,
-      deliveryStatus: 'placed'
+      deliveryStatus: 'placed',
+      
+      checkoutId: couponDetails.checkoutId,
+      couponCode: couponDetails.couponCode,
+      couponId: couponDetails.couponId,
+      discountAmount: couponDetails.discountAmount,
+      originalAmount: couponDetails.originalAmount,
+      finalAmount: couponDetails.finalAmount
     });
 
     await order.save();
@@ -250,6 +321,18 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
         product.inStock = true;
         await product.save();
       }
+
+      // Restore coupon usage count if all items in the checkout session are cancelled
+      if (order.couponCode && order.checkoutId) {
+        const activeOrdersCount = await Order.countDocuments({
+          checkoutId: order.checkoutId,
+          status: { $ne: 'cancelled' },
+          _id: { $ne: order._id }
+        });
+        if (activeOrdersCount === 0) {
+          await Coupon.updateOne({ code: order.couponCode }, { $inc: { usedCount: -1 } });
+        }
+      }
     }
 
     // Update order status and deliveryStatus.
@@ -302,6 +385,18 @@ router.put('/:id', authenticateToken, async (req, res) => {
         product.stock = product.stock + order.quantity;
         product.inStock = true;
         await product.save();
+      }
+
+      // Restore coupon usage count if all items in the checkout session are cancelled
+      if (order.couponCode && order.checkoutId) {
+        const activeOrdersCount = await Order.countDocuments({
+          checkoutId: order.checkoutId,
+          status: { $ne: 'cancelled' },
+          _id: { $ne: order._id }
+        });
+        if (activeOrdersCount === 0) {
+          await Coupon.updateOne({ code: order.couponCode }, { $inc: { usedCount: -1 } });
+        }
       }
     }
 
