@@ -67,7 +67,10 @@ export async function validateCouponForCart(coupon, cartItems, buyerEmail) {
 
     // Check product eligibility
     const isProductEligible = coupon.applicableProducts && coupon.applicableProducts.length > 0
-      ? coupon.applicableProducts.some(id => id.toString() === itemId)
+      ? coupon.applicableProducts.some(p => {
+          const pId = p && typeof p === 'object' && p._id ? p._id.toString() : p.toString();
+          return pId === itemId;
+        })
       : true;
 
     // Check category eligibility
@@ -85,7 +88,10 @@ export async function validateCouponForCart(coupon, cartItems, buyerEmail) {
     }
 
     const isFarmerEligible = coupon.applicableFarmers && coupon.applicableFarmers.length > 0
-      ? coupon.applicableFarmers.some(id => id.toString() === sellerId)
+      ? coupon.applicableFarmers.some(f => {
+          const fId = f && typeof f === 'object' && f._id ? f._id.toString() : f.toString();
+          return fId === sellerId;
+        })
       : true;
 
     if (isProductEligible && isCategoryEligible && isFarmerEligible) {

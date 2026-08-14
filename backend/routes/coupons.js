@@ -198,7 +198,7 @@ router.post('/validate', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Missing coupon code or cart items.' });
     }
 
-    const coupon = await Coupon.findOne({ code: code.trim().toUpperCase() });
+    const coupon = await Coupon.findOne({ code: code.trim().toUpperCase() }).populate('applicableFarmers', 'fullName');
     if (!coupon) {
       return res.status(404).json({ message: 'Coupon not found' });
     }
@@ -229,7 +229,7 @@ router.post('/check-eligibility', authenticateToken, async (req, res) => {
     }
 
     // Find all active coupons
-    const coupons = await Coupon.find({ isActive: true });
+    const coupons = await Coupon.find({ isActive: true }).populate('applicableFarmers', 'fullName');
     const results = [];
 
     for (const coupon of coupons) {
