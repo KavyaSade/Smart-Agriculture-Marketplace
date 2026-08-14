@@ -14,6 +14,7 @@ import Orders from './Orders/Orders';
 import Payments from './Payments/Payments';
 import Profile from './Profile/Profile';
 import Settings from './Settings/Settings';
+import AdminCoupons from './Coupons/AdminCoupons';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -255,6 +256,15 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
+              onClick={() => handleTabChange('coupons')}
+              className={`sidebar-link ${activeTab === 'coupons' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/rupee.png" alt="" className="sidebar-link-img" />
+              <span>Coupons & Discounts</span>
+            </button>
+          </li>
+          <li>
+            <button
               onClick={() => handleTabChange('profile')}
               className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
             >
@@ -310,6 +320,7 @@ export default function AdminDashboard() {
                 {activeTab === 'products' && 'Moderate Product Catalog'}
                 {activeTab === 'orders' && 'Platform Orders Ledger'}
                 {activeTab === 'payments' && 'Payouts & platform wallet'}
+                {activeTab === 'coupons' && 'Coupons & Discounts Campaign Manager'}
                 {activeTab === 'profile' && 'Admin Profile'}
                 {activeTab === 'settings' && 'Global platform settings'}
                 {` • Logged in as Administrator • Commission Rate: `}
@@ -394,6 +405,12 @@ export default function AdminDashboard() {
             <Settings
               adminSettings={adminSettings}
               setAdminSettings={setAdminSettings}
+              setAlert={setAlert}
+            />
+          )}
+
+          {activeTab === 'coupons' && (
+            <AdminCoupons
               setAlert={setAlert}
             />
           )}
