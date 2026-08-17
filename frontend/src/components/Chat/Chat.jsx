@@ -100,8 +100,34 @@ export default function Chat({ currentUser, initialPartner }) {
   // load initial partner
   useEffect(() => {
     if (initialPartner) {
-      if (initialPartner._id || initialPartner.id) {
-        setActivePartner(initialPartner);
+      const partnerId = initialPartner._id || initialPartner.id;
+      if (partnerId) {
+        const match = contacts.find(c => (c._id || c.id || '').toString() === partnerId.toString());
+        if (match) {
+          setActivePartner(match);
+        } else {
+          const convMatch = conversations.find(c => c.partner && (c.partner._id || c.partner.id || '').toString() === partnerId.toString());
+          if (convMatch) {
+            setActivePartner(convMatch.partner);
+          } else {
+            // Fetch basic details from backend
+            const fetchPartnerDetails = async () => {
+              const token = localStorage.getItem('token');
+              try {
+                const res = await fetch(`http://localhost:5000/api/users/${partnerId}`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                  const data = await res.json();
+                  setActivePartner(data);
+                }
+              } catch (err) {
+                console.error('error fetching partner details:', err);
+              }
+            };
+            fetchPartnerDetails();
+          }
+        }
       } else if (initialPartner.email && contacts.length > 0) {
         const match = contacts.find(c => c.email === initialPartner.email);
         if (match) {
@@ -109,7 +135,7 @@ export default function Chat({ currentUser, initialPartner }) {
         }
       }
     }
-  }, [initialPartner, contacts]);
+  }, [initialPartner, contacts, conversations]);
 
   // fetch history on partner change
   useEffect(() => {

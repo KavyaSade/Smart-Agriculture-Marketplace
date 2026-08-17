@@ -63,6 +63,11 @@ export default function FarmerDashboard() {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab') || location.state?.activeTab;
     setActiveTab(tabParam || 'dashboard');
+
+    const partnerId = params.get('partnerId');
+    if (tabParam === 'chat' && partnerId) {
+      setSelectedChatPartner({ _id: partnerId });
+    }
   }, [location]);
 
   const dropdownRef = useRef(null);

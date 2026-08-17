@@ -52,23 +52,23 @@ try {
       redirectUrl = `/buyer-dashboard?tab=orders&id=${referenceId}`;
     }
 
-    const targetUrl = clickAction || redirectUrl;
+    const resolvedUrl = new URL(clickAction || redirectUrl, self.location.origin).href;
 
     event.waitUntil(
       clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
         for (let i = 0; i < windowClients.length; i++) {
           const client = windowClients[i];
-          if (client.url && 'focus' in client) {
+          if (client.url && new URL(client.url).origin === self.location.origin && 'focus' in client) {
             return client.focus().then(() => {
               if (client.navigate) {
-                return client.navigate(targetUrl);
+                return client.navigate(resolvedUrl);
               }
             });
           }
         }
         
         if (clients.openWindow) {
-          return clients.openWindow(targetUrl);
+          return clients.openWindow(resolvedUrl);
         }
       })
     );

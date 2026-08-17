@@ -133,11 +133,57 @@ export default function NotificationBell() {
           // Show native desktop notification only if the app is in the background (tab not active)
           if (Notification.permission === 'granted' && document.visibilityState !== 'visible') {
             try {
-              new Notification(payload.notification?.title || 'AgriMarket', {
+              const notification = new Notification(payload.notification?.title || 'AgriMarket', {
                 body: payload.notification?.body || '',
                 icon: '/favicon.png',
-                tag: payload.data?.type || 'agrimarket'
+                tag: payload.data?.type || 'agrimarket',
+                data: payload.data || {}
               });
+
+              notification.onclick = () => {
+                window.focus();
+                notification.close();
+
+                const data = payload.data || {};
+                const refId = data.referenceId || data.senderId;
+                const refType = data.referenceType;
+                const type = data.type;
+                const role = user?.role;
+
+                if (refType === 'Order' && refId) {
+                  if (role === 'buyer') {
+                    navigate(`/buyer-dashboard?tab=orders&id=${refId}`);
+                  } else if (role === 'farmer' || role === 'retailer') {
+                    navigate(`/farmer-dashboard?tab=orders&id=${refId}`);
+                  }
+                } else if (refType === 'Product') {
+                  if (role === 'farmer' || role === 'retailer') {
+                    if (type === 'new_product_review') {
+                      navigate(`/farmer-dashboard?tab=reviews`);
+                    } else {
+                      navigate(`/farmer-dashboard?tab=products`);
+                    }
+                  } else if (role === 'admin') {
+                    navigate(`/admin-dashboard?tab=products`);
+                  }
+                } else if (refType === 'User') {
+                  if (type === 'new_chat_message' && refId) {
+                    if (role === 'buyer') {
+                      navigate(`/buyer-dashboard?tab=chat&partnerId=${refId}`);
+                    } else if (role === 'farmer' || role === 'retailer') {
+                      navigate(`/farmer-dashboard?tab=chat&partnerId=${refId}`);
+                    }
+                  } else {
+                    if (role === 'admin') {
+                      navigate(`/admin-dashboard?tab=users`);
+                    } else if (role === 'buyer') {
+                      navigate(`/buyer-dashboard?tab=profile`);
+                    } else if (role === 'farmer' || role === 'retailer') {
+                      navigate(`/farmer-dashboard?tab=profile`);
+                    }
+                  }
+                }
+              };
             } catch (err) {
               console.warn('Failed to display native notification:', err);
             }
@@ -271,17 +317,19 @@ export default function NotificationBell() {
       }
     } else if (refType === 'User') {
       if (type === 'new_chat_message') {
-        // redirect to chat tab in dashboards
+        // redirect to chat tab in dashboards with partnerId
         if (role === 'buyer') {
-          navigate('/buyer-dashboard', { state: { activeTab: 'chat' } });
+          navigate(`/buyer-dashboard?tab=chat&partnerId=${refId}`);
         } else if (role === 'farmer' || role === 'retailer') {
-          navigate('/farmer-dashboard', { state: { activeTab: 'chat' } });
+          navigate(`/farmer-dashboard?tab=chat&partnerId=${refId}`);
         }
       } else {
         if (role === 'admin') {
           navigate('/admin-dashboard', { state: { activeTab: 'users' } });
-        } else {
-          navigate('/profile');
+        } else if (role === 'buyer') {
+          navigate('/buyer-dashboard?tab=profile');
+        } else if (role === 'farmer' || role === 'retailer') {
+          navigate('/farmer-dashboard?tab=profile');
         }
       }
     }

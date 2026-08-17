@@ -29,6 +29,13 @@ router.post('/fcm-token', authenticateToken, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
+
+    // Remove this token from all other users first to prevent duplicate delivery
+    await User.updateMany(
+      { _id: { $ne: user._id }, fcmTokens: token },
+      { $pull: { fcmTokens: token } }
+    );
+
     if (!user.fcmTokens) {
       user.fcmTokens = [];
     }
@@ -292,6 +299,20 @@ router.get('/farmer/:email/reviews', async (req, res) => {
     res.status(200).json(reviews);
   } catch (error) {
     console.error('Error fetching farmer reviews:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Retrieve a user's basic info by ID (Authenticated)
+router.get('/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id, 'fullName email profilePhoto role');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user basic info:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

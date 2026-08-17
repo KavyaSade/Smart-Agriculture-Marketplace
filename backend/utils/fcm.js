@@ -117,19 +117,59 @@ export async function sendPushNotification(recipientId, {
     // Send push notification to each registered device token
     const sendPromises = tokens.map(async (token) => {
       try {
+        let calculatedClickAction = '/';
+        const role = recipient.role;
+
+        if (referenceType === 'Order' && referenceId) {
+          if (role === 'buyer') {
+            calculatedClickAction = `/buyer-dashboard?tab=orders&id=${referenceId}`;
+          } else if (role === 'farmer' || role === 'retailer') {
+            calculatedClickAction = `/farmer-dashboard?tab=orders&id=${referenceId}`;
+          }
+        } else if (referenceType === 'Product') {
+          if (role === 'farmer' || role === 'retailer') {
+            if (type === 'new_product_review') {
+              calculatedClickAction = `/farmer-dashboard?tab=reviews`;
+            } else {
+              calculatedClickAction = `/farmer-dashboard?tab=products`;
+            }
+          } else if (role === 'admin') {
+            calculatedClickAction = `/admin-dashboard?tab=products`;
+          }
+        } else if (referenceType === 'User') {
+          if (type === 'new_chat_message' && referenceId) {
+            if (role === 'buyer') {
+              calculatedClickAction = `/buyer-dashboard?tab=chat&partnerId=${referenceId}`;
+            } else if (role === 'farmer' || role === 'retailer') {
+              calculatedClickAction = `/farmer-dashboard?tab=chat&partnerId=${referenceId}`;
+            }
+          } else {
+            if (role === 'admin') {
+              calculatedClickAction = `/admin-dashboard?tab=users`;
+            } else if (role === 'buyer') {
+              calculatedClickAction = `/buyer-dashboard?tab=profile`;
+            } else if (role === 'farmer' || role === 'retailer') {
+              calculatedClickAction = `/farmer-dashboard?tab=profile`;
+            }
+          }
+        }
+
         const message = {
           token,
           notification: {
             title,
             body
           },
+          webpush: {
+            fcm_options: {
+              link: calculatedClickAction
+            }
+          },
           data: {
             type,
             referenceId: referenceId || '',
             referenceType: referenceType || '',
-            click_action: referenceType === 'Order' && referenceId 
-              ? `/buyer-dashboard?tab=orders&id=${referenceId}`
-              : '/'
+            click_action: calculatedClickAction
           }
         };
         await messaging.send(message);
