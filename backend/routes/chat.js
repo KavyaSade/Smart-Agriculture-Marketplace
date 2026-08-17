@@ -4,6 +4,26 @@ import Message from '../models/Message.js';
 import User from '../models/User.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { sendPushNotification } from '../utils/fcm.js';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+
+const uploadDir = 'uploads/';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
 
 // express router setup
 const router = Router();
@@ -142,6 +162,24 @@ router.get('/messages/:otherUserId', authenticateToken, async (req, res) => {
   }
 });
 
+// Upload attachment file (image or document)
+router.post('/upload', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'no file uploaded' });
+    }
+    // Return relative path, fileName, and fileType
+    res.status(200).json({
+      url: req.file.path.replace(/\\/g, '/'), // normalization for windows paths
+      fileName: req.file.originalname,
+      fileType: req.file.mimetype
+    });
+  } catch (error) {
+    console.error('error uploading file:', error);
+    res.status(500).json({ message: 'failed to upload file' });
+  }
+});
+
 // Stream file attachment
 router.get('/messages/:messageId/file', async (req, res) => {
   try {
@@ -149,11 +187,24 @@ router.get('/messages/:messageId/file', async (req, res) => {
     if (!message || !message.file) {
       return res.status(404).json({ message: 'file not found' });
     }
-    const base64Data = message.file.split(';base64,').pop();
-    const fileBuffer = Buffer.from(base64Data, 'base64');
-    res.setHeader('Content-Type', message.fileType || 'application/octet-stream');
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(message.fileName || 'file')}"`);
-    res.send(fileBuffer);
+
+    // Support both new disk-based files and legacy base64 strings
+    if (message.file.startsWith('data:') || message.file.includes(';base64,')) {
+      const base64Data = message.file.split(';base64,').pop();
+      const fileBuffer = Buffer.from(base64Data, 'base64');
+      res.setHeader('Content-Type', message.fileType || 'application/octet-stream');
+      res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(message.fileName || 'file')}"`);
+      res.send(fileBuffer);
+    } else {
+      const filePath = path.resolve(message.file);
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', message.fileType || 'application/octet-stream');
+        res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(message.fileName || 'file')}"`);
+        res.sendFile(filePath);
+      } else {
+        res.status(404).json({ message: 'file not found on disk' });
+      }
+    }
   } catch (error) {
     res.status(500).json({ message: 'error retrieving file' });
   }
@@ -166,11 +217,23 @@ router.get('/messages/:messageId/image', async (req, res) => {
     if (!message || !message.image) {
       return res.status(404).json({ message: 'image not found' });
     }
-    const base64Data = message.image.split(';base64,').pop();
-    const imageBuffer = Buffer.from(base64Data, 'base64');
-    const mimeType = message.image.split(';')[0].split(':')[1] || 'image/jpeg';
-    res.setHeader('Content-Type', mimeType);
-    res.send(imageBuffer);
+
+    // Support both new disk-based images and legacy base64 strings
+    if (message.image.startsWith('data:') || message.image.includes(';base64,')) {
+      const base64Data = message.image.split(';base64,').pop();
+      const imageBuffer = Buffer.from(base64Data, 'base64');
+      const mimeType = message.image.split(';')[0].split(':')[1] || 'image/jpeg';
+      res.setHeader('Content-Type', mimeType);
+      res.send(imageBuffer);
+    } else {
+      const filePath = path.resolve(message.image);
+      if (fs.existsSync(filePath)) {
+        res.setHeader('Content-Type', message.fileType || 'image/jpeg');
+        res.sendFile(filePath);
+      } else {
+        res.status(404).json({ message: 'image not found on disk' });
+      }
+    }
   } catch (error) {
     res.status(500).json({ message: 'error retrieving image' });
   }
