@@ -17,8 +17,14 @@ try {
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Background message received:', payload);
 
-    const title = payload.notification?.title || 'Smart Agriculture Marketplace';
-    const body = payload.notification?.body || '';
+    // If payload contains a notification block, Firebase FCM SDK automatically displays it.
+    if (payload.notification) {
+      console.log('[firebase-messaging-sw.js] Automatic FCM notification present. Skipping manual display to prevent duplication.');
+      return;
+    }
+
+    const title = payload.data?.title || 'Smart Agriculture Marketplace';
+    const body = payload.data?.body || '';
     const icon = '/favicon.png';
 
     const notificationOptions = {

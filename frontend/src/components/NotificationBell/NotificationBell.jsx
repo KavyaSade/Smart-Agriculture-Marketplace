@@ -101,9 +101,19 @@ export default function NotificationBell() {
       setupNotifications();
       fetchNotifications();
 
-      // poll notifications every 10 seconds for real time dashboard update
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          fetchNotifications();
+        }
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      // poll notifications every 10 seconds for real time dashboard update when tab is active
       const interval = setInterval(() => {
-        fetchNotifications();
+        if (document.visibilityState === 'visible') {
+          fetchNotifications();
+        }
       }, 10000);
 
       // Listen for foreground FCM pushes
@@ -120,8 +130,8 @@ export default function NotificationBell() {
           };
           setToasts((prev) => [newToast, ...prev]);
 
-          // Show native desktop notification
-          if (Notification.permission === 'granted') {
+          // Show native desktop notification only if the app is in the background (tab not active)
+          if (Notification.permission === 'granted' && document.visibilityState !== 'visible') {
             try {
               new Notification(payload.notification?.title || 'AgriMarket', {
                 body: payload.notification?.body || '',
@@ -144,6 +154,7 @@ export default function NotificationBell() {
 
       return () => {
         clearInterval(interval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
         if (unsubscribe) unsubscribe();
       };
     }
