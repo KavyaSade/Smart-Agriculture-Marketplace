@@ -52,7 +52,9 @@ const io = new Server(server, {
   cors: {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
-  }
+  },
+  maxHttpBufferSize: 5e7, // 50MB limit
+  pingTimeout: 60000 // 60s timeout
 });
 
 // socket.io connection logic
@@ -63,13 +65,16 @@ io.on('connection', (socket) => {
   });
 
   // handle sending a message
-  socket.on('sendMessage', async ({ senderId, receiverId, text, image }) => {
+  socket.on('sendMessage', async ({ senderId, receiverId, text, image, file, fileName, fileType }) => {
     try {
       const message = new Message({
         sender: senderId,
         receiver: receiverId,
         text: text || '',
-        image: image || null
+        image: image || null,
+        file: file || null,
+        fileName: fileName || null,
+        fileType: fileType || null
       });
       await message.save();
 
@@ -81,7 +86,10 @@ io.on('connection', (socket) => {
       try {
         const senderUser = await User.findById(senderId);
         const senderName = senderUser ? senderUser.fullName : 'Someone';
-        const notificationText = text ? text : 'sent an image';
+        let notificationText = text ? text : 'sent an image';
+        if (!text && file) {
+          notificationText = `sent a file: ${fileName}`;
+        }
         
         await sendPushNotification(receiverId, {
           title: `New Message from ${senderName}`,

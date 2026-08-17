@@ -20,6 +20,18 @@ const messageSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  file: {
+    type: String,
+    default: null
+  },
+  fileName: {
+    type: String,
+    default: null
+  },
+  fileType: {
+    type: String,
+    default: null
+  },
   isRead: {
     type: Boolean,
     default: false
@@ -29,6 +41,11 @@ const messageSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+
+// Add database indexes for high-speed chat queries
+messageSchema.index({ sender: 1, receiver: 1, createdAt: -1 });
+messageSchema.index({ receiver: 1, sender: 1, createdAt: -1 });
+messageSchema.index({ receiver: 1, isRead: 1 });
 
 const Message = mongoose.model('Message', messageSchema);
 

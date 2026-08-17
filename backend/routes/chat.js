@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import Message from '../models/Message.js';
 import User from '../models/User.js';
 import { authenticateToken } from '../middleware/auth.js';
@@ -23,40 +24,81 @@ router.get('/contacts', authenticateToken, async (req, res) => {
 router.get('/conversations', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    // find unique receivers/senders we chatted with
-    const senders = await Message.distinct('sender', { receiver: userId });
-    const receivers = await Message.distinct('receiver', { sender: userId });
+    const userIdObj = new mongoose.Types.ObjectId(userId);
 
-    // simple array merge and deduplication
-    const allPartners = senders.concat(receivers).map(id => id.toString());
-    const partnerIds = allPartners.filter((id, index) => allPartners.indexOf(id) === index);
+    // Fetch conversations list
+    const conversations = await Message.aggregate([
+      {
+        $match: {
+          $or: [
+            { sender: userIdObj },
+            { receiver: userIdObj }
+          ]
+        }
+      },
+      {
+        $sort: { createdAt: -1 }
+      },
+      {
+        $group: {
+          _id: {
+            $cond: [
+              { $eq: [ "$sender", userIdObj ] },
+              "$receiver",
+              "$sender"
+            ]
+          },
+          lastMessageText: { $first: "$text" },
+          lastMessageImage: { $first: "$image" },
+          lastMessageFile: { $first: "$file" },
+          lastMessageTime: { $first: "$createdAt" },
+          unreadCount: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: [ "$receiver", userIdObj ] },
+                    { $eq: [ "$isRead", false ] }
+                  ]
+                },
+                1,
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
 
+    const partnerIds = conversations.map(c => c._id);
     const partners = await User.find({ _id: { $in: partnerIds } }, 'fullName email profilePhoto role');
 
-    const conversations = await Promise.all(partners.map(async (partner) => {
-      const lastMsg = await Message.findOne({
-        $or: [
-          { sender: userId, receiver: partner._id },
-          { sender: partner._id, receiver: userId }
-        ]
-      }).sort({ createdAt: -1 });
+    const partnerMap = {};
+    partners.forEach(p => {
+      partnerMap[p._id.toString()] = p;
+    });
 
-      const unreadCount = await Message.countDocuments({
-        sender: partner._id,
-        receiver: userId,
-        isRead: false
-      });
+    const result = conversations
+      .map(c => {
+        const partner = partnerMap[c._id.toString()];
+        if (!partner) return null;
 
-      return {
-        partner,
-        unreadCount,
-        lastMessage: lastMsg ? (lastMsg.text || 'photo') : '',
-        lastMessageTime: lastMsg ? lastMsg.createdAt : null
-      };
-    }));
+        let lastMsgText = '';
+        if (c.lastMessageText) lastMsgText = c.lastMessageText;
+        else if (c.lastMessageImage) lastMsgText = 'photo';
+        else if (c.lastMessageFile) lastMsgText = 'document';
 
-    conversations.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
-    res.status(200).json(conversations);
+        return {
+          partner,
+          unreadCount: c.unreadCount,
+          lastMessage: lastMsgText,
+          lastMessageTime: c.lastMessageTime
+        };
+      })
+      .filter(Boolean);
+
+    result.sort((a, b) => (b.lastMessageTime || 0) - (a.lastMessageTime || 0));
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: 'failed to fetch conversations' });
   }
@@ -78,10 +120,59 @@ router.get('/messages/:otherUserId', authenticateToken, async (req, res) => {
         { sender: userId, receiver: otherUserId },
         { sender: otherUserId, receiver: userId }
       ]
-    }).sort({ createdAt: 1 });
-    res.status(200).json(messages);
+    })
+    .sort({ createdAt: -1 })
+    .limit(50);
+
+    // Use stream URLs for attachments
+    const optimized = messages.map(msg => {
+      const obj = msg.toObject();
+      if (obj.file) {
+        obj.file = `http://localhost:5000/api/chat/messages/${obj._id}/file`;
+      }
+      if (obj.image) {
+        obj.image = `http://localhost:5000/api/chat/messages/${obj._id}/image`;
+      }
+      return obj;
+    });
+
+    res.status(200).json(optimized.reverse());
   } catch (error) {
     res.status(500).json({ message: 'failed to fetch messages' });
+  }
+});
+
+// Stream file attachment
+router.get('/messages/:messageId/file', async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.messageId);
+    if (!message || !message.file) {
+      return res.status(404).json({ message: 'file not found' });
+    }
+    const base64Data = message.file.split(';base64,').pop();
+    const fileBuffer = Buffer.from(base64Data, 'base64');
+    res.setHeader('Content-Type', message.fileType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(message.fileName || 'file')}"`);
+    res.send(fileBuffer);
+  } catch (error) {
+    res.status(500).json({ message: 'error retrieving file' });
+  }
+});
+
+// Stream image attachment
+router.get('/messages/:messageId/image', async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.messageId);
+    if (!message || !message.image) {
+      return res.status(404).json({ message: 'image not found' });
+    }
+    const base64Data = message.image.split(';base64,').pop();
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+    const mimeType = message.image.split(';')[0].split(':')[1] || 'image/jpeg';
+    res.setHeader('Content-Type', mimeType);
+    res.send(imageBuffer);
+  } catch (error) {
+    res.status(500).json({ message: 'error retrieving image' });
   }
 });
 
@@ -100,18 +191,21 @@ router.get('/unread-count', authenticateToken, async (req, res) => {
 router.post('/messages', authenticateToken, async (req, res) => {
   try {
     const sender = req.user.id;
-    const { receiver, text, image } = req.body;
+    const { receiver, text, image, file, fileName, fileType } = req.body;
     if (!receiver) {
       return res.status(400).json({ message: 'receiver is required' });
     }
-    if (!text && !image) {
-      return res.status(400).json({ message: 'text or image is required' });
+    if (!text && !image && !file) {
+      return res.status(400).json({ message: 'text, image or file is required' });
     }
     const message = new Message({
       sender,
       receiver,
       text,
-      image
+      image,
+      file,
+      fileName,
+      fileType
     });
     await message.save();
 
@@ -119,7 +213,10 @@ router.post('/messages', authenticateToken, async (req, res) => {
     try {
       const senderUser = await User.findById(sender);
       const senderName = senderUser ? senderUser.fullName : 'Someone';
-      const notificationText = text ? text : 'sent an image';
+      let notificationText = text ? text : 'sent an image';
+      if (!text && file) {
+        notificationText = `sent a file: ${fileName}`;
+      }
       await sendPushNotification(receiver, {
         title: `New Message from ${senderName}`,
         body: notificationText,

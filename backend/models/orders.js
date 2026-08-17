@@ -92,6 +92,12 @@ const orderSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Add database indexes for high-speed order queries
+orderSchema.index({ farmerEmail: 1 });
+orderSchema.index({ buyerEmail: 1 });
+orderSchema.index({ seller: 1 });
+orderSchema.index({ status: 1 });
+
 const Order = mongoose.model('Order', orderSchema);
 
 export default Order;

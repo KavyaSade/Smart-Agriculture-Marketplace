@@ -76,6 +76,11 @@ const productSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Add database indexes for high-speed crop queries
+productSchema.index({ farmerEmail: 1 });
+productSchema.index({ seller: 1 });
+productSchema.index({ status: 1 });
+
 const Product = mongoose.model('Product', productSchema);
 
 export default Product;
