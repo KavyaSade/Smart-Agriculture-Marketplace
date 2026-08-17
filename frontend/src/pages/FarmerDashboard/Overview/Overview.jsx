@@ -2,7 +2,7 @@ import React from 'react';
 import { IndianRupee, Truck, Package } from 'lucide-react';
 import './Overview.css';
 
-const Overview = ({ stats, orders = [], products = [], handleTabChange, warningProducts = [] }) => {
+const Overview = ({ stats, orders = [], products = [], handleTabChange, warningProducts = [], onStartChat }) => {
   // 1. Filtering out cancelled orders for summary calculations
   const validOrders = orders.filter(o => o.status !== 'cancelled');
   const totalRevenue = validOrders.reduce((sum, o) => sum + Number(o.amount || 0), 0);
@@ -101,7 +101,15 @@ const Overview = ({ stats, orders = [], products = [], handleTabChange, warningP
                 {orders.slice(0, 4).map((order) => (
                   <tr key={order.id}>
                     <td><strong>{order.id}</strong></td>
-                    <td>{order.buyerName}</td>
+                    <td>
+                      <span 
+                        onClick={() => onStartChat && onStartChat({ email: order.buyerEmail, fullName: order.buyerName, role: 'buyer' })}
+                        style={{ cursor: 'pointer', color: '#2d6a4f', textDecoration: 'underline', fontWeight: 'bold' }}
+                        title="Click to Chat with Buyer"
+                      >
+                        {order.buyerName}
+                      </span>
+                    </td>
                     <td>{order.productName} (x{order.quantity})</td>
                     <td><span className="order-amount-val">₹{order.amount.toLocaleString()}</span></td>
                     <td>

@@ -348,6 +348,15 @@ export default function FarmerDashboard() {
   // state for storing unread chat messages count
   const [unreadChatCount, setUnreadChatCount] = useState(0);
 
+  // state for storing selected buyer to chat with
+  const [selectedChatPartner, setSelectedChatPartner] = useState(null);
+
+  // handler to initiate chat and change active tab
+  const handleStartChat = (partner) => {
+    setSelectedChatPartner(partner);
+    handleTabChange('chat');
+  };
+
   // Initialize activities log state.
   const [activities, setActivities] = useState([
     { id: 2, text: 'Listing Guntur Red Tomatoes stock updated to 400 Kg', type: 'inventory', time: '2 hours ago' },
@@ -1023,6 +1032,7 @@ export default function FarmerDashboard() {
             products={products}
             handleTabChange={handleTabChange}
             warningProducts={warningProducts}
+            onStartChat={handleStartChat}
           />
         )}
 
@@ -1050,6 +1060,7 @@ export default function FarmerDashboard() {
             handleOrderShip={handleOrderShip}
             handleOrderOutForDelivery={handleOrderOutForDelivery}
             handleOrderDeliver={handleOrderDeliver}
+            onStartChat={handleStartChat}
           />
         )}
 
@@ -1092,7 +1103,10 @@ export default function FarmerDashboard() {
         )}
 
         {activeTab === 'chat' && (
-          <Chat currentUser={user} />
+          <Chat 
+            currentUser={user}
+            initialPartner={selectedChatPartner}
+          />
         )}
 
         {activeTab === 'marketplace' && (

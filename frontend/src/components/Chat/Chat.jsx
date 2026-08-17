@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import './Chat.css';
 
-const QUICK_EMOJIS = ['😊', '😂', '👍', '❤️', '🌱', '🌾', '🤝', '😮'];
-
 export default function Chat({ currentUser, initialPartner }) {
   // state variables
   const [conversations, setConversations] = useState([]);
@@ -12,7 +10,9 @@ export default function Chat({ currentUser, initialPartner }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [conversationsLoading, setConversationsLoading] = useState(true);
 
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
@@ -36,6 +36,8 @@ export default function Chat({ currentUser, initialPartner }) {
       }
     } catch (err) {
       console.error('error fetching conversations:', err);
+    } finally {
+      setConversationsLoading(false);
     }
   };
 
@@ -80,9 +82,16 @@ export default function Chat({ currentUser, initialPartner }) {
   // load initial partner
   useEffect(() => {
     if (initialPartner) {
-      setActivePartner(initialPartner);
+      if (initialPartner._id || initialPartner.id) {
+        setActivePartner(initialPartner);
+      } else if (initialPartner.email && contacts.length > 0) {
+        const match = contacts.find(c => c.email === initialPartner.email);
+        if (match) {
+          setActivePartner(match);
+        }
+      }
     }
-  }, [initialPartner]);
+  }, [initialPartner, contacts]);
 
   // fetch history on partner change
   useEffect(() => {
@@ -145,11 +154,37 @@ export default function Chat({ currentUser, initialPartner }) {
     setSelectedImage(null);
   };
 
-  // append emoji to text input
-  const handleEmojiClick = (emoji) => {
-    setInputText((prev) => prev + emoji);
+  // convert file to base64 string
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    const isImage = file.type ? file.type.startsWith('image/') : false;
+    if (isImage) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result);
+        setSelectedFile(null);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedFile({
+          data: reader.result,
+          name: file.name,
+          type: file.type || 'application/octet-stream'
+        });
+        setSelectedImage(null);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
+  // remove file attachment
+  const handleClearFile = () => {
+    setSelectedFile(null);
+  };
   // delete single message
   const handleDeleteMessage = async (messageId) => {
     if (!window.confirm('are you sure you want to delete this message?')) return;
@@ -196,7 +231,7 @@ export default function Chat({ currentUser, initialPartner }) {
   // send chat message
   const handleSendMessage = (e) => {
     if (e) e.preventDefault();
-    if (!inputText.trim() && !selectedImage) return;
+    if (!inputText.trim() && !selectedImage && !selectedFile) return;
     if (!activePartner) return;
 
     const senderId = currentUser._id || currentUser.id;
@@ -207,12 +242,16 @@ export default function Chat({ currentUser, initialPartner }) {
         senderId,
         receiverId,
         text: inputText,
-        image: selectedImage
+        image: selectedImage,
+        file: selectedFile ? selectedFile.data : null,
+        fileName: selectedFile ? selectedFile.name : null,
+        fileType: selectedFile ? selectedFile.type : null
       });
     }
 
     setInputText('');
     setSelectedImage(null);
+    setSelectedFile(null);
   };
 
   const displayConversations = [...conversations];
@@ -237,7 +276,9 @@ export default function Chat({ currentUser, initialPartner }) {
           <h3>recent chats</h3>
         </div>
         <div className="conversations-list">
-          {displayConversations.length === 0 ? (
+          {conversationsLoading ? (
+            <p className="no-chats">loading chats...</p>
+          ) : displayConversations.length === 0 ? (
             <p className="no-chats">no active chats found</p>
           ) : (
             displayConversations.map((conv, idx) => {
@@ -357,6 +398,26 @@ export default function Chat({ currentUser, initialPartner }) {
                             {msg.image && (
                               <img src={msg.image} className="message-image" alt="sent attachment" style={{ maxWidth: '200px', borderRadius: '8px', marginBottom: '0.5rem', display: 'block' }} />
                             )}
+                            {msg.file && (
+                              <div className="message-file-card" style={{ marginBottom: '0.5rem' }}>
+                                <a 
+                                  href={msg.file} 
+                                  download={msg.fileName} 
+                                  className="file-download-link"
+                                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.6rem 0.85rem', backgroundColor: isOutgoing ? 'rgba(255, 255, 255, 0.15)' : '#f1f5f9', borderRadius: '8px', textDecoration: 'none', border: isOutgoing ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid #cbd5e1', color: isOutgoing ? '#ffffff' : '#1e293b' }}
+                                >
+                                  <img src="/src/assets/icons/pin.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain', filter: isOutgoing ? 'invert(1)' : 'none' }} />
+                                  <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '180px' }}>
+                                      {msg.fileName}
+                                    </span>
+                                    <span style={{ fontSize: '0.65rem', opacity: 0.8 }}>
+                                      {msg.fileType ? msg.fileType.split('/')[1]?.toUpperCase() : 'FILE'}
+                                    </span>
+                                  </div>
+                                </a>
+                              </div>
+                            )}
                             {msg.text && <p className="text">{msg.text}</p>}
                             <div className="message-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', marginTop: '0.25rem' }}>
                               {isOutgoing && (
@@ -393,35 +454,32 @@ export default function Chat({ currentUser, initialPartner }) {
               </div>
             )}
 
-            {/* quick emojis selector */}
-            <div className="emojis-bar" style={{ padding: '0.35rem 1.5rem', backgroundColor: '#fcfdfe', borderTop: '1px solid rgba(82, 183, 136, 0.1)', display: 'flex', gap: '0.5rem', flexWrap: 'nowrap' }}>
-              {QUICK_EMOJIS.map((emoji) => (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => handleEmojiClick(emoji)}
-                  style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '2px 6px' }}
-                  className="emoji-btn"
-                >
-                  {emoji}
+            {/* selected file preview */}
+            {selectedFile && (
+              <div className="image-preview-container" style={{ padding: '0.5rem 1.5rem', backgroundColor: '#ffffff', borderTop: '1px solid rgba(82, 183, 136, 0.1)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 0.75rem', backgroundColor: '#f1f5f9', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                  <img src="/src/assets/icons/pin.png" alt="" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                  <span style={{ fontSize: '0.85rem', color: '#334155', fontWeight: '600', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedFile.name}</span>
+                </div>
+                <button type="button" onClick={handleClearFile} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '0.8rem', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit', textTransform: 'lowercase' }}>
+                  remove
                 </button>
-              ))}
-            </div>
-
+              </div>
+            )}
             {/* chat input form */}
             <form className="chat-input-form" onSubmit={handleSendMessage}>
               <label 
-                htmlFor="photo-upload" 
+                htmlFor="file-upload" 
                 style={{ cursor: 'pointer', padding: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(82, 183, 136, 0.1)', borderRadius: '50%', width: '36px', height: '36px' }}
-                title="attach photo"
+                title="attach image or document"
               >
-                <img src="/src/assets/icons/pin.png" alt="attach photo" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
+                <img src="/src/assets/icons/pin.png" alt="attach file" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
               </label>
               <input 
-                id="photo-upload"
+                id="file-upload"
                 type="file"
-                accept="image/*"
-                onChange={handleImageChange}
+                accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt,.csv"
+                onChange={handleFileChange}
                 style={{ display: 'none' }}
               />
               <input 
@@ -437,7 +495,8 @@ export default function Chat({ currentUser, initialPartner }) {
           </>
         ) : (
           <div className="no-active-chat">
-            <p>select a conversation to start chatting</p>
+            <h4>your messages</h4>
+            <p>select a contact from the sidebar to start chatting about crop listings, negotiations, or delivery details securely.</p>
           </div>
         )}
       </div>

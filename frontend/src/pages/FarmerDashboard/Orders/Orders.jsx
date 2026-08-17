@@ -8,7 +8,8 @@ const Orders = ({
   filteredOrders,
   handleOrderShip,
   handleOrderOutForDelivery,
-  handleOrderDeliver
+  handleOrderDeliver,
+  onStartChat
 }) => {
   return (
     <div className="section-card">
@@ -73,7 +74,14 @@ const Orders = ({
                   <td><span className="order-id">{order.id}</span></td>
                   <td>
                     <div className="buyer-info-col">
-                      <span className="buyer-name-text">{order.buyerName}</span>
+                      <span 
+                        className="buyer-name-text" 
+                        onClick={() => onStartChat && onStartChat({ email: order.buyerEmail, fullName: order.buyerName, role: 'buyer' })}
+                        style={{ cursor: 'pointer', color: '#2d6a4f', textDecoration: 'underline', fontWeight: 'bold' }}
+                        title="Click to Chat with Buyer"
+                      >
+                        {order.buyerName}
+                      </span>
                       <span className="buyer-phone-text">{order.buyerPhone}</span>
                     </div>
                   </td>
