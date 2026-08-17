@@ -129,10 +129,25 @@ export default function BuyerDashboard() {
   useEffect(() => {
     if (!user) return;
     fetchProductsAndOrders();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchProductsAndOrders();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     const interval = setInterval(() => {
-      fetchProductsAndOrders();
+      if (document.visibilityState === 'visible') {
+        fetchProductsAndOrders();
+      }
     }, 10000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [user]);
 
   const [profileData, setProfileData] = useState({
@@ -622,19 +637,6 @@ export default function BuyerDashboard() {
                     className="dropdown-item"
                   >
                     Settings
-                  </button>
-                  <button 
-                    onClick={() => {
-                      if (window.confirm("Are you sure you want to log out?")) {
-                        setIsDropdownOpen(false);
-                        logout();
-                        navigate('/');
-                      }
-                    }} 
-                    className="dropdown-item"
-                    style={{ color: '#dc2626' }}
-                  >
-                    Log Out
                   </button>
                 </div>
               )}

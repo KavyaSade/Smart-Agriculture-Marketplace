@@ -137,6 +137,19 @@ export default function RetailerDashboard() {
     if (user) {
       fetchProducts();
       fetchOrders();
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          fetchProducts();
+          fetchOrders();
+        }
+      };
+
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     }
   }, [user]);
 

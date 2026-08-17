@@ -401,10 +401,25 @@ export default function FarmerDashboard() {
   useEffect(() => {
     if (!user) return;
     fetchProductsAndOrders();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchProductsAndOrders();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     const interval = setInterval(() => {
-      fetchProductsAndOrders();
+      if (document.visibilityState === 'visible') {
+        fetchProductsAndOrders();
+      }
     }, 10000);
-    return () => clearInterval(interval);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [user]);
 
   // Update stats dynamically when products or orders change.
@@ -994,19 +1009,6 @@ export default function FarmerDashboard() {
                     className="dropdown-item"
                   >
                     My Profile
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      if (window.confirm("Are you sure you want to log out?")) {
-                        setIsDropdownOpen(false);
-                        handleLogoutClick();
-                      }
-                    }}
-                    className="dropdown-item"
-                    style={{ color: '#dc2626' }}
-                  >
-                    Log Out
                   </button>
                 </div>
               )}
