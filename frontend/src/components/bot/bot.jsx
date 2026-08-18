@@ -34,32 +34,8 @@ export default function Bot() {
     'Secure payments'
   ];
 
-  // Generate bot reply based on the user's message
-  const getBotResponse = (text) => {
-    const query = text.toLowerCase();
-    
-    if (query.includes('sell') || query.includes('crop') || query.includes('list')) {
-      return 'To sell your crops, register as a farmer, go to your dashboard, and click on Add Product. You can list grains, vegetables, and fruits.';
-    }
-    
-    if (query.includes('price') || query.includes('rate') || query.includes('cost') || query.includes('market')) {
-      return 'Current market rates are updated daily. Wheat is trading around 2100 per quintal, chili at 7500, and grapes at 4500. Check the market trends on your dashboard.';
-    }
-    
-    if (query.includes('weather') || query.includes('rain') || query.includes('forecast') || query.includes('sky')) {
-      return 'Our weather advisory tool shows clear skies for the next three days. Ideal for harvesting grains. You can check detailed forecasts in the dashboard.';
-    }
-    
-    if (query.includes('pay') || query.includes('payment') || query.includes('secure') || query.includes('money')) {
-      return 'Payments are processed securely through our verified gateway system. Funds are released to sellers once the buyer confirms delivery.';
-    }
-    
-    // Reply when no matching keyword is found
-    return 'Thank you for asking. I am analyzing your query. Please refer to your dashboard user guide or contact support at support@agrimarket.com for detailed assistance.';
-  };
-
-  // Send a message
-  const handleSendMessage = (textToSend) => {
+  // Send a message to the backend bot
+  const handleSendMessage = async (textToSend) => {
     if (!textToSend.trim()) return;
 
     // Add user's message to the chat
@@ -73,20 +49,46 @@ export default function Bot() {
     setInputText('');
     setIsTyping(true);
 
-    // Show bot reply after 1 second
-    setTimeout(() => {
-      const responseText = getBotResponse(textToSend);
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('http://localhost:5000/api/bot', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ message: textToSend })
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned an error');
+      }
+
+      const data = await response.json();
       
       // Add bot message to the chat
       const botMsg = {
         id: Date.now() + 1,
         sender: 'bot',
-        text: responseText
+        text: data.reply
       };
       
       setMessages(prev => [...prev, botMsg]);
+    } catch (error) {
+      console.error('Error fetching bot reply:', error);
+      
+      const errorMsg = {
+        id: Date.now() + 1,
+        sender: 'bot',
+        text: 'Sorry, I am having trouble connecting to my backend right now. Please try again later.'
+      };
+      
+      setMessages(prev => [...prev, errorMsg]);
+    } finally {
       setIsTyping(false);
-    }, 1000);
+    }
   };
 
   // Handle message form submit

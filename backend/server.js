@@ -11,6 +11,7 @@ import paymentRoutes from './payment/payment.js';
 import notificationRoutes from './routes/notifications.js';
 import couponRoutes from './routes/coupons.js';
 import chatRoutes from './routes/chat.js';
+import botRoutes from './routes/bot.js';
 import Message from './models/Message.js';
 import User from './models/User.js';
 import { sendPushNotification } from './utils/fcm.js';
@@ -40,6 +41,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/bot', botRoutes);
 
 // check endpoint
 app.get('/health', (req, res) => {
