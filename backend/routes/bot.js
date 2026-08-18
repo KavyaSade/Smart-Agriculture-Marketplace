@@ -74,6 +74,27 @@ const getRuleBasedResponse = (query, user, approvedProducts) => {
   return reply;
 };
 
+// Cache for product listings to avoid slow DB queries on every user message
+let cachedProducts = null;
+let lastCacheTime = 0;
+const CACHE_DURATION = 120000; // 2 minutes
+
+const getApprovedProducts = async () => {
+  const now = Date.now();
+  if (!cachedProducts || (now - lastCacheTime > CACHE_DURATION)) {
+    try {
+      cachedProducts = await Product.find({ status: 'approved' })
+        .select('name category price priceUnit location farmerName')
+        .limit(20);
+      lastCacheTime = now;
+    } catch (err) {
+      console.error('Error fetching products for bot cache:', err);
+      return cachedProducts || [];
+    }
+  }
+  return cachedProducts;
+};
+
 // POST /api/bot
 router.post('/', async (req, res) => {
   try {
@@ -85,10 +106,8 @@ router.post('/', async (req, res) => {
     const user = await getOptionalUser(req);
     const query = message.toLowerCase().trim();
 
-    // Fetch approved products to use as database context (RAG)
-    const approvedProducts = await Product.find({ status: 'approved' })
-      .select('name category price priceUnit location farmerName')
-      .limit(20);
+    // Fetch approved products from cache to avoid database roundtrip latency
+    const approvedProducts = await getApprovedProducts();
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -100,7 +119,7 @@ router.post('/', async (req, res) => {
 
     // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash-lite' });
 
     // Format product context
     const productsContext = approvedProducts.length > 0
@@ -129,7 +148,13 @@ Generate a natural, helpful response to the user's message. Keep it concise.
 
     const fullPrompt = `${systemPrompt}\n\nUser Query: "${message}"\nAgriBot Reply:`;
 
-    const result = await model.generateContent(fullPrompt);
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+      generationConfig: {
+        maxOutputTokens: 300,
+        temperature: 0.7
+      }
+    });
     let reply = result.response.text().trim();
 
     // Clean up markdown formatting if the model wrapped the response text unnecessarily
@@ -143,9 +168,7 @@ Generate a natural, helpful response to the user's message. Keep it concise.
     try {
       // Graceful fallback to rule-based response in case of API limits or errors
       const user = await getOptionalUser(req);
-      const approvedProducts = await Product.find({ status: 'approved' })
-        .select('name category price priceUnit location farmerName')
-        .limit(20);
+      const approvedProducts = await getApprovedProducts();
       const fallbackReply = getRuleBasedResponse(req.body.message.toLowerCase(), user, approvedProducts);
       res.status(200).json({ reply: fallbackReply });
     } catch (fallbackError) {
