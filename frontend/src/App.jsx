@@ -15,6 +15,7 @@ import SessionTimeout from './components/SessionTimeout/SessionTimeout';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 import { useAuth } from './context/AuthContext';
+import Bot from './components/bot/bot';
 import './styles/global.css';
 
 function SessionGuard() {
@@ -110,6 +111,7 @@ export default function App() {
         } />
         <Route path="*" element={<Landing />} />
       </Routes>
+      <Bot />
     </Router>
   );
 }
