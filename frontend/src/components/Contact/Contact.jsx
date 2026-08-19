@@ -9,10 +9,28 @@ export default function Contact() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate message submission
-    setSubmitted(true);
+    try {
+      // Send query details to the backend api
+      const response = await fetch('http://localhost:5000/api/queries', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form)
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || 'Failed to submit query. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error submitting query:', err);
+      alert('Network error. Please try again later.');
+    }
   };
 
   return (

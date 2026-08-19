@@ -15,6 +15,7 @@ import Payments from './Payments/Payments';
 import Profile from './Profile/Profile';
 import Settings from './Settings/Settings';
 import AdminCoupons from './Coupons/AdminCoupons';
+import AdminQueries from './Queries/AdminQueries';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [queries, setQueries] = useState([]);
 
   // Mock seller payouts database
   const [payoutRequests, setPayoutRequests] = useState([]);
@@ -140,17 +142,35 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchQueries = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      const response = await fetch('http://localhost:5000/api/queries', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setQueries(data);
+      }
+    } catch (err) {
+      console.error('Error fetching queries:', err);
+    }
+  };
+
   useEffect(() => {
     if (user && user.role === 'admin') {
       fetchUsers();
       fetchProducts();
       fetchOrders();
+      fetchQueries();
 
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
           fetchUsers();
           fetchProducts();
           fetchOrders();
+          fetchQueries();
         }
       };
 
@@ -279,6 +299,15 @@ export default function AdminDashboard() {
           </li>
           <li>
             <button
+              onClick={() => handleTabChange('queries')}
+              className={`sidebar-link ${activeTab === 'queries' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/group.png" alt="" className="sidebar-link-img" style={{ width: '18px', height: '18px', objectFit: 'contain' }} />
+              <span>Manage Queries</span>
+            </button>
+          </li>
+          <li>
+            <button
               onClick={() => handleTabChange('profile')}
               className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
             >
@@ -336,6 +365,7 @@ export default function AdminDashboard() {
                 {activeTab === 'payments' && 'Payouts & platform wallet'}
                 {activeTab === 'coupons' && 'Coupons & Discounts Campaign Manager'}
                 {activeTab === 'profile' && 'Admin Profile'}
+                {activeTab === 'queries' && 'User contact queries'}
                 {activeTab === 'settings' && 'Global platform settings'}
                 {` • Logged in as Administrator • Commission Rate: `}
                 <strong>{adminSettings.commissionRate}%</strong>
@@ -426,6 +456,14 @@ export default function AdminDashboard() {
           {activeTab === 'coupons' && (
             <AdminCoupons
               setAlert={setAlert}
+            />
+          )}
+
+          {activeTab === 'queries' && (
+            <AdminQueries
+              queries={queries}
+              setAlert={setAlert}
+              onRefresh={fetchQueries}
             />
           )}
         </div>

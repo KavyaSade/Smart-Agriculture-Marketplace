@@ -1,0 +1,129 @@
+/* Scoped styles for Admin Queries view */
+
+.admin-queries-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.query-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  text-align: center;
+}
+
+.query-status-badge.pending {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.query-status-badge.resolved {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+/* Header & Filter Controls */
+.view-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .view-header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex-grow: 1;
+  max-width: 500px;
+  min-width: 300px;
+}
+
+.search-input-icon-png {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.search-field {
+  padding-left: 2.75rem !important;
+}
+
+/* Centered Empty State Card */
+.empty-state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 2rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(45, 106, 79, 0.09);
+  box-shadow: 0 4px 12px rgba(27, 67, 50, 0.03);
+  margin-top: 1rem;
+}
+
+body.dark-theme .empty-state-card {
+  background-color: #11251e;
+  border-color: rgba(82, 183, 136, 0.15);
+}
+
+.empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-desc {
+  font-size: 0.9rem;
+  max-width: 400px;
+}
+
+/* Action Button Styles */
+.action-btn-small {
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  background-color: transparent;
+  transition: all 0.2s;
+}
+
+.action-btn-small.resolve {
+  color: #059669;
+  border-color: rgba(5, 150, 105, 0.3);
+}
+
+.action-btn-small.resolve:hover {
+  background-color: #059669;
+  color: #ffffff;
+}
+
+.action-btn-small.reopen {
+  color: #d97706;
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+.action-btn-small.reopen:hover {
+  background-color: #d97706;
+  color: #ffffff;
+}
+
