@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './bot.css';
+import useSpeechRecognition from './useSpeechRecognition';
 
 export default function Bot() {
   // Chat open/close and input states
@@ -15,6 +16,46 @@ export default function Bot() {
       text: 'Hello, I am AgriBot, your smart agricultural assistant. How can I help you today?'
     }
   ]);
+
+  const {
+    status,
+    transcript,
+    error,
+    startListening,
+    stopListening,
+    cancelListening,
+    resetStatus,
+    isSupported
+  } = useSpeechRecognition();
+
+  // Handle transcript population when ready
+  useEffect(() => {
+    if (status === 'Transcript Ready' && transcript) {
+      setInputText(transcript);
+      resetStatus();
+    }
+  }, [status, transcript, resetStatus]);
+
+  // Handle SpeechRecognition error
+  useEffect(() => {
+    if (status === 'Error' && error) {
+      const errorMsg = {
+        id: Date.now() + 2,
+        sender: 'bot',
+        text: error
+      };
+      setMessages(prev => [...prev, errorMsg]);
+      resetStatus();
+    }
+  }, [status, error, resetStatus]);
+
+  const handleMicClick = () => {
+    if (status === 'Listening' || status === 'Processing') {
+      cancelListening();
+    } else {
+      startListening();
+    }
+  };
 
   // Used to scroll to the latest message
   const messagesEndRef = useRef(null);
@@ -188,15 +229,36 @@ export default function Bot() {
 
           {/* Message input and send button */}
           <form className="bot-input-form" onSubmit={handleSubmit}>
+            {isSupported && (
+              <button 
+                type="button" 
+                className={`bot-mic-btn ${status === 'Listening' ? 'listening' : ''} ${status === 'Processing' ? 'processing' : ''}`}
+                onClick={handleMicClick}
+                title={status === 'Listening' || status === 'Processing' ? 'Cancel recording' : 'Speak your question'}
+              >
+                <img 
+                  src={status === 'Listening' || status === 'Processing' ? '/src/assets/icons/multiply.png' : '/src/assets/icons/microphone.png'} 
+                  alt={status === 'Listening' || status === 'Processing' ? 'Cancel' : 'Speak'} 
+                  className="bot-mic-icon" 
+                />
+              </button>
+            )}
+
             <input 
               type="text" 
-              className="bot-input" 
-              placeholder="Type your message here..."
-              value={inputText}
+              className={`bot-input ${status === 'Listening' ? 'listening' : ''}`} 
+              placeholder={status === 'Listening' ? 'Listening...' : status === 'Processing' ? 'Processing...' : 'Type your message here...'}
+              value={status === 'Listening' ? '' : status === 'Processing' ? '' : inputText}
               onChange={(e) => setInputText(e.target.value)}
+              disabled={status === 'Listening' || status === 'Processing'}
             />
 
-            <button type="submit" className="bot-send" title="Send Message">
+            <button 
+              type="submit" 
+              className="bot-send" 
+              title="Send Message"
+              disabled={status === 'Listening' || status === 'Processing'}
+            >
               <img 
                 src="/src/assets/icons/paper-plane.png" 
                 alt="Send" 
