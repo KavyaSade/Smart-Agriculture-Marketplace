@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { pageVariants } from '../../utils/animations';
 import '../../components/Navbar/Navbar.css';
 import {
   LayoutDashboard,
@@ -1030,112 +1032,123 @@ export default function FarmerDashboard() {
           </div>
         </div>
 
-        {activeTab === 'dashboard' && (
-          <Overview
-            stats={stats}
-            orders={orders}
-            products={products}
-            handleTabChange={handleTabChange}
-            warningProducts={warningProducts}
-            onStartChat={handleStartChat}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            style={{ width: '100%' }}
+          >
+            {activeTab === 'dashboard' && (
+              <Overview
+                stats={stats}
+                orders={orders}
+                products={products}
+                handleTabChange={handleTabChange}
+                warningProducts={warningProducts}
+                onStartChat={handleStartChat}
+              />
+            )}
 
-        {activeTab === 'products' && (
-          <Products
-            handleOpenAddModal={handleOpenAddModal}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            categoryFilter={categoryFilter}
-            setCategoryFilter={setCategoryFilter}
-            filteredProducts={filteredProducts}
-            products={products}
-            handleToggleStock={handleToggleStock}
-            handleOpenEditModal={handleOpenEditModal}
-            handleDeleteProduct={handleDeleteProduct}
-          />
-        )}
+            {activeTab === 'products' && (
+              <Products
+                handleOpenAddModal={handleOpenAddModal}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                filteredProducts={filteredProducts}
+                products={products}
+                handleToggleStock={handleToggleStock}
+                handleOpenEditModal={handleOpenEditModal}
+                handleDeleteProduct={handleDeleteProduct}
+              />
+            )}
 
-        {activeTab === 'orders' && (
-          <Orders
-            orders={orders}
-            orderStatusFilter={orderStatusFilter}
-            setOrderStatusFilter={setOrderStatusFilter}
-            filteredOrders={filteredOrders}
-            handleOrderShip={handleOrderShip}
-            handleOrderOutForDelivery={handleOrderOutForDelivery}
-            handleOrderDeliver={handleOrderDeliver}
-            onStartChat={handleStartChat}
-          />
-        )}
+            {activeTab === 'orders' && (
+              <Orders
+                orders={orders}
+                orderStatusFilter={orderStatusFilter}
+                setOrderStatusFilter={setOrderStatusFilter}
+                filteredOrders={filteredOrders}
+                handleOrderShip={handleOrderShip}
+                handleOrderOutForDelivery={handleOrderOutForDelivery}
+                handleOrderDeliver={handleOrderDeliver}
+                onStartChat={handleStartChat}
+              />
+            )}
 
-        {activeTab === 'analytics' && (
-          <Analytics orders={orders} products={products} />
-        )}
+            {activeTab === 'analytics' && (
+              <Analytics orders={orders} products={products} />
+            )}
 
-        {activeTab === 'profile' && (
-          <Profile
-            profileData={profileData}
-            isEditingProfile={isEditingProfile}
-            setIsEditingProfile={setIsEditingProfile}
-            profileFormInputs={profileFormInputs}
-            setProfileFormInputs={setProfileFormInputs}
-            handleSaveProfile={handleSaveProfile}
-            handleUpdateProfileData={handleUpdateProfileData}
-          />
-        )}
+            {activeTab === 'profile' && (
+              <Profile
+                profileData={profileData}
+                isEditingProfile={isEditingProfile}
+                setIsEditingProfile={setIsEditingProfile}
+                profileFormInputs={profileFormInputs}
+                setProfileFormInputs={setProfileFormInputs}
+                handleSaveProfile={handleSaveProfile}
+                handleUpdateProfileData={handleUpdateProfileData}
+              />
+            )}
 
-        {activeTab === 'reviews' && (
-          <FarmerReviews email={profileData.email} />
-        )}
+            {activeTab === 'reviews' && (
+              <FarmerReviews email={profileData.email} />
+            )}
 
-        {activeTab === 'settings' && (
-          <SettingsTab
-            isStoreOpen={isStoreOpen}
-            setIsStoreOpen={setIsStoreOpen}
-            emailNotifications={emailNotifications}
-            setEmailNotifications={setEmailNotifications}
-            smsNotifications={smsNotifications}
-            setSmsNotifications={setSmsNotifications}
-            isDarkTheme={isDarkTheme}
-            setIsDarkTheme={setIsDarkTheme}
-            logActivity={logActivity}
-          />
-        )}
+            {activeTab === 'settings' && (
+              <SettingsTab
+                isStoreOpen={isStoreOpen}
+                setIsStoreOpen={setIsStoreOpen}
+                emailNotifications={emailNotifications}
+                setEmailNotifications={setEmailNotifications}
+                smsNotifications={smsNotifications}
+                setSmsNotifications={setSmsNotifications}
+                isDarkTheme={isDarkTheme}
+                setIsDarkTheme={setIsDarkTheme}
+                logActivity={logActivity}
+              />
+            )}
 
-        {activeTab === 'coupons' && (
-          <FarmerCoupons />
-        )}
+            {activeTab === 'coupons' && (
+              <FarmerCoupons />
+            )}
 
-        {activeTab === 'chat' && (
-          <Chat 
-            currentUser={user}
-            initialPartner={selectedChatPartner}
-          />
-        )}
+            {activeTab === 'chat' && (
+              <Chat 
+                currentUser={user}
+                initialPartner={selectedChatPartner}
+              />
+            )}
 
-        {activeTab === 'marketplace' && (
-          <Marketplace
-            marketSearchQuery={marketSearchQuery}
-            setMarketSearchQuery={setMarketSearchQuery}
-            marketCategoryFilter={marketCategoryFilter}
-            setMarketCategoryFilter={setMarketCategoryFilter}
-            filteredMarketCrops={filteredMarketCrops}
-            handleSimulatePurchase={handleSimulatePurchase}
-          />
-        )}
+            {activeTab === 'marketplace' && (
+              <Marketplace
+                marketSearchQuery={marketSearchQuery}
+                setMarketSearchQuery={setMarketSearchQuery}
+                marketCategoryFilter={marketCategoryFilter}
+                setMarketCategoryFilter={setMarketCategoryFilter}
+                filteredMarketCrops={filteredMarketCrops}
+                handleSimulatePurchase={handleSimulatePurchase}
+              />
+            )}
 
-        {activeTab === 'add-product' && (
-          <AddProduct
-            formInputs={formInputs}
-            handleInputChange={handleInputChange}
-            handleImageUpload={handleImageUpload}
-            handleSaveProduct={handleSaveProduct}
-            setFormInputs={setFormInputs}
-            mode={modalMode}
-            onCancel={() => handleTabChange('products')}
-          />
-        )}
+            {activeTab === 'add-product' && (
+              <AddProduct
+                formInputs={formInputs}
+                handleInputChange={handleInputChange}
+                handleImageUpload={handleImageUpload}
+                handleSaveProduct={handleSaveProduct}
+                setFormInputs={setFormInputs}
+                mode={modalMode}
+                onCancel={() => handleTabChange('products')}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
     </div>

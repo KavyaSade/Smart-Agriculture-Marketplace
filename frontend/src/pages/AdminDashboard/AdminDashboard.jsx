@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { pageVariants } from '../../utils/animations';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/NotificationBell/NotificationBell';
 import { useLocation } from 'react-router-dom';
@@ -387,85 +389,96 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {activeTab === 'overview' && (
-            <Overview
-              users={users}
-              products={products}
-              orders={orders}
-              platformEarnings={platformEarnings}
-              setActiveTab={handleTabChange}
-              setAlert={setAlert}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              style={{ width: '100%' }}
+            >
+              {activeTab === 'overview' && (
+                <Overview
+                  users={users}
+                  products={products}
+                  orders={orders}
+                  platformEarnings={platformEarnings}
+                  setActiveTab={handleTabChange}
+                  setAlert={setAlert}
+                />
+              )}
 
-          {activeTab === 'users' && (
-            <Users
-              users={users}
-              setUsers={setUsers}
-              setAlert={setAlert}
-              onRefresh={fetchUsers}
-            />
-          )}
+              {activeTab === 'users' && (
+                <Users
+                  users={users}
+                  setUsers={setUsers}
+                  setAlert={setAlert}
+                  onRefresh={fetchUsers}
+                />
+              )}
 
-          {activeTab === 'products' && (
-            <Products
-              products={products}
-              setProducts={setProducts}
-              setAlert={setAlert}
-              onRefresh={fetchProducts}
-            />
-          )}
+              {activeTab === 'products' && (
+                <Products
+                  products={products}
+                  setProducts={setProducts}
+                  setAlert={setAlert}
+                  onRefresh={fetchProducts}
+                />
+              )}
 
-          {activeTab === 'orders' && (
-            <Orders
-              orders={orders}
-              setOrders={setOrders}
-              setAlert={setAlert}
-              onRefresh={fetchOrders}
-            />
-          )}
+              {activeTab === 'orders' && (
+                <Orders
+                  orders={orders}
+                  setOrders={setOrders}
+                  setAlert={setAlert}
+                  onRefresh={fetchOrders}
+                />
+              )}
 
-          {activeTab === 'payments' && (
-            <Payments
-              platformEarnings={platformEarnings}
-              setPlatformEarnings={setPlatformEarnings}
-              payoutRequests={payoutRequests}
-              setPayoutRequests={setPayoutRequests}
-              setAlert={setAlert}
-            />
-          )}
+              {activeTab === 'payments' && (
+                <Payments
+                  platformEarnings={platformEarnings}
+                  setPlatformEarnings={setPlatformEarnings}
+                  payoutRequests={payoutRequests}
+                  setPayoutRequests={setPayoutRequests}
+                  setAlert={setAlert}
+                />
+              )}
 
-          {activeTab === 'profile' && (
-            <Profile
-              profile={profile}
-              setProfile={setProfile}
-              profilePhoto={profilePhoto}
-              setProfilePhoto={setProfilePhoto}
-              setAlert={setAlert}
-            />
-          )}
+              {activeTab === 'profile' && (
+                <Profile
+                  profile={profile}
+                  setProfile={setProfile}
+                  profilePhoto={profilePhoto}
+                  setProfilePhoto={setProfilePhoto}
+                  setAlert={setAlert}
+                />
+              )}
 
-          {activeTab === 'settings' && (
-            <Settings
-              adminSettings={adminSettings}
-              setAdminSettings={setAdminSettings}
-              setAlert={setAlert}
-            />
-          )}
+              {activeTab === 'settings' && (
+                <Settings
+                  adminSettings={adminSettings}
+                  setAdminSettings={setAdminSettings}
+                  setAlert={setAlert}
+                />
+              )}
 
-          {activeTab === 'coupons' && (
-            <AdminCoupons
-              setAlert={setAlert}
-            />
-          )}
+              {activeTab === 'coupons' && (
+                <AdminCoupons
+                  setAlert={setAlert}
+                />
+              )}
 
-          {activeTab === 'queries' && (
-            <AdminQueries
-              queries={queries}
-              setAlert={setAlert}
-              onRefresh={fetchQueries}
-            />
-          )}
+              {activeTab === 'queries' && (
+                <AdminQueries
+                  queries={queries}
+                  setAlert={setAlert}
+                  onRefresh={fetchQueries}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </div>

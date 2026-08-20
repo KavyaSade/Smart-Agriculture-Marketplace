@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Star, MapPin, Phone, Mail, Award, Leaf, ShoppingCart } from 'lucide-react';
+import { motion } from 'motion/react';
+import { modalBackdropVariants, modalContainerVariants } from '../utils/animations';
 
 export default function FarmerProfileModal({ farmerEmail, onClose, handleAddToCart, onProductClick, onStartChat }) {
   const [profile, setProfile] = useState(null);
@@ -49,33 +51,40 @@ export default function FarmerProfileModal({ farmerEmail, onClose, handleAddToCa
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.45)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1100,
-      padding: '1.5rem',
-      animation: 'fadeIn 0.25s ease-out'
-    }}>
-      <div style={{
-        backgroundColor: '#ffffff',
-        borderRadius: '24px',
-        width: '100%',
-        maxWidth: '750px',
-        maxHeight: '85vh',
-        overflowY: 'auto',
-        position: 'relative',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
-        padding: '2rem',
-        animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}>
+    <motion.div 
+      variants={modalBackdropVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.45)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1100,
+        padding: '1.5rem'
+      }}
+    >
+      <motion.div 
+        variants={modalContainerVariants}
+        style={{
+          backgroundColor: '#ffffff',
+          borderRadius: '24px',
+          width: '100%',
+          maxWidth: '750px',
+          maxHeight: '85vh',
+          overflowY: 'auto',
+          position: 'relative',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+          padding: '2rem'
+        }}
+      >
         {/* Close Button */}
         <button 
           onClick={onClose} 
@@ -277,7 +286,7 @@ export default function FarmerProfileModal({ farmerEmail, onClose, handleAddToCa
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

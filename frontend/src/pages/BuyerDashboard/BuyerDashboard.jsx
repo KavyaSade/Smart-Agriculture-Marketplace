@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { pageVariants } from '../../utils/animations';
 import { 
   LayoutDashboard, 
   Search, 
@@ -649,91 +651,102 @@ export default function BuyerDashboard() {
           </div>
         </header>
 
-        {activeTab === 'dashboard' && (
-          <Overview 
-            profileData={profileData}
-            cart={cart}
-            wishlist={wishlist}
-            orders={orders}
-            handleTabChange={handleTabChange}
-          />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            style={{ width: '100%' }}
+          >
+            {activeTab === 'dashboard' && (
+              <Overview 
+                profileData={profileData}
+                cart={cart}
+                wishlist={wishlist}
+                orders={orders}
+                handleTabChange={handleTabChange}
+              />
+            )}
 
-        {activeTab === 'browse' && (
-          <Browse 
-            products={products}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            categoryFilter={categoryFilter}
-            setCategoryFilter={setCategoryFilter}
-            handleAddToCart={handleAddToCart}
-            wishlist={wishlist}
-            handleToggleWishlist={handleToggleWishlist}
-            cart={cart}
-            onGoToCart={() => handleTabChange('cart')}
-            currentUser={user}
-            onStartChat={handleStartChat}
-          />
-        )}
+            {activeTab === 'browse' && (
+              <Browse 
+                products={products}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                handleAddToCart={handleAddToCart}
+                wishlist={wishlist}
+                handleToggleWishlist={handleToggleWishlist}
+                cart={cart}
+                onGoToCart={() => handleTabChange('cart')}
+                currentUser={user}
+                onStartChat={handleStartChat}
+              />
+            )}
 
-        {activeTab === 'cart' && (
-          <Cart 
-            cart={cart}
-            handleUpdateCartQty={handleUpdateCartQty}
-            handleRemoveFromCart={handleRemoveFromCart}
-            handleCheckout={handleCheckout}
-            profileData={profileData}
-            onGoToOrders={() => handleTabChange('orders')}
-          />
-        )}
+            {activeTab === 'cart' && (
+              <Cart 
+                cart={cart}
+                handleUpdateCartQty={handleUpdateCartQty}
+                handleRemoveFromCart={handleRemoveFromCart}
+                handleCheckout={handleCheckout}
+                profileData={profileData}
+                onGoToOrders={() => handleTabChange('orders')}
+              />
+            )}
 
-        {activeTab === 'orders' && (
-          <Orders 
-            orders={orders}
-            handleCancelOrder={handleCancelOrder}
-            onRefreshOrders={fetchProductsAndOrders}
-          />
-        )}
+            {activeTab === 'orders' && (
+              <Orders 
+                orders={orders}
+                handleCancelOrder={handleCancelOrder}
+                onRefreshOrders={fetchProductsAndOrders}
+              />
+            )}
 
-        {activeTab === 'wishlist' && (
-          <Wishlist 
-            products={products}
-            wishlist={wishlist}
-            handleToggleWishlist={handleToggleWishlist}
-            handleAddToCart={handleAddToCart}
-          />
-        )}
+            {activeTab === 'wishlist' && (
+              <Wishlist 
+                products={products}
+                wishlist={wishlist}
+                handleToggleWishlist={handleToggleWishlist}
+                handleAddToCart={handleAddToCart}
+              />
+            )}
 
-        {activeTab === 'profile' && (
-          <Profile 
-            profileData={profileData}
-            isEditingProfile={isEditingProfile}
-            setIsEditingProfile={setIsEditingProfile}
-            profileFormInputs={profileFormInputs}
-            setProfileFormInputs={setProfileFormInputs}
-            handleSaveProfile={handleSaveProfile}
-            handleUpdateProfileData={handleUpdateProfileData}
-          />
-        )}
+            {activeTab === 'profile' && (
+              <Profile 
+                profileData={profileData}
+                isEditingProfile={isEditingProfile}
+                setIsEditingProfile={setIsEditingProfile}
+                profileFormInputs={profileFormInputs}
+                setProfileFormInputs={setProfileFormInputs}
+                handleSaveProfile={handleSaveProfile}
+                handleUpdateProfileData={handleUpdateProfileData}
+              />
+            )}
 
-        {activeTab === 'settings' && (
-          <SettingsTab 
-            emailNotifications={emailNotifications}
-            setEmailNotifications={setEmailNotifications}
-            smsNotifications={smsNotifications}
-            setSmsNotifications={setSmsNotifications}
-            isDarkTheme={isDarkTheme}
-            setIsDarkTheme={setIsDarkTheme}
-            logActivity={logActivity}
-          />
-        )}
+            {activeTab === 'settings' && (
+              <SettingsTab 
+                emailNotifications={emailNotifications}
+                setEmailNotifications={setEmailNotifications}
+                smsNotifications={smsNotifications}
+                setSmsNotifications={setSmsNotifications}
+                isDarkTheme={isDarkTheme}
+                setIsDarkTheme={setIsDarkTheme}
+                logActivity={logActivity}
+              />
+            )}
 
-        {activeTab === 'chat' && (
-          <Chat 
-            currentUser={user}
-            initialPartner={selectedChatPartner}
-          />
-        )}
+            {activeTab === 'chat' && (
+              <Chat 
+                currentUser={user}
+                initialPartner={selectedChatPartner}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {toast.show && (

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { pageVariants } from '../../utils/animations';
 import { Mail, ArrowLeft, Leaf, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './ResetPassword.css';
@@ -79,7 +81,12 @@ export default function ResetPassword() {
 
         {/* Right Side: Form Card */}
         <div className="reset-form-wrapper">
-          <div className="reset-card animate-fade-in-up">
+          <motion.div 
+            className="reset-card"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+          >
             <Link to="/login" className="back-login-link">
               <ArrowLeft size={16} /> Back to Login
             </Link>
@@ -151,7 +158,7 @@ export default function ResetPassword() {
             <div className="reset-footer">
               <p>Remember your password? <Link to="/login" className="login-link">Log In</Link></p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

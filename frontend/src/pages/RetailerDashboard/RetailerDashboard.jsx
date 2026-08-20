@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { pageVariants } from '../../utils/animations';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../../components/NotificationBell/NotificationBell';
 import { useLocation } from 'react-router-dom';
@@ -388,77 +390,88 @@ export default function RetailerDashboard() {
           )}
 
           {/* Render individual tab content components */}
-          {activeTab === 'overview' && (
-            <Overview
-              orders={orders}
-              products={products}
-              totalRevenue={totalRevenue}
-              revenueBalance={revenueBalance}
-              setActiveTab={handleTabChange}
-              openEditProductView={openEditProductView}
-            />
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              style={{ width: '100%' }}
+            >
+              {activeTab === 'overview' && (
+                <Overview
+                  orders={orders}
+                  products={products}
+                  totalRevenue={totalRevenue}
+                  revenueBalance={revenueBalance}
+                  setActiveTab={handleTabChange}
+                  openEditProductView={openEditProductView}
+                />
+              )}
 
-          {['products', 'add-product', 'edit-product'].includes(activeTab) && (
-            <Products
-              products={products}
-              setProducts={setProducts}
-              activeTab={activeTab}
-              setActiveTab={handleTabChange}
-              editingProduct={editingProduct}
-              setEditingProduct={setEditingProduct}
-              deletingProductId={deletingProductId}
-              setDeletingProductId={setDeletingProductId}
-              setAlert={setAlert}
-              onRefresh={fetchProducts}
-            />
-          )}
+              {['products', 'add-product', 'edit-product'].includes(activeTab) && (
+                <Products
+                  products={products}
+                  setProducts={setProducts}
+                  activeTab={activeTab}
+                  setActiveTab={handleTabChange}
+                  editingProduct={editingProduct}
+                  setEditingProduct={setEditingProduct}
+                  deletingProductId={deletingProductId}
+                  setDeletingProductId={setDeletingProductId}
+                  setAlert={setAlert}
+                  onRefresh={fetchProducts}
+                />
+              )}
 
-          {activeTab === 'orders' && (
-            <Orders
-              orders={orders}
-              setOrders={setOrders}
-              setAlert={setAlert}
-              onRefresh={fetchOrders}
-            />
-          )}
+              {activeTab === 'orders' && (
+                <Orders
+                  orders={orders}
+                  setOrders={setOrders}
+                  setAlert={setAlert}
+                  onRefresh={fetchOrders}
+                />
+              )}
 
-          {activeTab === 'sales' && (
-            <Sales
-              orders={orders}
-              products={products}
-              totalSalesCount={totalSalesCount}
-              totalRevenue={totalRevenue}
-            />
-          )}
+              {activeTab === 'sales' && (
+                <Sales
+                  orders={orders}
+                  products={products}
+                  totalSalesCount={totalSalesCount}
+                  totalRevenue={totalRevenue}
+                />
+              )}
 
-          {activeTab === 'revenue' && (
-            <Revenue
-              revenueBalance={revenueBalance}
-              setRevenueBalance={setRevenueBalance}
-              transactions={transactions}
-              setTransactions={setTransactions}
-              setAlert={setAlert}
-            />
-          )}
+              {activeTab === 'revenue' && (
+                <Revenue
+                  revenueBalance={revenueBalance}
+                  setRevenueBalance={setRevenueBalance}
+                  transactions={transactions}
+                  setTransactions={setTransactions}
+                  setAlert={setAlert}
+                />
+              )}
 
-          {activeTab === 'profile' && (
-            <Profile
-              profile={profile}
-              setProfile={setProfile}
-              profilePhoto={profilePhoto}
-              setProfilePhoto={setProfilePhoto}
-              setAlert={setAlert}
-            />
-          )}
+              {activeTab === 'profile' && (
+                <Profile
+                  profile={profile}
+                  setProfile={setProfile}
+                  profilePhoto={profilePhoto}
+                  setProfilePhoto={setProfilePhoto}
+                  setAlert={setAlert}
+                />
+              )}
 
-          {activeTab === 'settings' && (
-            <Settings
-              settings={settings}
-              setSettings={setSettings}
-              setAlert={setAlert}
-            />
-          )}
+              {activeTab === 'settings' && (
+                <Settings
+                  settings={settings}
+                  setSettings={setSettings}
+                  setAlert={setAlert}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
 
         </div>
       </main>

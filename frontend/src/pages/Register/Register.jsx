@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { pageVariants } from '../../utils/animations';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Register.css';
@@ -170,7 +172,12 @@ export default function Register() {
 
         {/* Right Side: Form Card */}
         <div className="register-form-wrapper">
-          <div className="register-form-card animate-fade-in-up">
+          <motion.div 
+            className="register-form-card"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+          >
             <Link to="/" className="back-home-link">
               <ArrowLeft size={16} /> Back to home
             </Link>
@@ -373,7 +380,7 @@ export default function Register() {
             <div className="register-footer">
               <p>Already have an account? <Link to="/login" className="register-link">Log In</Link></p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

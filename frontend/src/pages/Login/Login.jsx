@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { pageVariants, buttonPress } from '../../utils/animations';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Login.css';
@@ -157,7 +159,12 @@ export default function Login() {
 
         {/* Right Side: Form Card */}
         <div className="login-form-wrapper">
-          <div className="login-form-card animate-fade-in-up">
+          <motion.div 
+            className="login-form-card"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+          >
             <Link to="/" className="back-home-link">
               <ArrowLeft size={16} /> Back to home
             </Link>
@@ -171,34 +178,46 @@ export default function Login() {
             </div>
 
             <div className="role-selector-container">
-              <button 
+              <motion.button 
                 type="button" 
                 className={`role-select-btn ${role === 'buyer' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('buyer')}
+                whileHover="hover"
+                whileTap="tap"
+                variants={buttonPress}
               >
                 Buyer
-              </button>
-              <button 
+              </motion.button>
+              <motion.button 
                 type="button" 
                 className={`role-select-btn ${role === 'farmer' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('farmer')}
+                whileHover="hover"
+                whileTap="tap"
+                variants={buttonPress}
               >
                 Farmer
-              </button>
-              <button 
+              </motion.button>
+              <motion.button 
                 type="button" 
                 className={`role-select-btn ${role === 'retailer' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('retailer')}
+                whileHover="hover"
+                whileTap="tap"
+                variants={buttonPress}
               >
                 Retailer
-              </button>
-              <button 
+              </motion.button>
+              <motion.button 
                 type="button" 
                 className={`role-select-btn ${role === 'admin' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('admin')}
+                whileHover="hover"
+                whileTap="tap"
+                variants={buttonPress}
               >
                 Admin
-              </button>
+              </motion.button>
             </div>
 
 
@@ -302,7 +321,7 @@ export default function Login() {
             <div className="login-footer">
               <p>Don't have an account? <Link to="/signup" className="register-link">Sign Up Now</Link></p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
       {show2FAVerify && (

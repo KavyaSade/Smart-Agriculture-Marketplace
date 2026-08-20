@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, MapPin, User, MessageSquare, Send, Calendar } from 'lucide-react';
+import { motion } from 'motion/react';
+import { modalBackdropVariants, modalContainerVariants } from '../utils/animations';
 
 export default function ProductDetailsModal({ product, onClose, onOpenFarmer, currentUser }) {
   const [reviews, setReviews] = useState([]);
@@ -128,34 +130,41 @@ export default function ProductDetailsModal({ product, onClose, onOpenFarmer, cu
   const isLowStock = product.stock > 0 && product.stock < 20;
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(15, 23, 42, 0.45)',
-      backdropFilter: 'blur(8px)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '1.5rem',
-      animation: 'fadeIn 0.25s ease-out'
-    }}>
-      <div style={{
-        backgroundColor: '#ffffff',
-        borderRadius: '24px',
-        width: '100%',
-        maxWidth: '850px',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-        position: 'relative',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-        animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-      }}>
+    <motion.div 
+      variants={modalBackdropVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(15, 23, 42, 0.45)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        padding: '1.5rem'
+      }}
+    >
+      <motion.div 
+        variants={modalContainerVariants}
+        style={{
+          backgroundColor: '#ffffff',
+          borderRadius: '24px',
+          width: '100%',
+          maxWidth: '850px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+          position: 'relative',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))'
+        }}
+      >
         {/* Left Column: Image and Specs */}
         <div style={{ padding: '2rem', borderRight: '1px solid #f1f5f9' }}>
           <div style={{ position: 'relative', borderRadius: '16px', overflow: 'hidden', height: '260px', marginBottom: '1.5rem', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
@@ -341,7 +350,7 @@ export default function ProductDetailsModal({ product, onClose, onOpenFarmer, cu
             </p>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Heart, MapPin, User, ShoppingCart } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
 import ProductDetailsModal from '../../../components/ProductDetailsModal';
 import FarmerProfileModal from '../../../components/FarmerProfileModal';
 import './Browse.css';
@@ -346,29 +347,33 @@ const Browse = ({
       )}
 
       {/* Overlays/Modals */}
-      {selectedProduct && (
-        <ProductDetailsModal
-          product={selectedProduct}
-          currentUser={currentUser}
-          onClose={() => setSelectedProduct(null)}
-          onOpenFarmer={(email) => {
-            setSelectedFarmerEmail(email);
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {selectedProduct && (
+          <ProductDetailsModal
+            product={selectedProduct}
+            currentUser={currentUser}
+            onClose={() => setSelectedProduct(null)}
+            onOpenFarmer={(email) => {
+              setSelectedFarmerEmail(email);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
-      {selectedFarmerEmail && (
-        <FarmerProfileModal
-          farmerEmail={selectedFarmerEmail}
-          onClose={() => setSelectedFarmerEmail(null)}
-          handleAddToCart={handleAddToCart}
-          onProductClick={(crop) => {
-            setSelectedProduct(crop);
-            setSelectedFarmerEmail(null);
-          }}
-          onStartChat={onStartChat}
-        />
-      )}
+      <AnimatePresence>
+        {selectedFarmerEmail && (
+          <FarmerProfileModal
+            farmerEmail={selectedFarmerEmail}
+            onClose={() => setSelectedFarmerEmail(null)}
+            handleAddToCart={handleAddToCart}
+            onProductClick={(crop) => {
+              setSelectedProduct(crop);
+              setSelectedFarmerEmail(null);
+            }}
+            onStartChat={onStartChat}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
