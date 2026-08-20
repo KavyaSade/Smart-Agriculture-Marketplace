@@ -69,7 +69,7 @@ export default function RetailerDashboard() {
     const token = localStorage.getItem('token');
     if (!token || !user) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/products?seller=${user.id}`, {
+      const response = await fetch('http://localhost:5000/api/products/my-inventory', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {

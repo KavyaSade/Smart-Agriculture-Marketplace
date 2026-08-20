@@ -496,6 +496,22 @@ body.dark-theme .hamburger-toggle-menu {
     backdrop-filter: blur(2px);
     z-index: 95;
   }
+
+  .dashboard-topbar {
+    padding: 1rem 1.25rem !important;
+  }
+
+  .topbar-title-wrapper h2 {
+    font-size: 1.2rem !important;
+  }
+
+  .topbar-subtitle {
+    display: none !important;
+  }
+
+  .dashboard-view-body {
+    padding: 1rem !important;
+  }
 }
 
 /* sidebar and topbar png icon sizes */
