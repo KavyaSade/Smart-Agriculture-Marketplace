@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import jwt from 'jsonwebtoken';
 import Product from '../models/product.js';
 import Review from '../models/Review.js';
 import Order from '../models/orders.js';
@@ -22,13 +23,28 @@ router.get('/', async (req, res) => {
   try {
     const { search, category, minPrice, maxPrice, inStock, location, seller } = req.query;
     
-   
-    const query = {
-      $or: [
+    // Check if the requester is an Admin by optionally decoding the token
+    let isAdmin = false;
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'super_secret_key_agri_market_2026');
+        if (decoded && decoded.role === 'admin') {
+          isAdmin = true;
+        }
+      } catch (err) {
+        // Ignore token errors and fall back to public view rules
+      }
+    }
+
+    const query = {};
+    if (!isAdmin) {
+      query.$or = [
         { status: 'approved' },
         { status: { $exists: false } }
-      ]
-    };
+      ];
+    }
 
     if (seller) {
       query.seller = seller;
@@ -107,10 +123,11 @@ router.post('/', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Forbidden. Seller role required.' });
     }
 
-    const { name, category, price, priceUnit, stock, stockUnit, location, image, description } = req.body;
+    const { name, title, category, price, priceUnit, stock, stockUnit, location, image, description } = req.body;
+    const finalName = name || title;
 
    
-    if (!name || !price || stock === undefined || !location) {
+    if (!finalName || !price || stock === undefined || !location) {
       return res.status(400).json({ message: 'Missing required product fields.' });
     }
 
@@ -119,7 +136,8 @@ router.post('/', authenticateToken, async (req, res) => {
     const farmerName = sellerUser ? sellerUser.fullName : (req.user.fullName || 'Farmer User');
 
     const product = new Product({
-      name,
+      name: finalName,
+      title: title || name,
       category,
       price,
       priceUnit,
@@ -175,10 +193,12 @@ router.put('/:id', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Forbidden. Ownership verification failed.' });
     }
 
-    const { name, category, price, priceUnit, stock, stockUnit, location, image, description } = req.body;
+    const { name, title, category, price, priceUnit, stock, stockUnit, location, image, description } = req.body;
+    const finalName = name || title;
 
     
-    product.name = name ?? product.name;
+    product.name = finalName ?? product.name;
+    product.title = title ?? name ?? product.title;
     product.category = category ?? product.category;
     product.price = price !== undefined ? parseFloat(price) : product.price;
     product.priceUnit = priceUnit ?? product.priceUnit;
