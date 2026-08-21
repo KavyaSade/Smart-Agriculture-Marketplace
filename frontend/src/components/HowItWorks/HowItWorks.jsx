@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import './HowItWorks.css';
 
 export default function HowItWorks() {
@@ -34,14 +35,20 @@ export default function HowItWorks() {
       <div className="how-it-works-container">
         
         {/* Header */}
-        <div className="how-it-works-header">
+        <motion.div 
+          className="how-it-works-header"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+        >
           <span className="how-it-works-badge">
             How It Works
           </span>
           <h2 className="how-it-works-title">
             Buy and Sell in 4 Easy Steps
           </h2>
-        </div>
+        </motion.div>
 
         {/* Steps Grid */}
         <div className="how-it-works-grid-wrapper">
@@ -50,7 +57,14 @@ export default function HowItWorks() {
 
           <div className="how-it-works-grid">
             {steps.map((step, idx) => (
-              <div className="how-it-works-step group" key={idx}>
+              <motion.div 
+                className="how-it-works-step group" 
+                key={idx}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.1 }}
+              >
                 <div className="how-it-works-number">
                   {step.number}
                 </div>
@@ -59,7 +73,7 @@ export default function HowItWorks() {
                 </div>
                 <h3 className="how-it-works-step-title">{step.title}</h3>
                 <p className="how-it-works-step-desc">{step.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -68,3 +82,5 @@ export default function HowItWorks() {
     </section>
   );
 }
+
+

@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import './Features.css';
 
 export default function Features() {
@@ -34,7 +35,13 @@ export default function Features() {
       <div className="features-container">
         
         {/* Header */}
-        <div className="features-header">
+        <motion.div 
+          className="features-header"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+        >
           <span className="features-badge">
             Features
           </span>
@@ -44,12 +51,19 @@ export default function Features() {
           <p className="features-desc">
             We make buying and selling farm products simple, safe, and reliable.
           </p>
-        </div>
+        </motion.div>
 
         {/* Features Grid */}
         <div className="features-grid">
           {featuresList.map((feature, idx) => (
-            <div className="feature-card" key={idx}>
+            <motion.div 
+              className="feature-card" 
+              key={idx}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: idx * 0.1 }}
+            >
               {/* Floating Icon Badge */}
               <div className="feature-icon-badge">
                 {feature.icon}
@@ -68,7 +82,7 @@ export default function Features() {
                   <p className="feature-card-desc">{feature.desc}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
 
@@ -76,3 +90,5 @@ export default function Features() {
     </section>
   );
 }
+
+

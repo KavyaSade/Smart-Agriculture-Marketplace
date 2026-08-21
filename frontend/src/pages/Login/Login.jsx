@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { pageVariants, buttonPress } from '../../utils/animations';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Login.css';
@@ -13,215 +12,284 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('buyer'); // 'buyer', 'farmer', or 'admin'
-  const [show2FAVerify, setShow2FAVerify] = useState(false);
-  const [twoFAData, setTwoFAData] = useState({ email: '', role: '', tempCode: '' });
-
-  const handleGoogleClick = async () => {
-    setIsSubmitting(true);
-    setSubmitMessage('');
-    setErrors({});
-    
-    const result = await loginWithGoogle(role);
-    setIsSubmitting(false);
-
-    if (result.success) {
-      if (result.require2FA) {
-        setTwoFAData({ email: result.email, role: result.role, tempCode: result.tempCode });
-        setShow2FAVerify(true);
-        return;
-      }
-      setSubmitMessage('Successfully logged in with Google!');
-      setTimeout(() => {
-        if (role === 'buyer') {
-          navigate('/buyer-dashboard', { replace: true });
-        } else if (role === 'farmer') {
-          navigate('/farmer-dashboard', { replace: true });
-        } else if (role === 'retailer') {
-          navigate('/retailer-dashboard', { replace: true });
-        } else if (role === 'admin') {
-          navigate('/admin-dashboard', { replace: true });
-        } else {
-          navigate('/', { replace: true });
-        }
-      }, 1500);
-    } else {
-      setSubmitMessage(result.error || 'Google Login failed.');
-    }
-  };
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+  const [rememberMe, setRememberMe] = useState(false);
+
+  // Form Validation & Submission State
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
 
-  const handleRoleChange = (newRole) => {
-    setRole(newRole);
-    if (newRole === 'admin') {
+  // 2FA Flow state
+  const [show2FAVerify, setShow2FAVerify] = useState(false);
+  const [twoFAData, setTwoFAData] = useState({ email: '', role: '', tempCode: '' });
+
+  // Handle URL redirect query param if any
+  const queryParams = new URLSearchParams(window.location.search);
+  const redirectPath = queryParams.get('redirect');
+
+  // Handle URL role param if any
+  const roleParam = queryParams.get('role');
+  useEffect(() => {
+    if (roleParam && ['buyer', 'farmer', 'retailer', 'admin'].includes(roleParam)) {
+      setRole(roleParam);
+    }
+  }, [roleParam]);
+
+  // If already logged in, redirect home
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userRole = localStorage.getItem('role');
+    if (token && userRole) {
+      if (userRole === 'buyer') navigate('/buyer-dashboard');
+      else if (userRole === 'farmer') navigate('/farmer-dashboard');
+      else if (userRole === 'retailer') navigate('/retailer-dashboard');
+      else if (userRole === 'admin') navigate('/admin-dashboard');
+      else navigate('/');
+    }
+  }, [navigate]);
+
+  const handleRoleChange = (selectedRole) => {
+    setRole(selectedRole);
+    if (selectedRole === 'admin') {
       setEmail('admin@gmail.com');
       setPassword('admin123');
-      setErrors({});
     } else {
       setEmail('');
       setPassword('');
-      setErrors({});
     }
+    setErrors({});
+    setSubmitMessage('');
   };
 
-  const validate = () => {
+  const validateForm = () => {
     const tempErrors = {};
     if (!email) {
-      tempErrors.email = 'Email address is required';
+      tempErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       tempErrors.email = 'Please enter a valid email address';
     }
-    
+
     if (!password) {
       tempErrors.password = 'Password is required';
     } else if (password.length < 6) {
-      tempErrors.password = 'Password must be at least 6 characters long';
+      tempErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-    
+  const handleGoogleClick = async () => {
     setIsSubmitting(true);
     setSubmitMessage('');
-    
-    const result = await login(email, password, role);
-    setIsSubmitting(false);
 
-    if (result.success) {
-      if (result.require2FA) {
-        setTwoFAData({ email: result.email, role: result.role, tempCode: result.tempCode });
-        setShow2FAVerify(true);
-        return;
-      }
-      setSubmitMessage('Successfully logged in! Redirecting to marketplace...');
-      setTimeout(() => {
-        if (role === 'buyer') {
-          navigate('/buyer-dashboard', { replace: true });
-        } else if (role === 'farmer') {
-          navigate('/farmer-dashboard', { replace: true });
-        } else if (role === 'retailer') {
-          navigate('/retailer-dashboard', { replace: true });
-        } else if (role === 'admin') {
-          navigate('/admin-dashboard', { replace: true });
-        } else {
-          navigate('/', { replace: true });
+    try {
+      const result = await loginWithGoogle(role);
+
+      if (result.success) {
+        if (result.require2FA) {
+          setTwoFAData({ email: result.email, role: result.role, tempCode: result.tempCode });
+          setShow2FAVerify(true);
+          setIsSubmitting(false);
+          return;
         }
-      }, 1500);
-    } else {
-      setSubmitMessage(result.error || 'Invalid credentials or role selection.');
+        setSubmitMessage('Successfully logged in with Google!');
+
+        setTimeout(() => {
+          if (role === 'buyer') navigate('/buyer-dashboard');
+          else if (role === 'farmer') navigate('/farmer-dashboard');
+          else if (role === 'retailer') navigate('/retailer-dashboard');
+          else if (role === 'admin') navigate('/admin-dashboard');
+          else navigate('/');
+        }, 1000);
+      } else {
+        setSubmitMessage(result.error || 'Google login failed. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      setSubmitMessage('Google login error. Please try again.');
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    setIsSubmitting(true);
+    setSubmitMessage('');
+
+    try {
+      const result = await login(email, password, role);
+
+      if (result.success) {
+        if (result.require2FA) {
+          setTwoFAData({
+            email,
+            role,
+            tempCode: result.tempCode
+          });
+          setShow2FAVerify(true);
+          setIsSubmitting(false);
+        } else {
+          setSubmitMessage('Successfully logged in! Redirecting...');
+
+          setTimeout(() => {
+            if (role === 'buyer') {
+              navigate(redirectPath || '/buyer-dashboard');
+            } else if (role === 'farmer') {
+              navigate(redirectPath || '/farmer-dashboard');
+            } else if (role === 'retailer') {
+              navigate(redirectPath || '/retailer-dashboard');
+            } else if (role === 'admin') {
+              navigate('/admin-dashboard');
+            } else {
+              navigate('/');
+            }
+          }, 1000);
+        }
+      } else {
+        setSubmitMessage(result.error || 'Invalid credentials or role selection.');
+        setIsSubmitting(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmitMessage(err.message || 'Invalid credentials or role selection.');
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        
-        {/* Left Side: Graphic & Marketing Info (Visible on Desktop) */}
+
         <div className="login-graphic">
           <div className="login-graphic-overlay"></div>
-          <img 
-            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=1000&fm=jpg" 
-            alt="Organic farming fresh produce" 
+          <motion.img
+            src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=1000&fm=jpg"
+            alt="Organic farming fresh produce"
             className="login-graphic-bg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
           />
           <div className="login-graphic-content">
-            <div className="login-logo">
+            <motion.div
+              className="login-logo"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
               <Leaf className="login-logo-icon" size={28} />
               <span>Agri<span className="logo-accent">Market</span></span>
-            </div>
-            
+            </motion.div>
+
             <div className="login-graphic-middle">
-              <span className="login-graphic-tag">
+              <motion.span
+                className="login-graphic-tag"
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
                 Smart Agriculture Marketplace
-              </span>
-              <h1 className="login-graphic-headline">
+              </motion.span>
+              <motion.h1
+                className="login-graphic-headline"
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
                 Trade directly. <br />Earn better. <br />Eat fresher.
-              </h1>
-              <p className="login-graphic-subtext">
+              </motion.h1>
+              <motion.p
+                className="login-graphic-subtext"
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
                 Connecting verified farmers directly with wholesale buyers and consumers with secure escrow payments.
-              </p>
+              </motion.p>
             </div>
 
-            <div className="login-graphic-footer">
+            <motion.div
+              className="login-graphic-footer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               <span>&copy; AgriMarket</span>
-            </div>
+            </motion.div>
           </div>
         </div>
 
         {/* Right Side: Form Card */}
         <div className="login-form-wrapper">
-          <motion.div 
+          <motion.div
             className="login-form-card"
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <Link to="/" className="back-home-link">
-              <ArrowLeft size={16} /> Back to home
-            </Link>
-            <div className="login-form-header">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <Link to="/" className="back-home-link">
+                <ArrowLeft size={16} /> Back to home
+              </Link>
+            </motion.div>
+
+            <motion.div
+              className="login-form-header"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
               <div className="mobile-logo">
                 <Leaf className="login-logo-icon" size={24} />
                 <span>Agri<span className="logo-accent">Market</span></span>
               </div>
               <h2>Welcome Back</h2>
               <p>Enter your credentials to manage your agricultural trade</p>
-            </div>
+            </motion.div>
 
-            <div className="role-selector-container">
-              <motion.button 
-                type="button" 
+            <motion.div
+              className="role-selector-container"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+            >
+              <button
+                type="button"
                 className={`role-select-btn ${role === 'buyer' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('buyer')}
-                whileHover="hover"
-                whileTap="tap"
-                variants={buttonPress}
               >
                 Buyer
-              </motion.button>
-              <motion.button 
-                type="button" 
+              </button>
+              <button
+                type="button"
                 className={`role-select-btn ${role === 'farmer' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('farmer')}
-                whileHover="hover"
-                whileTap="tap"
-                variants={buttonPress}
               >
                 Farmer
-              </motion.button>
-              <motion.button 
-                type="button" 
+              </button>
+              <button
+                type="button"
                 className={`role-select-btn ${role === 'retailer' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('retailer')}
-                whileHover="hover"
-                whileTap="tap"
-                variants={buttonPress}
               >
                 Retailer
-              </motion.button>
-              <motion.button 
-                type="button" 
+              </button>
+              <button
+                type="button"
                 className={`role-select-btn ${role === 'admin' ? 'active' : ''}`}
                 onClick={() => handleRoleChange('admin')}
-                whileHover="hover"
-                whileTap="tap"
-                variants={buttonPress}
               >
                 Admin
-              </motion.button>
-            </div>
-
-
-
+              </button>
+            </motion.div>
 
             {submitMessage && (
               <div className={`form-alert ${submitMessage.includes('Successfully') ? 'alert-success' : 'alert-error'}`}>
@@ -231,7 +299,12 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className="login-form">
               {/* Email Input */}
-              <div className="form-group">
+              <motion.div
+                className="form-group"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+              >
                 <label className="form-label" htmlFor="email">Email</label>
                 <div className="input-with-icon">
                   <Mail className="input-icon" size={20} />
@@ -245,10 +318,15 @@ export default function Login() {
                   />
                 </div>
                 {errors.email && <span className="error-text">{errors.email}</span>}
-              </div>
+              </motion.div>
 
               {/* Password Input */}
-              <div className="form-group">
+              <motion.div
+                className="form-group"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.5 }}
+              >
                 <div className="label-row">
                   <label className="form-label" htmlFor="password">Password</label>
                   <Link to="/forgot-password" className="forgot-password-link">Forgot password?</Link>
@@ -273,10 +351,15 @@ export default function Login() {
                   </button>
                 </div>
                 {errors.password && <span className="error-text">{errors.password}</span>}
-              </div>
+              </motion.div>
 
               {/* Remember Me */}
-              <div className="remember-row">
+              <motion.div
+                className="remember-row"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+              >
                 <label className="checkbox-container">
                   <input
                     type="checkbox"
@@ -286,27 +369,44 @@ export default function Login() {
                   <span className="checkmark"></span>
                   Remember me on this device
                 </label>
-              </div>
+              </motion.div>
 
               {/* Submit Button */}
-              <button 
-                type="submit" 
-                className="btn btn-primary w-full login-submit-btn"
-                disabled={isSubmitting}
+              <motion.div
+                className="w-full"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.7 }}
               >
-                {isSubmitting ? 'Verifying Account...' : `Log In as ${role === 'farmer' ? 'Farmer' : role === 'retailer' ? 'Retailer' : role.charAt(0).toUpperCase() + role.slice(1)}`}
-              </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary w-full login-submit-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Verifying Account...' : `Log In as ${role === 'farmer' ? 'Farmer' : role === 'retailer' ? 'Retailer' : role.charAt(0).toUpperCase() + role.slice(1)}`}
+                </button>
+              </motion.div>
             </form>
 
             {role !== 'admin' && (
               <>
-                <div className="social-divider">
+                <motion.div
+                  className="social-divider"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.8 }}
+                >
                   <span>or</span>
-                </div>
+                </motion.div>
 
-                <div className="social-login-actions">
-                  <button 
-                    type="button" 
+                <motion.div
+                  className="social-login-actions"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.9 }}
+                >
+                  <button
+                    type="button"
                     className="google-signin-btn"
                     onClick={handleGoogleClick}
                     disabled={isSubmitting}
@@ -314,13 +414,18 @@ export default function Login() {
                     <img src="/src/assets/icons/google.png" alt="Google" className="google-icon" width="18" height="18" />
                     <span>Sign In with Google</span>
                   </button>
-                </div>
+                </motion.div>
               </>
             )}
 
-            <div className="login-footer">
+            <motion.div
+              className="login-footer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 1.0 }}
+            >
               <p>Don't have an account? <Link to="/signup" className="register-link">Sign Up Now</Link></p>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>

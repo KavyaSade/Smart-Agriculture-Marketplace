@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { pageVariants } from '../../utils/animations';
-import { 
+import { pageVariants } from '../../utils/animations';import { 
   LayoutDashboard, 
   Search, 
   ShoppingCart, 

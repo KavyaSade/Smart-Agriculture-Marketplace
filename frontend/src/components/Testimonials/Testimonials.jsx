@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import './Testimonials.css';
 
 export default function Testimonials() {
@@ -27,26 +28,17 @@ export default function Testimonials() {
   ];
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [fade, setFade] = useState(true);
 
   // Auto-slide effect
   useEffect(() => {
     const timer = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setActiveIndex((prevIndex) => (prevIndex + 1) % reviews.length);
-        setFade(true);
-      }, 300); // match fade transition
+      setActiveIndex((prevIndex) => (prevIndex + 1) % reviews.length);
     }, 6000);
     return () => clearInterval(timer);
   }, [reviews.length]);
 
   const handleDotClick = (index) => {
-    setFade(false);
-    setTimeout(() => {
-      setActiveIndex(index);
-      setFade(true);
-    }, 300);
+    setActiveIndex(index);
   };
 
   return (
@@ -54,14 +46,20 @@ export default function Testimonials() {
       <div className="testimonials-container">
         
         {/* Header */}
-        <div className="testimonials-header">
+        <motion.div 
+          className="testimonials-header"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+        >
           <span className="testimonials-badge">
             Testimonials
           </span>
           <h2 className="testimonials-title">
             What Our Customers Say
           </h2>
-        </div>
+        </motion.div>
 
         {/* Testimonials Slider */}
         <div className="testimonials-slider-wrapper">
@@ -72,7 +70,13 @@ export default function Testimonials() {
               <img src="/src/assets/icons/quote.png" alt="Quote" className="testimonials-quote-img" />
             </div>
             
-            <div className={`transition-all duration-300 relative z-10 ${fade ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+            <motion.div
+              key={activeIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className="relative z-10"
+            >
               <div className="testimonials-stars">
                 {[...Array(5)].map((_, i) => (
                   <svg
@@ -100,7 +104,7 @@ export default function Testimonials() {
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
           </div>
 
@@ -121,3 +125,5 @@ export default function Testimonials() {
     </section>
   );
 }
+
+

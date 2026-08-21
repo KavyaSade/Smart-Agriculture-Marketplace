@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, Star, MapPin, Phone, Mail, Award, Leaf, ShoppingCart } from 'lucide-react';
 import { motion } from 'motion/react';
 import { modalBackdropVariants, modalContainerVariants } from '../utils/animations';
-
 export default function FarmerProfileModal({ farmerEmail, onClose, handleAddToCart, onProductClick, onStartChat }) {
   const [profile, setProfile] = useState(null);
   const [listings, setListings] = useState([]);

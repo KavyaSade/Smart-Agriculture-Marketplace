@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { pageVariants } from '../../utils/animations';
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowLeft, Leaf } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Register.css';
@@ -9,30 +8,38 @@ import './Register.css';
 export default function Register() {
   const navigate = useNavigate();
   const { register, loginWithGoogle } = useAuth();
-  
+
   const handleGoogleClick = async () => {
     setIsSubmitting(true);
     setSubmitMessage('');
     setErrors({});
-    
+
     const result = await loginWithGoogle(formData.role);
     setIsSubmitting(false);
 
     if (result.success) {
-      setSubmitMessage('Successfully registered and logged in with Google!');
+      setSubmitMessage('Google registration successful!');
       setTimeout(() => {
-        navigate('/', { replace: true });
+        if (formData.role === 'buyer') {
+          navigate('/buyer-dashboard', { replace: true });
+        } else if (formData.role === 'farmer') {
+          navigate('/farmer-dashboard', { replace: true });
+        } else if (formData.role === 'retailer') {
+          navigate('/retailer-dashboard', { replace: true });
+        } else {
+          navigate('/', { replace: true });
+        }
       }, 1500);
     } else {
-      setSubmitMessage(result.error || 'Google Registration failed.');
+      setSubmitMessage(result.error || 'Google Login failed.');
     }
   };
-  
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
-    role: 'farmer', // Default to farmer
+    role: 'buyer',
     password: '',
     confirmPassword: '',
     agreeTerms: false
@@ -40,26 +47,43 @@ export default function Register() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  // Validation & Submission State
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
-  const [passwordFocused, setPasswordFocused] = useState(false);
+
+  // Password strength checks
+  const checks = {
+    length: formData.password.length >= 8,
+    capital: /[A-Z]/.test(formData.password),
+    special: /[^A-Za-z0-9]/.test(formData.password)
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    setFormData({
+      ...formData,
       [name]: type === 'checkbox' ? checked : value
-    }));
+    });
+    // Clear errors when field is typed
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
+    if (submitMessage) {
+      setSubmitMessage('');
+    }
   };
 
   const validate = () => {
     const tempErrors = {};
+
     if (!formData.fullName.trim()) {
       tempErrors.fullName = 'Full name is required';
     }
-    
-    if (!formData.email) {
+
+    if (!formData.email.trim()) {
       tempErrors.email = 'Email address is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       tempErrors.email = 'Please enter a valid email address';
@@ -67,25 +91,16 @@ export default function Register() {
 
     if (!formData.phone.trim()) {
       tempErrors.phone = 'Phone number is required';
-    } else if (!/^\+?[0-9\s-]{8,15}$/.test(formData.phone)) {
-      tempErrors.phone = 'Please enter a valid phone number';
+    } else if (!/^\d{10}$/.test(formData.phone.replace(/[\s-()]/g, ''))) {
+      tempErrors.phone = 'Please enter a valid 10-digit phone number';
     }
 
     if (!formData.password) {
       tempErrors.password = 'Password is required';
     } else {
-      const password = formData.password;
-      const hasCapital = /[A-Z]/.test(password);
-      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-      const isMinLength = password.length >= 8;
-      
-      if (!isMinLength) {
-        tempErrors.password = 'Password must be at least 8 characters';
-      } else if (!hasCapital) {
-        tempErrors.password = 'Password must contain at least 1 uppercase letter';
-      } else if (!hasSpecial) {
-        tempErrors.password = 'Password must contain at least 1 special character (e.g., !@#$%^&*)';
-      }
+      if (!checks.length) tempErrors.password = 'Password must be at least 8 characters long';
+      else if (!checks.capital) tempErrors.password = 'Password must contain at least 1 uppercase letter';
+      else if (!checks.special) tempErrors.password = 'Password must contain at least 1 special character';
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -93,7 +108,7 @@ export default function Register() {
     }
 
     if (!formData.agreeTerms) {
-      tempErrors.agreeTerms = 'You must agree to the Terms & Conditions';
+      tempErrors.agreeTerms = 'You must agree to the terms and privacy policy';
     }
 
     setErrors(tempErrors);
@@ -107,88 +122,142 @@ export default function Register() {
     setIsSubmitting(true);
     setSubmitMessage('');
 
-    const registerData = {
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      role: formData.role,
-      password: formData.password
-    };
+    try {
+      const result = await register({
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        role: formData.role
+      });
+      setIsSubmitting(false);
 
-    const result = await register(registerData);
-    setIsSubmitting(false);
+      if (result.success) {
+        setFormData({
+          fullName: '',
+          email: '',
+          phone: '',
+          role: 'buyer',
+          password: '',
+          confirmPassword: '',
+          agreeTerms: false
+        });
+        setSubmitMessage('Account created successfully! Redirecting...');
 
-    if (result.success) {
-      setSubmitMessage('Account registered successfully! Redirecting to login...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
-    } else {
-      setSubmitMessage(result.error || 'Failed to register account.');
+        setTimeout(() => {
+          if (formData.role === 'buyer') {
+            navigate('/buyer-dashboard', { replace: true });
+          } else if (formData.role === 'farmer') {
+            navigate('/farmer-dashboard', { replace: true });
+          } else if (formData.role === 'retailer') {
+            navigate('/retailer-dashboard', { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
+        }, 1500);
+      } else {
+        setSubmitMessage(result.error || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmitMessage(err.message || 'Registration failed. Please try again.');
+      setIsSubmitting(false);
     }
-  };
-
-  const checks = {
-    length: formData.password.length >= 8,
-    capital: /[A-Z]/.test(formData.password),
-    special: /[!@#$%^&*(),.?":{}|<>]/.test(formData.password),
   };
 
   return (
     <div className="register-page">
       <div className="register-container">
-        
-        {/* Left Side: Graphic & Marketing Info (Visible on Desktop) */}
         <div className="register-graphic">
           <div className="register-graphic-overlay"></div>
-          <img 
-            src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?q=80&w=1000&auto=format&fit=crop&fm=jpg" 
-            alt="Farmers working in field" 
+          <motion.img
+            src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=1000"
+            alt="Beautiful green agriculture field"
             className="register-graphic-bg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
           />
           <div className="register-graphic-content">
-            <div className="register-logo">
+            <motion.div
+              className="register-logo"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
               <Leaf className="register-logo-icon" size={28} />
               <span>Agri<span className="logo-accent">Market</span></span>
-            </div>
-            
+            </motion.div>
+
             <div className="register-graphic-middle">
-              <span className="register-graphic-tag">
-                Smart Agriculture Marketplace
-              </span>
-              <h1 className="register-graphic-headline">
-                Grow your business. <br />Trade securely. <br />Succeed together.
-              </h1>
-              <p className="register-graphic-subtext">
-                Create a free account to list your products or start buying directly from verified growers.
-              </p>
+              <motion.span
+                className="register-graphic-tag"
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                Direct Trading Escrow platform
+              </motion.span>
+              <motion.h1
+                className="register-graphic-headline"
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                Connect. <br />Trade Securely. <br />Grow Together.
+              </motion.h1>
+              <motion.p
+                className="register-graphic-subtext"
+                initial={{ opacity: 0, x: -15 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                Creating trust in local trade through verified identities and secure payments.
+              </motion.p>
             </div>
 
-            <div className="register-graphic-footer">
+            <motion.div
+              className="register-graphic-footer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               <span>&copy; AgriMarket</span>
-            </div>
+            </motion.div>
           </div>
         </div>
 
         {/* Right Side: Form Card */}
         <div className="register-form-wrapper">
-          <motion.div 
+          <motion.div
             className="register-form-card"
-            variants={pageVariants}
-            initial="initial"
-            animate="animate"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <Link to="/" className="back-home-link">
-              <ArrowLeft size={16} /> Back to home
-            </Link>
-            <div className="register-form-header">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <Link to="/" className="back-home-link">
+                <ArrowLeft size={16} /> Back to home
+              </Link>
+            </motion.div>
+
+            <motion.div
+              className="register-form-header"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
               <div className="mobile-logo">
                 <Leaf className="register-logo-icon" size={24} />
                 <span>Agri<span className="logo-accent">Market</span></span>
               </div>
               <h2>Create Account</h2>
               <p>Register as a farmer or a buyer and start trading today</p>
-            </div>
+            </motion.div>
 
             {submitMessage && (
               <div className={`form-alert ${submitMessage.includes('successfully') ? 'alert-success' : 'alert-error'}`}>
@@ -199,7 +268,12 @@ export default function Register() {
             <form onSubmit={handleSubmit} className="register-form">
               <div className="register-form-grid">
                 {/* Full Name */}
-                <div className="form-group">
+                <motion.div
+                  className="form-group"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.3 }}
+                >
                   <label className="form-label" htmlFor="fullName">Your Name</label>
                   <div className="input-with-icon">
                     <User className="input-icon" size={20} />
@@ -214,10 +288,15 @@ export default function Register() {
                     />
                   </div>
                   {errors.fullName && <span className="error-text">{errors.fullName}</span>}
-                </div>
+                </motion.div>
 
                 {/* Email Address */}
-                <div className="form-group">
+                <motion.div
+                  className="form-group"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.35 }}
+                >
                   <label className="form-label" htmlFor="email">Email</label>
                   <div className="input-with-icon">
                     <Mail className="input-icon" size={20} />
@@ -232,10 +311,15 @@ export default function Register() {
                     />
                   </div>
                   {errors.email && <span className="error-text">{errors.email}</span>}
-                </div>
+                </motion.div>
 
                 {/* Phone Number */}
-                <div className="form-group">
+                <motion.div
+                  className="form-group"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 }}
+                >
                   <label className="form-label" htmlFor="phone">Phone Number</label>
                   <div className="input-with-icon">
                     <Phone className="input-icon" size={20} />
@@ -250,10 +334,15 @@ export default function Register() {
                     />
                   </div>
                   {errors.phone && <span className="error-text">{errors.phone}</span>}
-                </div>
+                </motion.div>
 
                 {/* Role Selection Dropdown */}
-                <div className="form-group">
+                <motion.div
+                  className="form-group"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.45 }}
+                >
                   <label className="form-label" htmlFor="role">Register As</label>
                   <select
                     id="role"
@@ -266,10 +355,15 @@ export default function Register() {
                     <option value="farmer">Farmer (Sell Crops)</option>
                     <option value="retailer">Retailer</option>
                   </select>
-                </div>
+                </motion.div>
 
                 {/* Password */}
-                <div className="form-group">
+                <motion.div
+                  className="form-group"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.5 }}
+                >
                   <label className="form-label" htmlFor="password">Password</label>
                   <div className="input-with-icon">
                     <Lock className="input-icon" size={20} />
@@ -294,6 +388,7 @@ export default function Register() {
                     </button>
                   </div>
                   {errors.password && <span className="error-text">{errors.password}</span>}
+
                   {passwordFocused && (
                     <ul className="password-checklist">
                       <li className={checks.length ? 'checked' : 'unchecked'}>
@@ -307,10 +402,15 @@ export default function Register() {
                       </li>
                     </ul>
                   )}
-                </div>
+                </motion.div>
 
                 {/* Confirm Password */}
-                <div className="form-group">
+                <motion.div
+                  className="form-group"
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.55 }}
+                >
                   <label className="form-label" htmlFor="confirmPassword">Confirm Password</label>
                   <div className="input-with-icon">
                     <Lock className="input-icon" size={20} />
@@ -333,11 +433,16 @@ export default function Register() {
                     </button>
                   </div>
                   {errors.confirmPassword && <span className="error-text">{errors.confirmPassword}</span>}
-                </div>
+                </motion.div>
               </div>
 
               {/* Agree to terms */}
-              <div className="remember-row">
+              <motion.div
+                className="remember-row"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.6 }}
+              >
                 <label className="checkbox-container">
                   <input
                     type="checkbox"
@@ -349,25 +454,42 @@ export default function Register() {
                   I agree to the <a href="#terms" className="terms-link">Terms of Service</a> & <a href="#privacy" className="terms-link">Privacy Policy</a>
                 </label>
                 {errors.agreeTerms && <span className="error-text block mt-1">{errors.agreeTerms}</span>}
-              </div>
+              </motion.div>
 
               {/* Submit Button */}
-              <button 
-                type="submit" 
-                className="btn btn-primary w-full register-submit-btn"
-                disabled={isSubmitting}
+              <motion.div
+                className="w-full"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.65 }}
               >
-                {isSubmitting ? 'Creating Account...' : 'Register Account'}
-              </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary w-full register-submit-btn"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Creating Account...' : 'Register Account'}
+                </button>
+              </motion.div>
             </form>
 
-            <div className="social-divider">
+            <motion.div
+              className="social-divider"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.7 }}
+            >
               <span>or register with</span>
-            </div>
+            </motion.div>
 
-            <div className="social-login-actions">
-              <button 
-                type="button" 
+            <motion.div
+              className="social-login-actions"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.75 }}
+            >
+              <button
+                type="button"
                 className="google-signin-btn"
                 onClick={handleGoogleClick}
                 disabled={isSubmitting}
@@ -375,11 +497,16 @@ export default function Register() {
                 <img src="/src/assets/icons/google.png" alt="Google" className="google-icon" width="18" height="18" />
                 <span>Sign Up with Google</span>
               </button>
-            </div>
+            </motion.div>
 
-            <div className="register-footer">
+            <motion.div
+              className="register-footer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.8 }}
+            >
               <p>Already have an account? <Link to="/login" className="register-link">Log In</Link></p>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>

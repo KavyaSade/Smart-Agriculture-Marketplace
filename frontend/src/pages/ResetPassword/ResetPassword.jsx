@@ -5,7 +5,6 @@ import { pageVariants } from '../../utils/animations';
 import { Mail, ArrowLeft, Leaf, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './ResetPassword.css';
-
 export default function ResetPassword() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');

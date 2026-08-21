@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import './Contact.css';
 
 export default function Contact() {
@@ -38,7 +39,13 @@ export default function Contact() {
       <div className="contact-container">
         
         {/* Header */}
-        <div className="contact-header">
+        <motion.div 
+          className="contact-header"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+        >
           <span className="contact-badge">
             Contact Us
           </span>
@@ -48,7 +55,7 @@ export default function Contact() {
           <p className="contact-desc">
             Have questions about trading, verification, or escrow payments? Our support team is here to help you.
           </p>
-        </div>
+        </motion.div>
 
         {/* Content Grid */}
         <div className="contact-grid">
@@ -58,7 +65,13 @@ export default function Contact() {
             <div className="contact-cards-list">
               
               {/* Card 1: Phone */}
-              <div className="contact-info-card">
+              <motion.div 
+                className="contact-info-card" 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+              >
                 <div className="contact-card-icon-wrapper">
                   <img src="/src/assets/icons/phone.png" alt="Phone" className="contact-card-icon" />
                 </div>
@@ -67,10 +80,16 @@ export default function Contact() {
                   <p className="contact-card-val">987654321</p>
                   <p className="contact-card-sub">Mon-Fri 9am - 6pm</p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Card 2: Email */}
-              <div className="contact-info-card">
+              <motion.div 
+                className="contact-info-card" 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
                 <div className="contact-card-icon-wrapper">
                   <img src="/src/assets/icons/gmail.png" alt="Email" className="contact-card-icon" />
                 </div>
@@ -80,10 +99,16 @@ export default function Contact() {
                   <p className="contact-card-val">kavya@shnoor.com</p>
                   <p className="contact-card-sub">For general and sales inquiries</p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Card 3: Address */}
-              <div className="contact-info-card">
+              <motion.div 
+                className="contact-info-card" 
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+              >
                 <div className="contact-card-icon-wrapper">
                   <img src="/src/assets/icons/marker.png" alt="Location" className="contact-card-icon" />
                 </div>
@@ -92,12 +117,18 @@ export default function Contact() {
                   <p className="contact-card-val">AgriMarket</p>
                   <p className="contact-card-sub">Eluru District, Andhra Pradesh, India</p>
                 </div>
-              </div>
+              </motion.div>
 
             </div>
 
             {/* Support Hours Card */}
-            <div className="contact-hours-box">
+            <motion.div 
+              className="contact-hours-box"
+              initial={{ opacity: 0, y: 25 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <h4 className="hours-title">Support Hours</h4>
               <div className="hours-row">
                 <span>Monday - Friday:</span>
@@ -111,11 +142,17 @@ export default function Contact() {
                 <span>Sunday:</span>
                 <span className="text-muted font-bold">Closed</span>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Right Side: Message Submission Form Card */}
-          <div className="contact-form-column">
+          <motion.div 
+            className="contact-form-column"
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
+            transition={{ duration: 0.5 }}
+          >
             <div className="contact-form-card">
               
               {!submitted ? (
@@ -180,10 +217,15 @@ export default function Contact() {
                     ></textarea>
                   </div>
 
-                  <button type="submit" className="btn btn-primary contact-submit-btn">
+                  <motion.button 
+                    type="submit" 
+                    className="btn btn-primary contact-submit-btn"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
                     Send Message
                     <img src="/src/assets/icons/paper-plane.png" alt="Send" className="contact-btn-icon" />
-                  </button>
+                  </motion.button>
                 </form>
               ) : (
                 <div className="contact-success-state">
@@ -204,7 +246,7 @@ export default function Contact() {
               )}
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
 
@@ -212,3 +254,4 @@ export default function Contact() {
     </section>
   );
 }
+

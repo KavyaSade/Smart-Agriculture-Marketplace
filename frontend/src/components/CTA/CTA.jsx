@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'motion/react';
 import './CTA.css';
 
 export default function CTA() {
@@ -7,7 +8,13 @@ export default function CTA() {
       <div className="cta-container">
         
         {/* Farmers Card */}
-        <div className="cta-card-farmers">
+        <motion.div 
+          className="cta-card-farmers"
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5 }}
+        >
           <div>
             <div className="cta-icon-wrapper-farmers">
               <img src="/src/assets/icons/wheat.png" alt="Wheat" className="w-[30px] h-[30px] object-contain" />
@@ -20,10 +27,16 @@ export default function CTA() {
           <a href="#how-it-works" className="btn btn-primary cta-card-btn-farmers">
             Learn More &rarr;
           </a>
-        </div>
+        </motion.div>
 
         {/* Buyers Card */}
-        <div className="cta-card-buyers">
+        <motion.div 
+          className="cta-card-buyers"
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5 }}
+        >
           <div>
             <div className="cta-icon-wrapper-buyers">
               <img src="/src/assets/icons/shopping-bag.png" alt="ShoppingBag" className="w-[30px] h-[30px] object-contain" />
@@ -36,9 +49,10 @@ export default function CTA() {
           <a href="#categories" className="btn btn-accent cta-card-btn-buyers">
             Browse Products &rarr;
           </a>
-        </div>
+        </motion.div>
 
       </div>
     </section>
   );
 }
+

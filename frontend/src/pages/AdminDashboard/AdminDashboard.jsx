@@ -330,13 +330,13 @@ export default function AdminDashboard() {
 
         {/* sign out button */}
         <div className="sidebar-footer">
-          <button 
+          <button
             onClick={() => {
               if (window.confirm("Are you sure you want to log out from platform admin?")) {
                 logout();
                 navigate('/');
               }
-            }} 
+            }}
             className="logout-button"
           >
             <img src="/src/assets/icons/logout.png" alt="" className="sidebar-link-img" />
@@ -350,8 +350,8 @@ export default function AdminDashboard() {
         {/* top header panel */}
         <header className="dashboard-topbar">
           <div className="flex items-center gap-4">
-            <button 
-              className="hamburger-toggle-menu" 
+            <button
+              className="hamburger-toggle-menu"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle sidebar"
             >
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
               </span>
             </div>
           </div>
-          
+
           <div className="topbar-actions">
             <NotificationBell />
           </div>

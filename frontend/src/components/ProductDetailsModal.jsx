@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { X, MapPin, User, MessageSquare, Send, Calendar } from 'lucide-react';
 import { motion } from 'motion/react';
 import { modalBackdropVariants, modalContainerVariants } from '../utils/animations';
-
 export default function ProductDetailsModal({ product, onClose, onOpenFarmer, currentUser }) {
   const [reviews, setReviews] = useState([]);
   const [loadingReviews, setLoadingReviews] = useState(true);

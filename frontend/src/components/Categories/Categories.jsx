@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import './Categories.css';
 
 export default function Categories() {
@@ -136,7 +137,13 @@ export default function Categories() {
       <div className="categories-container">
 
         {/* Header */}
-        <div className="categories-header">
+        <motion.div 
+          className="categories-header"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.5 }}
+        >
           <span className="categories-badge">
             Categories
           </span>
@@ -146,17 +153,20 @@ export default function Categories() {
           <p className="categories-desc">
             Choose from a wide range of farm products.
           </p>
-        </div>
+        </motion.div>
 
         {/* Categories Tab Selector */}
         <div className="categories-tabs">
           {categories.map((cat) => {
             const isActive = activeCategory === cat.id;
             return (
-              <button
+              <motion.button
                 key={cat.id}
                 className={`category-tab ${isActive ? 'category-tab-active' : 'category-tab-inactive'}`}
                 onClick={() => setActiveCategory(cat.id)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.15 }}
               >
                 <span className={`category-tab-icon ${isActive ? 'category-tab-icon-active' : 'category-tab-icon-inactive'}`}>
                   {cat.icon}
@@ -172,7 +182,7 @@ export default function Categories() {
                     {cat.count}
                   </span>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -181,7 +191,13 @@ export default function Categories() {
         <div className="products-grid-wrapper">
           <div className="products-grid">
             {featuredProducts[activeCategory].map((prod, idx) => (
-              <div key={idx} className="product-card">
+              <motion.div 
+                key={`${activeCategory}-${idx}`} 
+                className="product-card"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.05 }}
+              >
                 <img src={prod.image} alt={prod.name} className="product-card-img" />
                 <div className="product-card-tag">
                   Freshly Harvested
@@ -224,7 +240,7 @@ export default function Categories() {
                     View Details &rarr;
                   </Link>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -233,3 +249,4 @@ export default function Categories() {
     </section>
   );
 }
+

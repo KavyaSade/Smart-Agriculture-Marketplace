@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { pageVariants } from '../../utils/animations';
-import '../../components/Navbar/Navbar.css';
+import { pageVariants } from '../../utils/animations';import '../../components/Navbar/Navbar.css';
 import {
   LayoutDashboard,
   ShoppingBag,
