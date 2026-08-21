@@ -15,6 +15,7 @@ import Sales from './Sales/Sales';
 import Revenue from './Revenue/Revenue';
 import Profile from './Profile/Profile';
 import Settings from './Settings/Settings';
+import Reports from './Reports/Reports';
 
 export default function RetailerDashboard() {
   const navigate = useNavigate();
@@ -284,6 +285,15 @@ export default function RetailerDashboard() {
           </li>
           <li>
             <button
+              onClick={() => handleTabChange('reports')}
+              className={`sidebar-link ${activeTab === 'reports' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/graph.png" alt="" className="sidebar-link-img" />
+              <span>Reports</span>
+            </button>
+          </li>
+          <li>
+            <button
               onClick={() => handleTabChange('profile')}
               className={`sidebar-link ${activeTab === 'profile' ? 'active' : ''}`}
             >
@@ -364,6 +374,7 @@ export default function RetailerDashboard() {
                 {activeTab === 'orders' && 'Manage Orders'}
                 {activeTab === 'sales' && 'Sales Performance'}
                 {activeTab === 'revenue' && 'Revenue & Finance'}
+                {activeTab === 'reports' && 'Retailer Analytical Reports'}
                 {activeTab === 'profile' && 'Retailer Profile'}
                 {activeTab === 'settings' && 'Store Settings'}
                 {` • Welcome back, ${profile.fullName} • Store status: `}
@@ -449,6 +460,13 @@ export default function RetailerDashboard() {
                   transactions={transactions}
                   setTransactions={setTransactions}
                   setAlert={setAlert}
+                />
+              )}
+
+              {activeTab === 'reports' && (
+                <Reports 
+                  orders={orders}
+                  products={products}
                 />
               )}
 
