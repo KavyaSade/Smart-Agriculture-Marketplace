@@ -27,6 +27,7 @@ import Wishlist from './Wishlist/Wishlist';
 import Profile from './Profile/Profile';
 import SettingsTab from './Settings/Settings';
 import Chat from '../../components/Chat/Chat';
+import Reports from './Reports/Reports';
 
 export default function BuyerDashboard() {
   const navigate = useNavigate();
@@ -501,6 +502,15 @@ export default function BuyerDashboard() {
           </li>
           <li className="menu-item">
             <button 
+              onClick={() => handleTabChange('reports')} 
+              className={`menu-link ${activeTab === 'reports' ? 'active' : ''}`}
+            >
+              <img src="/src/assets/icons/graph.png" alt="" className="sidebar-link-img" />
+              <span>Reports</span>
+            </button>
+          </li>
+          <li className="menu-item">
+            <button 
               onClick={() => handleTabChange('wishlist')} 
               className={`menu-link ${activeTab === 'wishlist' ? 'active' : ''}`}
             >
@@ -582,6 +592,7 @@ export default function BuyerDashboard() {
               {activeTab === 'profile' && 'My Profile'}
               {activeTab === 'settings' && 'Account Settings'}
               {activeTab === 'chat' && 'Chat'}
+              {activeTab === 'reports' && 'Buyer Reports'}
             </h2>
             <p className="topnav-subtitle">
               {activeTab === 'dashboard' && `Support local farming by buying organic produce direct.`}
@@ -592,6 +603,7 @@ export default function BuyerDashboard() {
               {activeTab === 'profile' && 'Configure personal details, contact address, and photo.'}
               {activeTab === 'settings' && 'Manage your notifications and visual dashboard themes.'}
               {activeTab === 'chat' && 'discuss crops, pricing and delivery directly with farmers.'}
+              {activeTab === 'reports' && 'Analyze your spending patterns, purchase history, and savings.'}
             </p>
           </div>
 
@@ -742,6 +754,13 @@ export default function BuyerDashboard() {
               <Chat 
                 currentUser={user}
                 initialPartner={selectedChatPartner}
+              />
+            )}
+
+            {activeTab === 'reports' && (
+              <Reports 
+                orders={orders}
+                products={products}
               />
             )}
           </motion.div>
